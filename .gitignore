@@ -1,0 +1,9 @@
+*~
+*.pyc
+*.so
+*.egg-info
+.coverage
+.makefile
+__pycache__/
+build/
+dist/
