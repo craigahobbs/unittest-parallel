@@ -73,9 +73,3 @@ def _runtest(args):
     result = runner.run(test_suite)
     return ([_format_error(result, error) for error in result.errors],
             [_format_error(result, failure) for failure in result.failures])
-
-
-######################################################################
-
-if __name__ == '__main__':
-    sys.exit(main())
