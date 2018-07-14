@@ -1,11 +1,9 @@
-# Copyright (C) 2017 Craig Hobbs
+# Copyright (C) 2017-2018 Craig Hobbs
 #
 # Licensed under the MIT License
 # https://github.com/craigahobbs/unittest-parallel/blob/master/LICENSE
 
 from setuptools import setup
-
-TESTS_REQUIRE = []
 
 setup(
     name='unittest-parallel',
@@ -20,6 +18,7 @@ setup(
         "Environment :: Console",
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
+        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
@@ -27,12 +26,8 @@ setup(
     ],
     packages=['unittest_parallel'],
     install_requires=[],
-    test_suite='unittest_parallel.tests',
-    tests_require=TESTS_REQUIRE,
-    extras_require={
-        'tests': TESTS_REQUIRE,
-    },
     entry_points={
         'console_scripts': ['unittest-parallel = unittest_parallel:main'],
     },
+    test_suite='unittest_parallel.tests'
 )
