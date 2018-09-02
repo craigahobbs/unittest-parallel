@@ -8,5 +8,8 @@ PYTHON_VERSIONS := \
 
 COVERAGE_REPORT_ARGS := --fail-under 11
 
-$(shell if [ ! -f .makefile ]; then curl -s -o .makefile 'https://raw.githubusercontent.com/craigahobbs/chisel/master/Makefile.base'; fi)
+ifeq '$(wildcard .makefile)' ''
+    $(info Downloading base makefile...)
+    $(shell curl -s -o .makefile 'https://raw.githubusercontent.com/craigahobbs/chisel/master/Makefile.base')
+endif
 include .makefile
