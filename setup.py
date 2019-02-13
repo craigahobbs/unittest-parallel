@@ -5,7 +5,7 @@ from setuptools import setup
 
 setup(
     name='unittest-parallel',
-    version='0.2',
+    version='0.3',
     author='Craig Hobbs',
     author_email='craigahobbs@gmail.com',
     description=('Parallel unittest runner.'),
