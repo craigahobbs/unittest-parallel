@@ -1,5 +1,3 @@
-# Copyright (C) 2017-2018 Craig Hobbs
-#
 # Licensed under the MIT License
 # https://github.com/craigahobbs/unittest-parallel/blob/master/LICENSE
 
