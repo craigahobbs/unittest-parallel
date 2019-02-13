@@ -19,33 +19,39 @@ def main():
 
     # Command line parsing
     parser = argparse.ArgumentParser()
-    parser.add_argument('-q', '--quiet', dest='verbose', action="store_false", default=True,
-                        help='Run quietly (turns verbosity off)')
-    parser.add_argument('-v', '--verbose', dest='verbose', action="store_true", default=True,
-                        help='Run verbosely (default)')
-    parser.add_argument('-s', dest='start_dir', metavar='directory', default='.',
-                        help="Directory or dotted module name to start discovery ('.' default)")
-    parser.add_argument('-p', dest='pattern', metavar='pattern', default='test*.py',
-                        help="Pattern to match test files ('test*.py' default)")
-    parser.add_argument('-t', dest='top_level_dir', metavar='directory',
-                        help='Top level directory of project (default to start directory)')
-    parser.add_argument('-j', dest='process_count', metavar='count', type=int, default=0,
+    parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', default=True,
+                        help='Verbose output')
+    parser.add_argument('-q', '--quiet', dest='verbose', action='store_false', default=True,
+                        help='Quiet output')
+    parser.add_argument('-s', '--start-directory', metavar='START', default='.',
+                        help="Directory to start discovery ('.' default)")
+    parser.add_argument('-p', '--pattern', metavar='PATTERN', default='test*.py',
+                        help="Pattern to match tests ('test*.py' default)")
+    parser.add_argument('-t', '--top-level-directory', metavar='TOP',
+                        help='Top level directory of project (defaults to start directory)')
+    parser.add_argument('-j', '--jobs', metavar='COUNT', type=int, default=0,
                         help='The number of test processes (default is 0, all cores)')
-    parser.add_argument('--coverage', action="store_true",
+    parser.add_argument('--coverage', action='store_true',
                         help='Run tests with coverage.')
-    parser.add_argument('--coverage-branch', action="store_true",
+    parser.add_argument('--coverage-branch', action='store_true',
                         help='Run tests with branch coverage.')
-    parser.add_argument('--coverage-rcfile', metavar='file',
+    parser.add_argument('--coverage-rcfile', metavar='RCFILE',
                         help='Specify coverage configuration file.')
-    parser.add_argument('--coverage-html', metavar='file',
+    parser.add_argument('--coverage-include', metavar='PAT', action='append',
+                        help='Include only files matching one of these patterns. Accepts shell-style wildcards, which must be quoted.')
+    parser.add_argument('--coverage-omit', metavar='PAT', action='append',
+                        help='Omit files matching one of these patterns. Accepts shell-style wildcards, which must be quoted.')
+    parser.add_argument('--coverage-source', metavar='SRC', action='append',
+                        help='A list of packages or directories of code to be measured.')
+    parser.add_argument('--coverage-html', metavar='DIR',
                         help='Generate coverage HTML report.')
-    parser.add_argument('--coverage-fail-under', metavar='min', type=int,
+    parser.add_argument('--coverage-fail-under', metavar='MIN', type=int,
                         help='Fail if coverage percentage under min.')
     args = parser.parse_args()
     if args.coverage_branch:
         args.coverage = args.coverage_branch
 
-    process_count = max(0, args.process_count)
+    process_count = max(0, args.jobs)
     if process_count == 0:
         process_count = multiprocessing.cpu_count()
 
@@ -56,7 +62,7 @@ def main():
         cov = _coverage_start(args, temp_dir)
         try:
             test_loader = unittest.TestLoader()
-            test_suites = test_loader.discover(args.start_dir, pattern=args.pattern, top_level_dir=args.top_level_dir)
+            test_suites = test_loader.discover(args.start_directory, pattern=args.pattern, top_level_dir=args.top_level_directory)
         finally:
             _coverage_end(cov, args)
 
@@ -85,12 +91,12 @@ def main():
                 print(error_text)
             for failure_text in chain.from_iterable(failure for failure, _, _ in results):
                 print(failure_text)
-            return error_count + failure_count
+            sys.exit(error_count + failure_count)
 
         if args.coverage and coverage:
 
             # Combine the coverage files
-            cov = coverage.Coverage(config_file=args.coverage_rcfile, omit=__file__)
+            cov = coverage.Coverage(config_file=args.coverage_rcfile)
             cov.combine(data_paths=[os.path.join(temp_dir, x) for x in os.listdir(temp_dir)])
 
             # HTML coverage report
@@ -103,9 +109,7 @@ def main():
 
             # Fail under
             if args.coverage_fail_under and percent_covered < args.coverage_fail_under:
-                return 2
-
-    return 0
+                sys.exit(2)
 
 
 def _format_error(result, error):
@@ -124,7 +128,10 @@ def _coverage_start(args, temp_dir):
         cov = coverage.Coverage(
             config_file=args.coverage_rcfile,
             data_file=coverage_file.name,
-            branch=args.coverage_branch
+            branch=args.coverage_branch,
+            include=args.coverage_include,
+            omit=args.coverage_omit,
+            source=args.coverage_source
         )
         cov.start()
     return cov
