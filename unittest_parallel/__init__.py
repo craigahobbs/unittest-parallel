@@ -23,30 +23,34 @@ def main():
                         help='Verbose output')
     parser.add_argument('-q', '--quiet', dest='verbose', action='store_false', default=True,
                         help='Quiet output')
-    parser.add_argument('-s', '--start-directory', metavar='START', default='.',
-                        help="Directory to start discovery ('.' default)")
-    parser.add_argument('-p', '--pattern', metavar='PATTERN', default='test*.py',
-                        help="Pattern to match tests ('test*.py' default)")
-    parser.add_argument('-t', '--top-level-directory', metavar='TOP',
-                        help='Top level directory of project (defaults to start directory)')
     parser.add_argument('-j', '--jobs', metavar='COUNT', type=int, default=0,
                         help='The number of test processes (default is 0, all cores)')
-    parser.add_argument('--coverage', action='store_true',
-                        help='Run tests with coverage.')
-    parser.add_argument('--coverage-branch', action='store_true',
-                        help='Run tests with branch coverage.')
-    parser.add_argument('--coverage-rcfile', metavar='RCFILE',
-                        help='Specify coverage configuration file.')
-    parser.add_argument('--coverage-include', metavar='PAT', action='append',
-                        help='Include only files matching one of these patterns. Accepts shell-style wildcards, which must be quoted.')
-    parser.add_argument('--coverage-omit', metavar='PAT', action='append',
-                        help='Omit files matching one of these patterns. Accepts shell-style wildcards, which must be quoted.')
-    parser.add_argument('--coverage-source', metavar='SRC', action='append',
-                        help='A list of packages or directories of code to be measured.')
-    parser.add_argument('--coverage-html', metavar='DIR',
-                        help='Generate coverage HTML report.')
-    parser.add_argument('--coverage-fail-under', metavar='MIN', type=int,
-                        help='Fail if coverage percentage under min.')
+    group_unittest = parser.add_argument_group('Unittest options')
+    group_unittest.add_argument('-s', '--start-directory', metavar='START', default='.',
+                                help="Directory to start discovery ('.' default)")
+    group_unittest.add_argument('-p', '--pattern', metavar='PATTERN', default='test*.py',
+                                help="Pattern to match tests ('test*.py' default)")
+    group_unittest.add_argument('-t', '--top-level-directory', metavar='TOP',
+                                help='Top level directory of project (defaults to start directory)')
+    group_coverage = parser.add_argument_group('Coverage options')
+    group_coverage.add_argument('--coverage', action='store_true',
+                                help='Run tests with coverage.')
+    group_coverage.add_argument('--coverage-branch', action='store_true',
+                                help='Run tests with branch coverage.')
+    group_coverage.add_argument('--coverage-rcfile', metavar='RCFILE',
+                                help='Specify coverage configuration file.')
+    group_coverage.add_argument('--coverage-include', metavar='PAT', action='append',
+                                help='Include only files matching one of these patterns. Accepts shell-style (quoted) wildcards.')
+    group_coverage.add_argument('--coverage-omit', metavar='PAT', action='append',
+                                help='Omit files matching one of these patterns. Accepts shell-style (quoted) wildcards.')
+    group_coverage.add_argument('--coverage-source', metavar='SRC', action='append',
+                                help='A list of packages or directories of code to be measured.')
+    group_coverage.add_argument('--coverage-html', metavar='DIR',
+                                help='Generate coverage HTML report.')
+    group_coverage.add_argument('--coverage-xml', metavar='FILE',
+                                help='Generate coverage XML report.')
+    group_coverage.add_argument('--coverage-fail-under', metavar='MIN', type=float,
+                                help='Fail if coverage percentage under min.')
     args = parser.parse_args()
     if args.coverage_branch:
         args.coverage = args.coverage_branch
@@ -99,13 +103,19 @@ def main():
             cov = coverage.Coverage(config_file=args.coverage_rcfile)
             cov.combine(data_paths=[os.path.join(temp_dir, x) for x in os.listdir(temp_dir)])
 
+            # Coverage report
+            print()
+            percent_covered = cov.report(ignore_errors=True)
+            print()
+            print('Total coverage is {0:.2f}%'.format(percent_covered))
+
             # HTML coverage report
             if args.coverage_html:
                 cov.html_report(directory=args.coverage_html, ignore_errors=True)
 
-            # Coverage report
-            print()
-            percent_covered = cov.report(ignore_errors=True)
+            # XML coverage report
+            if args.coverage_xml:
+                cov.xml_report(outfile=args.coverage_xml, ignore_errors=True)
 
             # Fail under
             if args.coverage_fail_under and percent_covered < args.coverage_fail_under:
