@@ -87,9 +87,9 @@ def main():
             if failure_count > 0:
                 print('FAILURES: {0}'.format(failure_count))
             print()
-            for error_text in chain.from_iterable(error for _, error, _ in results):
+            for error_text in chain.from_iterable(errors for _, errors, _ in results):
                 print(error_text)
-            for failure_text in chain.from_iterable(failure for failure, _, _ in results):
+            for failure_text in chain.from_iterable(failures for _, _, failures in results):
                 print(failure_text)
             sys.exit(error_count + failure_count)
 
@@ -130,7 +130,7 @@ def _coverage_start(args, temp_dir):
             data_file=coverage_file.name,
             branch=args.coverage_branch,
             include=args.coverage_include,
-            omit=args.coverage_omit,
+            omit=chain(args.coverage_omit if args.coverage_omit else [], [__file__]),
             source=args.coverage_source
         )
         cov.start()
