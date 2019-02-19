@@ -6,7 +6,7 @@ PYTHON_VERSIONS := \
     3.5.6 \
     3.4.9
 
-COVERAGE_REPORT_ARGS := --fail-under 12
+COVERAGE_REPORT_ARGS := --fail-under 16
 
 ifeq '$(wildcard .makefile)' ''
     $(info Downloading base makefile...)
