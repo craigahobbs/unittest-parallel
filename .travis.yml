@@ -7,7 +7,7 @@ python:
 install:
   - pip install -e . -e .[tests]
 script:
-  - python3 -m coverage run --branch --source unittest_parallel -m unittest discover -v -t unittest_parallel -s unittest_parallel/tests
+  - python3 -m coverage run --branch --source src/unittest_parallel -m unittest discover -v -t src -s src/tests
   - python3 -m coverage xml
 after_success:
   - bash <(curl -s https://codecov.io/bash)
