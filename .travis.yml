@@ -6,4 +6,4 @@ python:
 install:
   - pip install -e . -e .[tests]
 script:
-  - python3 -m unittest -v -t unittest_parallel -s unittest_parallel/tests
+  - python3 -m unittest discover -v -t unittest_parallel -s unittest_parallel/tests
