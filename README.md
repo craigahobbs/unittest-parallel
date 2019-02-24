@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/craigahobbs/unittest-parallel.svg?branch=master)](https://travis-ci.org/craigahobbs/unittest-parallel)
 [![Code Coverage](https://codecov.io/gh/craigahobbs/unittest-parallel/branch/master/graph/badge.svg)](https://codecov.io/gh/craigahobbs/unittest-parallel)
-[![Version](https://img.shields.io/pypi/v/unittest-parallel.svg)](https://github.com/craigahobbs/unittest-parallel)
+[![Version](https://img.shields.io/pypi/v/unittest-parallel.svg)](https://pypi.org/project/unittest-parallel/)
 
 unittest_parallel is a parallel unittest runner for Python with coverage support.
 
