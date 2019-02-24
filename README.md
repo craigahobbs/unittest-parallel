@@ -1,3 +1,7 @@
+![](http://img.shields.io/pypi/v/unittest-parallel.svg)
+![](https://travis-ci.org/craigahobbs/unittest-parallel.svg?branch=master)
+![](https://codecov.io/gh/craigahobbs/unittest-parallel/branch/master/graph/badge.svg)
+
 ##  Overview
 
 unittest_parallel is a parallel unittest runner for Python with coverage support.
