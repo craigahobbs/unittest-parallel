@@ -29,14 +29,14 @@ def main(argv=None):
                         help='The number of test processes (default is 0, all cores)')
     parser.add_argument('--version', action='store_true',
                         help='show version number and quit')
-    group_unittest = parser.add_argument_group('Unittest options')
+    group_unittest = parser.add_argument_group('unittest options')
     group_unittest.add_argument('-s', '--start-directory', metavar='START', default='.',
                                 help="Directory to start discovery ('.' default)")
     group_unittest.add_argument('-p', '--pattern', metavar='PATTERN', default='test*.py',
                                 help="Pattern to match tests ('test*.py' default)")
     group_unittest.add_argument('-t', '--top-level-directory', metavar='TOP',
                                 help='Top level directory of project (defaults to start directory)')
-    group_coverage = parser.add_argument_group('Coverage options')
+    group_coverage = parser.add_argument_group('coverage options')
     group_coverage.add_argument('--coverage', action='store_true',
                                 help='Run tests with coverage.')
     group_coverage.add_argument('--coverage-branch', action='store_true',

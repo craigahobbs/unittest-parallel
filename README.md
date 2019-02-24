@@ -1,9 +1,10 @@
-unittest_parallel
-=================
+##  Overview
 
 unittest_parallel is a parallel unittest runner for Python with coverage support.
 
 NOTE: The [coverage](https://pypi.org/project/coverage/) module must be installed for coverage support.
+
+##  Usage
 
 ```
 usage: unittest-parallel [-h] [-v] [-q] [-j COUNT] [--version] [-s START]
@@ -21,7 +22,7 @@ optional arguments:
                         The number of test processes (default is 0, all cores)
   --version             show version number and quit
 
-Unittest options:
+unittest options:
   -s START, --start-directory START
                         Directory to start discovery ('.' default)
   -p PATTERN, --pattern PATTERN
@@ -30,7 +31,7 @@ Unittest options:
                         Top level directory of project (defaults to start
                         directory)
 
-Coverage options:
+coverage options:
   --coverage            Run tests with coverage.
   --coverage-branch     Run tests with branch coverage.
   --coverage-rcfile RCFILE

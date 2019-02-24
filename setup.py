@@ -17,15 +17,15 @@ def main():
 
     setup(
         name='unittest-parallel',
-        long_description=long_description,
-        long_description_content_type='text/markdown',
         version=unittest_parallel.__version__,
         author='Craig Hobbs',
         author_email='craigahobbs@gmail.com',
-        description=('Parallel unittest runner.'),
         keywords='unittest parallel',
         url='https://github.com/craigahobbs/unittest-parallel',
         license='MIT',
+        description=('Parallel unit test runner for Python3 with coverage support'),
+        long_description=long_description,
+        long_description_content_type='text/markdown',
         classifiers=[
             'Development Status :: 5 - Production/Stable',
             'Intended Audience :: Developers',
