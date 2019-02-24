@@ -11,16 +11,16 @@ import unittest
 
 try:
     import coverage
-except ImportError:
+except ImportError: # pragma: no cover
     coverage = None
 
 from . import __version__ as VERSION
 
 
-def main():
+def main(argv=None):
 
     # Command line parsing
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(prog='unittest-parallel')
     parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', default=True,
                         help='Verbose output')
     parser.add_argument('-q', '--quiet', dest='verbose', action='store_false', default=True,
@@ -55,7 +55,7 @@ def main():
                                 help='Generate coverage XML report.')
     group_coverage.add_argument('--coverage-fail-under', metavar='MIN', type=float,
                                 help='Fail if coverage percentage under min.')
-    args = parser.parse_args()
+    args = parser.parse_args(args=argv)
     if args.version:
         parser.exit(message=VERSION + '\n')
     if args.coverage_branch:
@@ -79,7 +79,7 @@ def main():
         # Run the tests in parallel
         pool = multiprocessing.Pool(process_count)
         results = pool.map(
-            _runtest,
+            _run_tests,
             ((test_suite, args, temp_dir) for test_suite in test_suites if test_suite.countTestCases() > 0)
         )
 
@@ -87,21 +87,21 @@ def main():
         run_count = sum(run for run, _, _ in results)
         error_count = sum(len(errors) for _, errors, _ in results)
         failure_count = sum(len(failures) for _, _, failures in results)
-        print()
-        print('Ran {0} tests'.format(run_count))
+        print(file=sys.stderr)
+        print('Ran {0} tests'.format(run_count), file=sys.stderr)
         if error_count or failure_count:
-            print()
-            print()
+            print(file=sys.stderr)
+            print(file=sys.stderr)
             if error_count > 0:
-                print('ERRORS: {0}'.format(error_count))
+                print('ERRORS: {0}'.format(error_count), file=sys.stderr)
             if failure_count > 0:
-                print('FAILURES: {0}'.format(failure_count))
-            print()
+                print('FAILURES: {0}'.format(failure_count), file=sys.stderr)
+            print(file=sys.stderr)
             for error_text in chain.from_iterable(errors for _, errors, _ in results):
-                print(error_text)
+                print(error_text, file=sys.stderr)
             for failure_text in chain.from_iterable(failures for _, _, failures in results):
-                print(failure_text)
-            sys.exit(error_count + failure_count)
+                print(failure_text, file=sys.stderr)
+            parser.exit(status=error_count + failure_count)
 
         if args.coverage and coverage:
 
@@ -110,10 +110,10 @@ def main():
             cov.combine(data_paths=[os.path.join(temp_dir, x) for x in os.listdir(temp_dir)])
 
             # Coverage report
-            print()
+            print(file=sys.stderr)
             percent_covered = cov.report(ignore_errors=True)
-            print()
-            print('Total coverage is {0:.2f}%'.format(percent_covered))
+            print(file=sys.stderr)
+            print('Total coverage is {0:.2f}%'.format(percent_covered), file=sys.stderr)
 
             # HTML coverage report
             if args.coverage_html:
@@ -125,7 +125,31 @@ def main():
 
             # Fail under
             if args.coverage_fail_under and percent_covered < args.coverage_fail_under:
-                sys.exit(2)
+                parser.exit(status=2)
+
+
+def _run_tests(pool_args):
+    test_suite, args, temp_dir = pool_args
+    cov = _coverage_start(args, temp_dir)
+    try:
+        runner = unittest.TextTestRunner(verbosity=(2 if args.verbose else 1))
+        result = runner.run(test_suite)
+        return (
+            result.testsRun,
+            [_format_error(result, error) for error in result.errors],
+            [_format_error(result, failure) for failure in result.failures]
+        )
+    finally:
+        _coverage_end(cov, args)
+
+
+def _format_error(result, error):
+    return '\n'.join([
+        '=' * 40,
+        result.getDescription(error[0]),
+        '-' * 40,
+        error[1]
+    ])
 
 
 def _coverage_start(args, temp_dir):
@@ -138,7 +162,7 @@ def _coverage_start(args, temp_dir):
             data_file=coverage_file.name,
             branch=args.coverage_branch,
             include=args.coverage_include,
-            omit=chain(args.coverage_omit if args.coverage_omit else [], [__file__]),
+            omit=list(chain(args.coverage_omit if args.coverage_omit else [], [__file__])),
             source=args.coverage_source
         )
         cov.start()
@@ -149,30 +173,3 @@ def _coverage_end(cov, args):
     if args.coverage and coverage:
         cov.stop()
         cov.save()
-
-
-def _format_error(result, error):
-    return '\n'.join([
-        '=' * 40,
-        result.getDescription(error[0]),
-        '-' * 40,
-        error[1]
-    ])
-
-
-def _runtest(pool_args):
-    test_suite, args, temp_dir = pool_args
-
-    cov = _coverage_start(args, temp_dir)
-    try:
-        # Run the test suite
-        runner = unittest.TextTestRunner(verbosity=(2 if args.verbose else 1))
-        result = runner.run(test_suite)
-
-        return (
-            result.testsRun,
-            [_format_error(result, error) for error in result.errors],
-            [_format_error(result, failure) for failure in result.failures]
-        )
-    finally:
-        _coverage_end(cov, args)

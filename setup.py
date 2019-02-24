@@ -7,6 +7,9 @@ from setuptools import setup
 
 import unittest_parallel
 
+TESTS_REQUIRE = [
+    'coverage'
+]
 
 def main():
     with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'README.md'), encoding='utf-8') as readme_file:
@@ -28,7 +31,6 @@ def main():
             'Intended Audience :: Developers',
             'License :: OSI Approved :: MIT License',
             'Operating System :: OS Independent',
-            'Programming Language :: Python :: 3.4',
             'Programming Language :: Python :: 3.5',
             'Programming Language :: Python :: 3.6',
             'Programming Language :: Python :: 3.7',
@@ -40,7 +42,11 @@ def main():
         entry_points={
             'console_scripts': ['unittest-parallel = unittest_parallel.main:main'],
         },
-        test_suite='unittest_parallel.tests'
+        test_suite='unittest_parallel.tests',
+        tests_require=TESTS_REQUIRE,
+        extras_require={
+            'tests': TESTS_REQUIRE
+        }
     )
 
 
