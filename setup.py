@@ -38,8 +38,8 @@ def main():
             'Programming Language :: Python :: 3.5',
             'Programming Language :: Python :: 3.6',
             'Programming Language :: Python :: 3.7',
-            "Topic :: Software Development :: Testing",
-            "Topic :: Utilities",
+            'Topic :: Software Development :: Testing',
+            'Topic :: Utilities'
         ],
         package_dir={'': 'src'},
         packages=[MODULE_NAME],

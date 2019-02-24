@@ -1,5 +1,3 @@
-PACKAGE_NAME := unittest_parallel
-
 PYTHON_VERSIONS := \
     3.7 \
     3.6 \

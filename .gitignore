@@ -1,8 +1,6 @@
-*~
-*.pyc
-*.so
 *.egg-info
 .coverage
+.eggs/
 .makefile
 __pycache__/
 build/
