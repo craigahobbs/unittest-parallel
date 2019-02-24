@@ -1,6 +1,5 @@
-![](http://img.shields.io/pypi/v/unittest-parallel.svg)
-![](https://travis-ci.org/craigahobbs/unittest-parallel.svg?branch=master)
-![](https://codecov.io/gh/craigahobbs/unittest-parallel/branch/master/graph/badge.svg)
+[![Build Status](https://travis-ci.org/craigahobbs/unittest-parallel.svg?branch=master)](https://travis-ci.org/craigahobbs/unittest-parallel)
+[![Code Coverage](https://codecov.io/gh/craigahobbs/unittest-parallel/branch/master/graph/badge.svg)](https://codecov.io/gh/craigahobbs/unittest-parallel)
 
 ##  Overview
 
