@@ -12,3 +12,6 @@ ifeq '$(wildcard pylintrc)' ''
     $(shell curl -s -o pylintrc 'https://raw.githubusercontent.com/craigahobbs/chisel/master/pylintrc')
 endif
 include .makefile
+
+clean:
+	rm -rf .makefile pylintrc
