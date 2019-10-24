@@ -14,6 +14,10 @@ from unittest_parallel.main import main
 class MockMultiprocessingPool:
     def __init__(self, count):
         pass
+    def __enter__(self):
+        return self
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
     def map(self, func, args): # pylint: disable=no-self-use
         return [func(arg) for arg in args]
 

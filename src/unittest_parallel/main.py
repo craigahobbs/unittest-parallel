@@ -77,11 +77,11 @@ def main(argv=None):
             _coverage_end(cov, args)
 
         # Run the tests in parallel
-        pool = multiprocessing.Pool(process_count)
-        results = pool.map(
-            _run_tests,
-            ((test_suite, args, temp_dir) for test_suite in test_suites if test_suite.countTestCases() > 0)
-        )
+        with multiprocessing.Pool(process_count) as pool:
+            results = pool.map(
+                _run_tests,
+                ((test_suite, args, temp_dir) for test_suite in test_suites if test_suite.countTestCases() > 0)
+            )
 
         # Test report
         run_count = sum(run for run, _, _ in results)
