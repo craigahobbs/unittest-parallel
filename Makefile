@@ -4,6 +4,8 @@ PYTHON_VERSIONS := \
     3.6 \
     3.5
 
+PYLINT_ARGS := -j 0 --disable=missing-docstring
+
 ifeq '$(wildcard .makefile)' ''
     $(info Downloading base makefile...)
     $(shell curl -s -o .makefile 'https://raw.githubusercontent.com/craigahobbs/chisel/master/Makefile.base')
