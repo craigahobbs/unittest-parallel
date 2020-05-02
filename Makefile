@@ -4,7 +4,7 @@ PYTHON_VERSIONS := \
     3.6 \
     3.5
 
-PYLINT_ARGS := -j 0 --disable=missing-docstring
+PYLINT_ARGS := --disable=missing-docstring
 
 ifeq '$(wildcard .makefile)' ''
     $(info Downloading base makefile...)
