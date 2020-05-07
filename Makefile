@@ -4,8 +4,6 @@ PYTHON_VERSIONS := \
     3.6 \
     3.5
 
-PYLINT_ARGS := --disable=missing-docstring
-
 ifeq '$(wildcard .makefile)' ''
     $(info Downloading base makefile...)
     $(shell curl -s -o .makefile 'https://raw.githubusercontent.com/craigahobbs/chisel/master/Makefile.base')
@@ -15,6 +13,8 @@ ifeq '$(wildcard pylintrc)' ''
     $(shell curl -s -o pylintrc 'https://raw.githubusercontent.com/craigahobbs/chisel/master/pylintrc')
 endif
 include .makefile
+
+PYLINT_ARGS := $(PYLINT_ARGS) --disable=missing-docstring
 
 clean:
 	rm -rf .makefile pylintrc
