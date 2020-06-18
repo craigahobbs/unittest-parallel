@@ -1,8 +1,8 @@
 PYTHON_VERSIONS := \
     3.8 \
+    3.9-rc \
     3.7 \
-    3.6 \
-    3.5
+    3.6
 
 ifeq '$(wildcard .makefile)' ''
     $(info Downloading base makefile...)
