@@ -42,8 +42,8 @@ The `coverage <https://pypi.org/project/coverage/>`_ module is required for cove
 Links
 -----
 
-- `Package on pypi <https://pypi.org/project/chisel/>`__
-- `Source code on GitHub <https://github.com/craigahobbs/chisel>`__
+- `Package on pypi <https://pypi.org/project/unittest-parallel/>`__
+- `Source code on GitHub <https://github.com/craigahobbs/unittest-parallel>`__
 
 
 Usage
