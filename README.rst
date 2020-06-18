@@ -9,6 +9,14 @@ unittest-parallel
    :alt: PyPI
    :target: https://pypi.python.org/pypi/unittest-parallel/
 
+.. |badge-travis| image:: https://img.shields.io/travis/craigahobbs/unittest-parallel?style=for-the-badge
+   :alt: Travis (.org)
+   :target: https://travis-ci.org/craigahobbs/unittest-parallel
+
+.. |badge-codecov| image:: https://img.shields.io/codecov/c/github/craigahobbs/unittest-parallel?style=for-the-badge
+   :alt: Codecov
+   :target: https://codecov.io/gh/craigahobbs/unittest-parallel
+
 .. |badge-license| image:: https://img.shields.io/github/license/craigahobbs/unittest-parallel?style=for-the-badge
    :alt: GitHub
    :target: https://github.com/craigahobbs/unittest-parallel/blob/master/LICENSE
@@ -18,6 +26,8 @@ unittest-parallel
    :target: https://www.python.org/downloads/
 
 |badge-status| |badge-version|
+
+|badge-travis| |badge-codecov|
 
 |badge-license| |badge-python|
 
@@ -44,8 +54,10 @@ The `coverage <https://pypi.org/project/coverage/>`_ module is required for cove
 Links
 -----
 
-- `Package on pypi <https://pypi.org/project/unittest-parallel/>`__
-- `Source code on GitHub <https://github.com/craigahobbs/unittest-parallel>`__
+- `Package on pypi <https://pypi.org/project/unittest-parallel/>`_
+- `Source code on GitHub <https://github.com/craigahobbs/unittest-parallel>`_
+- `Build on Travis CI <https://travis-ci.org/craigahobbs/unittest-parallel>`_
+- `Coverage on Codecov <https://codecov.io/gh/craigahobbs/unittest-parallel>`_
 
 
 Usage

@@ -1,0 +1,14 @@
+dist: xenial
+language: python
+python:
+  - "3.6"
+  - "3.7"
+  - "3.8"
+  - "3.9"
+install:
+  - pip install -e . -e .[tests] coverage
+script:
+  - python3 -m coverage run --branch --source src -m unittest discover -v -t src -s src/tests
+  - python3 -m coverage xml
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
