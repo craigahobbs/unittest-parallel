@@ -28,7 +28,7 @@ your package's top-level directory using the "-t" argument:
 
 ::
 
-   unittest-parallel -s tests -t .
+   unittest-parallel -t . -s tests
 
 By default, unittest-parallel runs unit tests on all CPU cores available.
 
@@ -37,7 +37,7 @@ To run your unit tests with coverage add either the "--coverage" option (for lin
 
    unittest-parallel -t . -s tests --coverage-branch
 
-The `coverage <https://pypi.org/project/coverage/>`_ module must be installed for coverage support.
+The `coverage <https://pypi.org/project/coverage/>`_ module is required for coverage support.
 
 Links
 -----
