@@ -2,7 +2,7 @@
 # https://github.com/craigahobbs/unittest-parallel/blob/master/LICENSE
 
 """
-The unittest-parallel package build script
+The package build script
 """
 
 import re
@@ -11,7 +11,7 @@ import os
 from setuptools import setup
 
 MODULE_NAME = 'unittest_parallel'
-PACKAGE_NAME = MODULE_NAME
+PACKAGE_NAME = 'unittest-parallel'
 TESTS_REQUIRE = ['coverage']
 
 def main():
@@ -37,7 +37,7 @@ def main():
         author='Craig Hobbs',
         author_email='craigahobbs@gmail.com',
         keywords='unittest parallel',
-        url='https://github.com/craigahobbs/unittest-parallel',
+        url='https://github.com/craigahobbs/' + PACKAGE_NAME,
         license='MIT',
         classifiers=[
             'Development Status :: 5 - Production/Stable',
@@ -56,7 +56,9 @@ def main():
         },
         packages=[MODULE_NAME],
         entry_points={
-            'console_scripts': [PACKAGE_NAME + ' = ' + MODULE_NAME + '.main:main'],
+            'console_scripts': [
+                PACKAGE_NAME + ' = ' + MODULE_NAME + '.main:main'
+            ],
         },
         test_suite='tests',
         tests_require=TESTS_REQUIRE,

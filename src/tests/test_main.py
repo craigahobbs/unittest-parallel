@@ -2,7 +2,9 @@
 # https://github.com/craigahobbs/template-specialize/blob/master/LICENSE
 
 from io import StringIO
+import os
 import re
+import sys
 from unittest import TestCase, TestSuite
 from unittest.mock import ANY, Mock, call, patch
 
@@ -74,6 +76,10 @@ class TestMain(TestCase):
             ),
             expected
         )
+
+    def test_console_script(self):
+        console_script_path = os.path.join(os.path.dirname(sys.executable), 'unittest-parallel')
+        self.assertTrue(os.path.isfile(console_script_path))
 
     def test_module_main(self):
         self.assertTrue(unittest_parallel.__main__)
