@@ -12,7 +12,9 @@ from setuptools import setup
 
 MODULE_NAME = 'unittest_parallel'
 PACKAGE_NAME = 'unittest-parallel'
-TESTS_REQUIRE = ['coverage']
+TESTS_REQUIRE = [
+    'coverage >= 5.1'
+]
 
 def main():
     """
