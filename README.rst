@@ -73,7 +73,7 @@ Usage
                             [--coverage-source SRC] [--coverage-html DIR]
                             [--coverage-xml FILE] [--coverage-fail-under MIN]
 
-   optional arguments:
+   options:
      -h, --help            show this help message and exit
      -v, --verbose         Verbose output
      -q, --quiet           Quiet output

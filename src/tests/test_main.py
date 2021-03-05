@@ -115,7 +115,11 @@ class TestMain(TestCase):
                 main(['--help'])
 
         self.assertEqual(cm_exc.exception.code, 0)
-        self.assertEqual(stdout.getvalue(), '''\
+
+        # Replace pre-Python-3.10 options-header
+        output = re.sub(r'^optional arguments:$', 'options:', stdout.getvalue(), flags=re.MULTILINE)
+
+        self.assertEqual(output, '''\
 usage: unittest-parallel [-h] [-v] [-q] [-b] [-j COUNT] [--version] [-s START]
                          [-p PATTERN] [-t TOP] [--coverage]
                          [--coverage-branch] [--coverage-rcfile RCFILE]
@@ -123,7 +127,7 @@ usage: unittest-parallel [-h] [-v] [-q] [-b] [-j COUNT] [--version] [-s START]
                          [--coverage-source SRC] [--coverage-html DIR]
                          [--coverage-xml FILE] [--coverage-fail-under MIN]
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   -v, --verbose         Verbose output
   -q, --quiet           Quiet output
