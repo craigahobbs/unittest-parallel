@@ -31,7 +31,7 @@ unittest-parallel
 
 |badge-license| |badge-python|
 
-unittest_parallel is a parallel unittest runner for Python with coverage support.
+unittest-parallel is a parallel unit test runner for Python with coverage support.
 
 To run unittest-parallel, specify the directory containing your unit tests with the "-s" argument and
 your package's top-level directory using the "-t" argument:
@@ -42,7 +42,7 @@ your package's top-level directory using the "-t" argument:
 
 By default, unittest-parallel runs unit tests on all CPU cores available.
 
-To run your unit tests with coverage add either the "--coverage" option (for line coverage) or the
+To run your unit tests with coverage, add either the "--coverage" option (for line coverage) or the
 "--coverage-branch" for line and branch coverage.
 
 ::
@@ -50,6 +50,15 @@ To run your unit tests with coverage add either the "--coverage" option (for lin
    unittest-parallel -t . -s tests --coverage-branch
 
 The `coverage <https://pypi.org/project/coverage/>`_ module is required for coverage support.
+
+
+How it works
+------------
+
+unittest-parallel uses Python's built-in unit test discovery to find all TestSuite classes in your
+project. It then runs each test suite in a Python multi-processing pool of the requested size. Thus,
+the more test suites your unit tests are broken into, the better parallelization you'll get in your
+unit test runs.
 
 
 Links
