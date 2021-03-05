@@ -146,10 +146,10 @@ unittest options:
                         directory)
 
 coverage options:
-  --coverage            Run tests with coverage.
-  --coverage-branch     Run tests with branch coverage.
+  --coverage            Run tests with coverage
+  --coverage-branch     Run tests with branch coverage
   --coverage-rcfile RCFILE
-                        Specify coverage configuration file.
+                        Specify coverage configuration file
   --coverage-include PAT
                         Include only files matching one of these patterns.
                         Accepts shell-style (quoted) wildcards.
@@ -157,11 +157,11 @@ coverage options:
                         shell-style (quoted) wildcards.
   --coverage-source SRC
                         A list of packages or directories of code to be
-                        measured.
-  --coverage-html DIR   Generate coverage HTML report.
-  --coverage-xml FILE   Generate coverage XML report.
+                        measured
+  --coverage-html DIR   Generate coverage HTML report
+  --coverage-xml FILE   Generate coverage XML report
   --coverage-fail-under MIN
-                        Fail if coverage percentage under min.
+                        Fail if coverage percentage under min
 ''')
         self.assertEqual(stderr.getvalue(), '')
 

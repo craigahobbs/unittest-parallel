@@ -40,23 +40,23 @@ def main(argv=None):
                                 help='Top level directory of project (defaults to start directory)')
     group_coverage = parser.add_argument_group('coverage options')
     group_coverage.add_argument('--coverage', action='store_true',
-                                help='Run tests with coverage.')
+                                help='Run tests with coverage')
     group_coverage.add_argument('--coverage-branch', action='store_true',
-                                help='Run tests with branch coverage.')
+                                help='Run tests with branch coverage')
     group_coverage.add_argument('--coverage-rcfile', metavar='RCFILE',
-                                help='Specify coverage configuration file.')
+                                help='Specify coverage configuration file')
     group_coverage.add_argument('--coverage-include', metavar='PAT', action='append',
                                 help='Include only files matching one of these patterns. Accepts shell-style (quoted) wildcards.')
     group_coverage.add_argument('--coverage-omit', metavar='PAT', action='append',
                                 help='Omit files matching one of these patterns. Accepts shell-style (quoted) wildcards.')
     group_coverage.add_argument('--coverage-source', metavar='SRC', action='append',
-                                help='A list of packages or directories of code to be measured.')
+                                help='A list of packages or directories of code to be measured')
     group_coverage.add_argument('--coverage-html', metavar='DIR',
-                                help='Generate coverage HTML report.')
+                                help='Generate coverage HTML report')
     group_coverage.add_argument('--coverage-xml', metavar='FILE',
-                                help='Generate coverage XML report.')
+                                help='Generate coverage XML report')
     group_coverage.add_argument('--coverage-fail-under', metavar='MIN', type=float,
-                                help='Fail if coverage percentage under min.')
+                                help='Fail if coverage percentage under min')
     args = parser.parse_args(args=argv)
     if args.version:
         parser.exit(message=VERSION + '\n')
