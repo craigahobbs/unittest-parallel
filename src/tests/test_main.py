@@ -16,39 +16,63 @@ from unittest_parallel.main import main
 class MockMultiprocessingPool:
     def __init__(self, count):
         pass
+
     def __enter__(self):
         return self
+
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
-    def map(self, func, args): # pylint: disable=no-self-use
+
+    @staticmethod
+    def map(func, args):
         return [func(arg) for arg in args]
 
 
 class SuccessTestCase(TestCase):
     def mock_1(self):
-        pass
+        self.assertIsNotNone(self)
+
     def mock_2(self):
-        pass
+        self.assertIsNotNone(self)
+
     def mock_3(self):
-        pass
+        self.assertIsNotNone(self)
+
+
+class SuccessWithOutputTestCase(TestCase):
+    def mock_1(self):
+        self.assertIsNotNone(self)
+
+    def mock_2(self):
+        print('Hello stdout!')
+        self.assertIsNotNone(self)
+
+    def mock_3(self):
+        print('Hello stderr!', file=sys.stderr)
+        self.assertIsNotNone(self)
 
 
 class FailureTestCase(TestCase):
     def mock_1(self):
-        pass
+        self.assertIsNotNone(self)
+
     def mock_2(self):
         self.fail()
+
     def mock_3(self):
-        pass
+        self.assertIsNotNone(self)
 
 
 class ErrorTestCase(TestCase):
     def mock_1(self):
-        pass
-    def mock_2(self): # pylint: disable=no-self-use
+        self.assertIsNotNone(self)
+
+    def mock_2(self):
+        self.assertIsNotNone(self)
         raise Exception()
+
     def mock_3(self):
-        pass
+        self.assertIsNotNone(self)
 
 
 def _create_test_suite(test_case_class):
@@ -92,7 +116,7 @@ class TestMain(TestCase):
 
         self.assertEqual(cm_exc.exception.code, 0)
         self.assertEqual(stdout.getvalue(), '''\
-usage: unittest-parallel [-h] [-v] [-q] [-j COUNT] [--version] [-s START]
+usage: unittest-parallel [-h] [-v] [-q] [-b] [-j COUNT] [--version] [-s START]
                          [-p PATTERN] [-t TOP] [--coverage]
                          [--coverage-branch] [--coverage-rcfile RCFILE]
                          [--coverage-include PAT] [--coverage-omit PAT]
@@ -103,6 +127,7 @@ optional arguments:
   -h, --help            show this help message and exit
   -v, --verbose         Verbose output
   -q, --quiet           Quiet output
+  -b, --buffer          Buffer stdout and stderr during tests
   -j COUNT, --jobs COUNT
                         The number of test processes (default is 0, all cores)
   --version             show version number and quit
@@ -199,6 +224,90 @@ Ran 3 tests
 mock_1 (tests.test_main.SuccessTestCase) ... ok
 mock_2 (tests.test_main.SuccessTestCase) ... ok
 mock_3 (tests.test_main.SuccessTestCase) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in <SEC>s
+
+OK
+
+Ran 3 tests
+''')
+
+    def test_success_quiet(self):
+        with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('sys.stdout', StringIO()) as stdout, \
+             patch('sys.stderr', StringIO()) as stderr, \
+             patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(SuccessTestCase))):
+            main(['-q'])
+
+        self.assertEqual(stdout.getvalue(), '')
+        self.assert_output(stderr.getvalue(), '''\
+...
+----------------------------------------------------------------------
+Ran 3 tests in <SEC>s
+
+OK
+
+Ran 3 tests
+''')
+
+    def test_success_verbose(self):
+        with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('sys.stdout', StringIO()) as stdout, \
+             patch('sys.stderr', StringIO()) as stderr, \
+             patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(SuccessTestCase))):
+            main(['-q', '-v'])
+
+        self.assertEqual(stdout.getvalue(), '')
+        self.assert_output(stderr.getvalue(), '''\
+mock_1 (tests.test_main.SuccessTestCase) ... ok
+mock_2 (tests.test_main.SuccessTestCase) ... ok
+mock_3 (tests.test_main.SuccessTestCase) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in <SEC>s
+
+OK
+
+Ran 3 tests
+''')
+
+    def test_success_buffer(self):
+        with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('sys.stdout', StringIO()) as stdout, \
+             patch('sys.stderr', StringIO()) as stderr, \
+             patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(SuccessWithOutputTestCase))):
+            main(['-b'])
+
+        self.assertEqual(stdout.getvalue(), '')
+        self.assert_output(stderr.getvalue(), '''\
+mock_1 (tests.test_main.SuccessWithOutputTestCase) ... ok
+mock_2 (tests.test_main.SuccessWithOutputTestCase) ... ok
+mock_3 (tests.test_main.SuccessWithOutputTestCase) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in <SEC>s
+
+OK
+
+Ran 3 tests
+''')
+
+    def test_success_buffer_off(self):
+        with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('sys.stdout', StringIO()) as stdout, \
+             patch('sys.stderr', StringIO()) as stderr, \
+             patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(SuccessWithOutputTestCase))):
+            main([])
+
+        self.assertEqual(stdout.getvalue(), '''\
+Hello stdout!
+''')
+        self.assert_output(stderr.getvalue(), '''\
+mock_1 (tests.test_main.SuccessWithOutputTestCase) ... ok
+mock_2 (tests.test_main.SuccessWithOutputTestCase) ... ok
+mock_3 (tests.test_main.SuccessWithOutputTestCase) ... Hello stderr!
+ok
 
 ----------------------------------------------------------------------
 Ran 3 tests in <SEC>s

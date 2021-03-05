@@ -66,7 +66,7 @@ Usage
 
 ::
 
-   usage: unittest-parallel [-h] [-v] [-q] [-j COUNT] [--version] [-s START]
+   usage: unittest-parallel [-h] [-v] [-q] [-b] [-j COUNT] [--version] [-s START]
                             [-p PATTERN] [-t TOP] [--coverage]
                             [--coverage-branch] [--coverage-rcfile RCFILE]
                             [--coverage-include PAT] [--coverage-omit PAT]
@@ -77,6 +77,7 @@ Usage
      -h, --help            show this help message and exit
      -v, --verbose         Verbose output
      -q, --quiet           Quiet output
+     -b, --buffer          Buffer stdout and stderr during tests
      -j COUNT, --jobs COUNT
                            The number of test processes (default is 0, all cores)
      --version             show version number and quit

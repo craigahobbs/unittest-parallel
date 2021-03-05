@@ -25,6 +25,8 @@ def main(argv=None):
                         help='Verbose output')
     parser.add_argument('-q', '--quiet', dest='verbose', action='store_false', default=True,
                         help='Quiet output')
+    parser.add_argument('-b', '--buffer', action='store_true', default=False,
+                        help='Buffer stdout and stderr during tests')
     parser.add_argument('-j', '--jobs', metavar='COUNT', type=int, default=0,
                         help='The number of test processes (default is 0, all cores)')
     parser.add_argument('--version', action='store_true',
@@ -132,7 +134,7 @@ def _run_tests(pool_args):
     test_suite, args, temp_dir = pool_args
     cov = _coverage_start(args, temp_dir)
     try:
-        runner = unittest.TextTestRunner(verbosity=(2 if args.verbose else 1))
+        runner = unittest.TextTestRunner(verbosity=(2 if args.verbose else 1), buffer = args.buffer)
         result = runner.run(test_suite)
         return (
             result.testsRun,
