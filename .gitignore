@@ -1,8 +1,8 @@
 *.egg-info
 .coverage
 .eggs/
-.makefile
 __pycache__/
 build/
 dist/
+Makefile.base
 pylintrc

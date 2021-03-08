@@ -26,7 +26,7 @@ def main():
         version = re.search(r"__version__ = '(.+?)'", init_file.read()).group(1)
 
     # Read the readme for use as the long description
-    with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'README.rst'), encoding='utf-8') as readme_file:
+    with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'README.md'), encoding='utf-8') as readme_file:
         long_description = readme_file.read()
 
     # Do the setup
@@ -34,7 +34,7 @@ def main():
         name=PACKAGE_NAME,
         description=('Parallel unit test runner for Python3 with coverage support'),
         long_description=long_description,
-        long_description_content_type='text/x-rst',
+        long_description_content_type='text/markdown',
         version=version,
         author='Craig Hobbs',
         author_email='craigahobbs@gmail.com',
