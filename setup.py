@@ -1,10 +1,6 @@
 # Licensed under the MIT License
 # https://github.com/craigahobbs/unittest-parallel/blob/master/LICENSE
 
-"""
-The package build script
-"""
-
 import re
 import os
 
@@ -12,15 +8,8 @@ from setuptools import setup
 
 MODULE_NAME = 'unittest_parallel'
 PACKAGE_NAME = 'unittest-parallel'
-TESTS_REQUIRE = [
-    'coverage >= 5.1'
-]
 
 def main():
-    """
-    The package build script's main entry point
-    """
-
     # Read the package version
     with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'src', MODULE_NAME, '__init__.py'), encoding='utf-8') as init_file:
         version = re.search(r"__version__ = '(.+?)'", init_file.read()).group(1)
@@ -64,10 +53,9 @@ def main():
             ],
         },
         test_suite='tests',
-        tests_require=TESTS_REQUIRE,
-        extras_require={
-            'tests': TESTS_REQUIRE
-        }
+        install_requires=[
+            'coverage >= 5.1'
+        ]
     )
 
 if __name__ == '__main__':

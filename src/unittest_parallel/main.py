@@ -9,10 +9,7 @@ import sys
 import tempfile
 import unittest
 
-try:
-    import coverage
-except ImportError: # pragma: no cover
-    coverage = None
+import coverage
 
 from . import __version__ as VERSION
 
@@ -105,7 +102,7 @@ def main(argv=None):
                 print(failure_text, file=sys.stderr)
             parser.exit(status=error_count + failure_count)
 
-        if args.coverage and coverage:
+        if args.coverage:
 
             # Combine the coverage files
             cov = coverage.Coverage(config_file=args.coverage_rcfile)
@@ -156,7 +153,7 @@ def _format_error(result, error):
 
 def _coverage_start(args, temp_dir):
     cov = None
-    if args.coverage and coverage:
+    if args.coverage:
         with tempfile.NamedTemporaryFile(dir=temp_dir, delete=False) as coverage_file:
             pass
         cov = coverage.Coverage(
