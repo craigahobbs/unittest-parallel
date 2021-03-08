@@ -43,9 +43,7 @@ def main():
             'Topic :: Software Development :: Testing',
             'Topic :: Utilities'
         ],
-        package_dir={
-            '': 'src'
-        },
+        package_dir={'': 'src'},
         packages=[MODULE_NAME],
         install_requires=[
             'coverage >= 5.1'
