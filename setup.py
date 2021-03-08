@@ -47,15 +47,15 @@ def main():
             '': 'src'
         },
         packages=[MODULE_NAME],
+        install_requires=[
+            'coverage >= 5.1'
+        ],
         entry_points={
             'console_scripts': [
                 PACKAGE_NAME + ' = ' + MODULE_NAME + '.main:main'
             ],
         },
-        test_suite='tests',
-        install_requires=[
-            'coverage >= 5.1'
-        ]
+        test_suite='tests'
     )
 
 if __name__ == '__main__':
