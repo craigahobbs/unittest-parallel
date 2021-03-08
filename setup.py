@@ -54,8 +54,7 @@ def main():
             'console_scripts': [
                 PACKAGE_NAME + ' = ' + MODULE_NAME + '.main:main'
             ],
-        },
-        test_suite='tests'
+        }
     )
 
 if __name__ == '__main__':
