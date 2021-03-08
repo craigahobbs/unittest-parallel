@@ -108,63 +108,6 @@ class TestMain(TestCase):
     def test_module_main(self):
         self.assertTrue(unittest_parallel.__main__)
 
-    def test_help(self):
-        with patch('sys.stdout', StringIO()) as stdout, \
-             patch('sys.stderr', StringIO()) as stderr:
-            with self.assertRaises(SystemExit) as cm_exc:
-                main(['--help'])
-
-        self.assertEqual(cm_exc.exception.code, 0)
-
-        # Replace pre-Python-3.10 options-header
-        output = re.sub(r'^optional arguments:$', 'options:', stdout.getvalue(), flags=re.MULTILINE)
-
-        self.assertEqual(output, '''\
-usage: unittest-parallel [-h] [-v] [-q] [-b] [-j COUNT] [--version] [-s START]
-                         [-p PATTERN] [-t TOP] [--coverage]
-                         [--coverage-branch] [--coverage-rcfile RCFILE]
-                         [--coverage-include PAT] [--coverage-omit PAT]
-                         [--coverage-source SRC] [--coverage-html DIR]
-                         [--coverage-xml FILE] [--coverage-fail-under MIN]
-
-options:
-  -h, --help            show this help message and exit
-  -v, --verbose         Verbose output
-  -q, --quiet           Quiet output
-  -b, --buffer          Buffer stdout and stderr during tests
-  -j COUNT, --jobs COUNT
-                        The number of test processes (default is 0, all cores)
-  --version             show version number and quit
-
-unittest options:
-  -s START, --start-directory START
-                        Directory to start discovery ('.' default)
-  -p PATTERN, --pattern PATTERN
-                        Pattern to match tests ('test*.py' default)
-  -t TOP, --top-level-directory TOP
-                        Top level directory of project (defaults to start
-                        directory)
-
-coverage options:
-  --coverage            Run tests with coverage
-  --coverage-branch     Run tests with branch coverage
-  --coverage-rcfile RCFILE
-                        Specify coverage configuration file
-  --coverage-include PAT
-                        Include only files matching one of these patterns.
-                        Accepts shell-style (quoted) wildcards.
-  --coverage-omit PAT   Omit files matching one of these patterns. Accepts
-                        shell-style (quoted) wildcards.
-  --coverage-source SRC
-                        A list of packages or directories of code to be
-                        measured
-  --coverage-html DIR   Generate coverage HTML report
-  --coverage-xml FILE   Generate coverage XML report
-  --coverage-fail-under MIN
-                        Fail if coverage percentage under min
-''')
-        self.assertEqual(stderr.getvalue(), '')
-
     def test_version(self):
         with patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr:
