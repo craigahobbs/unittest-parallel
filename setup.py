@@ -21,7 +21,7 @@ def main():
     # Do the setup
     setup(
         name=PACKAGE_NAME,
-        description=('Parallel unit test runner for Python3 with coverage support'),
+        description='Parallel unit test runner with coverage support',
         long_description=long_description,
         long_description_content_type='text/markdown',
         version=version,
