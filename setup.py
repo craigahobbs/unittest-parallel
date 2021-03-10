@@ -27,7 +27,7 @@ def main():
         version=version,
         author='Craig Hobbs',
         author_email='craigahobbs@gmail.com',
-        keywords='unittest parallel',
+        keywords='test unittest coverage parallel',
         url='https://github.com/craigahobbs/' + PACKAGE_NAME,
         license='MIT',
         classifiers=[
