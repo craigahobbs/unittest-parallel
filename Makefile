@@ -5,17 +5,15 @@ PYTHON_VERSIONS := \
     3.7 \
     3.6
 
-# Download Python Build base makefile
-ifeq '$(wildcard Makefile.base)' ''
-    $(info Downloading Makefile.base)
-    $(shell curl -s -o Makefile.base 'https://raw.githubusercontent.com/craigahobbs/python-build/master/Makefile.base')
+# Download Python Build base makefile and pylintrc
+define WGET
+ifeq '$$(wildcard $(notdir $(1)))' ''
+    $$(info Downloading $(notdir $(1)))
+    $$(shell if which wget > /dev/null; then wget -q '$(strip $(1))'; else curl -Os '$(strip $(1))'; fi)
 endif
-
-# Download Python Build's pylintrc
-ifeq '$(wildcard pylintrc)' ''
-    $(info Downloading pylintrc)
-    $(shell curl -s -o pylintrc 'https://raw.githubusercontent.com/craigahobbs/python-build/master/pylintrc')
-endif
+endef
+$(eval $(call WGET, https://raw.githubusercontent.com/craigahobbs/python-build/master/Makefile.base))
+$(eval $(call WGET, https://raw.githubusercontent.com/craigahobbs/python-build/master/pylintrc))
 
 # Include Python Build
 include Makefile.base
