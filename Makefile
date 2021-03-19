@@ -8,8 +8,8 @@ PYTHON_VERSIONS := \
 # Download Python Build base makefile and pylintrc
 define WGET
 ifeq '$$(wildcard $(notdir $(1)))' ''
-    $$(info Downloading $(notdir $(1)))
-    $$(shell if which wget > /dev/null; then wget -q '$(strip $(1))'; else curl -Os '$(strip $(1))'; fi)
+$$(info Downloading $(notdir $(1)))
+_WGET := $$(shell if which wget; then wget -q $(1); else curl -Os $(1); fi)
 endif
 endef
 $(eval $(call WGET, https://raw.githubusercontent.com/craigahobbs/python-build/master/Makefile.base))
