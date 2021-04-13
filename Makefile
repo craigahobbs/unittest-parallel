@@ -12,8 +12,8 @@ $$(info Downloading $(notdir $(1)))
 _WGET := $$(shell if which wget; then wget -q $(1); else curl -Os $(1); fi)
 endif
 endef
-$(eval $(call WGET, https://raw.githubusercontent.com/craigahobbs/python-build/master/Makefile.base))
-$(eval $(call WGET, https://raw.githubusercontent.com/craigahobbs/python-build/master/pylintrc))
+$(eval $(call WGET, https://raw.githubusercontent.com/craigahobbs/python-build/main/Makefile.base))
+$(eval $(call WGET, https://raw.githubusercontent.com/craigahobbs/python-build/main/pylintrc))
 
 # Include Python Build
 include Makefile.base

@@ -1,5 +1,5 @@
 # Licensed under the MIT License
-# https://github.com/craigahobbs/unittest-parallel/blob/master/LICENSE
+# https://github.com/craigahobbs/unittest-parallel/blob/main/LICENSE
 
 import re
 import os
