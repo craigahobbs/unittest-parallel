@@ -1,10 +1,3 @@
-PYTHON_VERSIONS := \
-    3.9 \
-    3.10-rc \
-    3.8 \
-    3.7 \
-    3.6
-
 # Download Python Build base makefile and pylintrc
 define WGET
 ifeq '$$(wildcard $(notdir $(1)))' ''
