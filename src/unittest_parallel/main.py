@@ -2,6 +2,7 @@
 # https://github.com/craigahobbs/unittest-parallel/blob/main/LICENSE
 
 import argparse
+from contextlib import contextmanager
 from itertools import chain
 import multiprocessing
 import os
@@ -68,12 +69,9 @@ def main(argv=None):
     with tempfile.TemporaryDirectory() as temp_dir:
 
         # Discover tests
-        cov = _coverage_start(args, temp_dir)
-        try:
+        with _coverage(args, temp_dir):
             test_loader = unittest.TestLoader()
             test_suites = test_loader.discover(args.start_directory, pattern=args.pattern, top_level_dir=args.top_level_directory)
-        finally:
-            _coverage_end(cov, args)
 
         # Run the tests in parallel
         with multiprocessing.Pool(process_count) as pool:
@@ -127,10 +125,43 @@ def main(argv=None):
                 parser.exit(status=2)
 
 
+@contextmanager
+def _coverage(args, temp_dir):
+    # Running tests with coverage?
+    if args.coverage:
+        # Generate a random coverage data file name - file is deleted along with containing directory
+        with tempfile.NamedTemporaryFile(dir=temp_dir, delete=False) as coverage_file:
+            pass
+
+        # Create the coverage object
+        cov = coverage.Coverage(
+            config_file=args.coverage_rcfile,
+            data_file=coverage_file.name,
+            branch=args.coverage_branch,
+            include=args.coverage_include,
+            omit=list(chain(args.coverage_omit if args.coverage_omit else [], [__file__])),
+            source=args.coverage_source
+        )
+        try:
+            # Start measuring code coverage
+            cov.start()
+
+            # Yield for unit test running
+            yield cov
+        finally:
+            # Stop measuring code coverage
+            cov.stop()
+
+            # Save the collected coverage data to the data file
+            cov.save()
+    else:
+        # Not running tests with coverage - yield for unit test running
+        yield None
+
+
 def _run_tests(pool_args):
     test_suite, args, temp_dir = pool_args
-    cov = _coverage_start(args, temp_dir)
-    try:
+    with _coverage(args, temp_dir):
         runner = unittest.TextTestRunner(verbosity=(2 if args.verbose else 1), buffer = args.buffer)
         result = runner.run(test_suite)
         return (
@@ -138,8 +169,6 @@ def _run_tests(pool_args):
             [_format_error(result, error) for error in result.errors],
             [_format_error(result, failure) for failure in result.failures]
         )
-    finally:
-        _coverage_end(cov, args)
 
 
 def _format_error(result, error):
@@ -149,26 +178,3 @@ def _format_error(result, error):
         '-' * 40,
         error[1]
     ])
-
-
-def _coverage_start(args, temp_dir):
-    cov = None
-    if args.coverage:
-        with tempfile.NamedTemporaryFile(dir=temp_dir, delete=False) as coverage_file:
-            pass
-        cov = coverage.Coverage(
-            config_file=args.coverage_rcfile,
-            data_file=coverage_file.name,
-            branch=args.coverage_branch,
-            include=args.coverage_include,
-            omit=list(chain(args.coverage_omit if args.coverage_omit else [], [__file__])),
-            source=args.coverage_source
-        )
-        cov.start()
-    return cov
-
-
-def _coverage_end(cov, args):
-    if args.coverage and coverage:
-        cov.stop()
-        cov.save()
