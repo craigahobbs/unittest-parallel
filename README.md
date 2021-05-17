@@ -23,8 +23,6 @@ To run your unit tests with coverage, add either the "--coverage" option (for li
 unittest-parallel -t . -s tests --coverage-branch
 ```
 
-The [coverage](https://pypi.org/project/coverage/) module is required for coverage support.
-
 
 ## How it works
 
