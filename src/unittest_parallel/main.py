@@ -3,11 +3,12 @@
 
 import argparse
 from contextlib import contextmanager
-from itertools import chain
+from io import StringIO
 import multiprocessing
 import os
 import sys
 import tempfile
+import time
 import unittest
 
 import coverage
@@ -19,9 +20,9 @@ def main(argv=None):
 
     # Command line parsing
     parser = argparse.ArgumentParser(prog='unittest-parallel')
-    parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', default=True,
+    parser.add_argument('-v', '--verbose', dest='verbose', action='store_const', const=2, default=1,
                         help='Verbose output')
-    parser.add_argument('-q', '--quiet', dest='verbose', action='store_false', default=True,
+    parser.add_argument('-q', '--quiet', dest='verbose', action='store_const', const=0, default=1,
                         help='Quiet output')
     parser.add_argument('-b', '--buffer', action='store_true', default=False,
                         help='Buffer stdout and stderr during tests')
@@ -74,32 +75,70 @@ def main(argv=None):
             test_suites = test_loader.discover(args.start_directory, pattern=args.pattern, top_level_dir=args.top_level_directory)
 
         # Run the tests in parallel
+        start_time = time.perf_counter()
         with multiprocessing.Pool(process_count) as pool:
             results = pool.map(
                 _run_tests,
                 ((test_suite, args, temp_dir) for test_suite in test_suites if test_suite.countTestCases() > 0)
             )
+        stop_time = time.perf_counter()
+        test_duration = stop_time - start_time
+
+        # Aggregate parallel test run results
+        tests_run = 0
+        errors = []
+        failures = []
+        skipped = 0
+        expected_failures = 0
+        unexpected_successes = 0
+        for result in results:
+            tests_run += result[0]
+            errors.extend(result[1])
+            failures.extend(result[2])
+            skipped += result[3]
+            expected_failures += result[4]
+            unexpected_successes += result[5]
+        is_success = not(errors or failures or unexpected_successes)
+
+        # Report test errors
+        for error in errors:
+            sys.stderr.write('\n')
+            sys.stderr.write(error)
+        for failure in failures:
+            sys.stderr.write('\n')
+            sys.stderr.write(failure)
+
+        # Compute test info
+        infos = []
+        if failures:
+            infos.append('failures={0}'.format(len(failures)))
+        if errors:
+            infos.append('errors={0}'.format(len(errors)))
+        if skipped:
+            infos.append('skipped={0}'.format(skipped))
+        if expected_failures:
+            infos.append('expected failures={0}'.format(expected_failures))
+        if unexpected_successes:
+            infos.append('unexpected successes={0}'.format(unexpected_successes))
 
         # Test report
-        run_count = sum(run for run, _, _ in results)
-        error_count = sum(len(errors) for _, errors, _ in results)
-        failure_count = sum(len(failures) for _, _, failures in results)
-        print(file=sys.stderr)
-        print('Ran {0} tests'.format(run_count), file=sys.stderr)
-        if error_count or failure_count:
-            print(file=sys.stderr)
-            print(file=sys.stderr)
-            if error_count > 0:
-                print('ERRORS: {0}'.format(error_count), file=sys.stderr)
-            if failure_count > 0:
-                print('FAILURES: {0}'.format(failure_count), file=sys.stderr)
-            print(file=sys.stderr)
-            for error_text in chain.from_iterable(errors for _, errors, _ in results):
-                print(error_text, file=sys.stderr)
-            for failure_text in chain.from_iterable(failures for _, _, failures in results):
-                print(failure_text, file=sys.stderr)
-            parser.exit(status=error_count + failure_count)
+        if args.verbose > 0:
+            sys.stderr.write('\n')
+        sys.stderr.write(unittest.TextTestResult.separator2)
+        sys.stderr.write('\nRan {0} {1} in {2:.3f}s\n'.format(tests_run, 'tests' if tests_run > 1 else 'test', test_duration))
+        if is_success:
+            sys.stderr.write('\nOK')
+        else:
+            sys.stderr.write('\nFAILED')
+        if infos:
+            sys.stderr.write(' ({0})'.format(', '.join(infos)))
+        sys.stderr.write('\n')
 
+        # Return an error status on failure
+        if not is_success:
+            parser.exit(status=len(errors) + len(failures) + unexpected_successes)
+
+        # Coverage?
         if args.coverage:
 
             # Combine the coverage files
@@ -107,10 +146,8 @@ def main(argv=None):
             cov.combine(data_paths=[os.path.join(temp_dir, x) for x in os.listdir(temp_dir)])
 
             # Coverage report
-            print(file=sys.stderr)
             percent_covered = cov.report(ignore_errors=True)
-            print(file=sys.stderr)
-            print('Total coverage is {0:.2f}%'.format(percent_covered), file=sys.stderr)
+            sys.stderr.write('\nTotal coverage is {0:.2f}%\n'.format(percent_covered))
 
             # HTML coverage report
             if args.coverage_html:
@@ -139,7 +176,7 @@ def _coverage(args, temp_dir):
             data_file=coverage_file.name,
             branch=args.coverage_branch,
             include=args.coverage_include,
-            omit=list(chain(args.coverage_omit if args.coverage_omit else [], [__file__])),
+            omit=list((args.coverage_omit if args.coverage_omit else []) + [__file__]),
             source=args.coverage_source
         )
         try:
@@ -159,22 +196,78 @@ def _coverage(args, temp_dir):
         yield None
 
 
+class ParallelTextTestResult(unittest.TextTestResult):
+
+    def __init__(self, stream, descriptions, verbosity):
+        stream = type(stream)(sys.stderr)
+        super().__init__(stream, descriptions, verbosity)
+
+    def startTest(self, test):
+        # pylint: disable=bad-super-call
+        super(unittest.TextTestResult, self).startTest(test)
+
+    def _add_helper(self, test, dots_message, show_all_message):
+        if self.showAll:
+            self.stream.write(self.getDescription(test))
+            self.stream.write(" ... ")
+            self.stream.writeln(show_all_message)
+        elif self.dots:
+            self.stream.write(dots_message)
+        self.stream.flush()
+
+    def addSuccess(self, test):
+        # pylint: disable=bad-super-call
+        super(unittest.TextTestResult, self).addSuccess(test)
+        self._add_helper(test, '.', 'ok')
+
+    def addError(self, test, err):
+        # pylint: disable=bad-super-call
+        super(unittest.TextTestResult, self).addError(test, err)
+        self._add_helper(test, 'E', 'ERROR')
+
+    def addFailure(self, test, err):
+        # pylint: disable=bad-super-call
+        super(unittest.TextTestResult, self).addFailure(test, err)
+        self._add_helper(test, 'F', 'FAIL')
+
+    def addSkip(self, test, reason):
+        # pylint: disable=bad-super-call
+        super(unittest.TextTestResult, self).addSkip(test, reason)
+        self._add_helper(test, 's', 'skipped {0!r}'.format(reason))
+
+    def addExpectedFailure(self, test, err):
+        # pylint: disable=bad-super-call
+        super(unittest.TextTestResult, self).addExpectedFailure(test, err)
+        self._add_helper(test, 'x', 'expected failure')
+
+    def addUnexpectedSuccess(self, test):
+        # pylint: disable=bad-super-call
+        super(unittest.TextTestResult, self).addUnexpectedSuccess(test)
+        self._add_helper(test, 'u', 'unexpected success')
+
+    def printErrors(self):
+        pass
+
+
 def _run_tests(pool_args):
     test_suite, args, temp_dir = pool_args
     with _coverage(args, temp_dir):
-        runner = unittest.TextTestRunner(verbosity=(2 if args.verbose else 1), buffer = args.buffer)
+        runner = unittest.TextTestRunner(stream=StringIO(), resultclass=ParallelTextTestResult, verbosity=args.verbose, buffer=args.buffer)
         result = runner.run(test_suite)
         return (
             result.testsRun,
             [_format_error(result, error) for error in result.errors],
-            [_format_error(result, failure) for failure in result.failures]
+            [_format_error(result, failure) for failure in result.failures],
+            len(result.skipped),
+            len(result.expectedFailures),
+            len(result.unexpectedSuccesses)
         )
 
 
 def _format_error(result, error):
     return '\n'.join([
-        '=' * 40,
+        unittest.TextTestResult.separator1,
         result.getDescription(error[0]),
-        '-' * 40,
+        unittest.TextTestResult.separator2,
         error[1]
     ])

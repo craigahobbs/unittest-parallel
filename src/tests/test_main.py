@@ -4,7 +4,7 @@
 from io import StringIO
 import re
 import sys
-from unittest import TestCase, TestSuite
+import unittest
 from unittest.mock import ANY, Mock, call, patch
 
 from unittest_parallel import __version__
@@ -27,7 +27,7 @@ class MockMultiprocessingPool:
         return [func(arg) for arg in args]
 
 
-class SuccessTestCase(TestCase):
+class SuccessTestCase(unittest.TestCase):
     def mock_1(self):
         self.assertIsNotNone(self)
 
@@ -38,7 +38,7 @@ class SuccessTestCase(TestCase):
         self.assertIsNotNone(self)
 
 
-class SuccessWithOutputTestCase(TestCase):
+class SuccessWithOutputTestCase(unittest.TestCase):
     def mock_1(self):
         self.assertIsNotNone(self)
 
@@ -51,7 +51,7 @@ class SuccessWithOutputTestCase(TestCase):
         self.assertIsNotNone(self)
 
 
-class FailureTestCase(TestCase):
+class FailureTestCase(unittest.TestCase):
     def mock_1(self):
         self.assertIsNotNone(self)
 
@@ -62,7 +62,7 @@ class FailureTestCase(TestCase):
         self.assertIsNotNone(self)
 
 
-class ErrorTestCase(TestCase):
+class ErrorTestCase(unittest.TestCase):
     def mock_1(self):
         self.assertIsNotNone(self)
 
@@ -74,9 +74,34 @@ class ErrorTestCase(TestCase):
         self.assertIsNotNone(self)
 
 
+class SkipTestCase(unittest.TestCase):
+    def mock_1(self):
+        self.assertIsNotNone(self)
+
+    @unittest.skip('skip reason')
+    def mock_2(self):
+        pass # pragma: no cover
+
+    def mock_3(self):
+        self.assertIsNotNone(self)
+
+
+class ExpectedFailureTestCase(unittest.TestCase):
+    def mock_1(self):
+        self.assertIsNotNone(self)
+
+    @unittest.expectedFailure
+    def mock_2(self):
+        self.assertIsNone(self)
+
+    @unittest.expectedFailure
+    def mock_3(self):
+        self.assertIsNotNone(self)
+
+
 def _create_test_suite(test_case_class):
-    return TestSuite(tests=[
-        TestSuite(tests=[
+    return unittest.TestSuite(tests=[
+        unittest.TestSuite(tests=[
             test_case_class('mock_1'),
             test_case_class('mock_2'),
             test_case_class('mock_3')
@@ -84,7 +109,7 @@ def _create_test_suite(test_case_class):
     ])
 
 
-class TestMain(TestCase):
+class TestMain(unittest.TestCase):
 
     def assert_output(self, actual, expected):
         self.assertEqual(
@@ -118,27 +143,33 @@ class TestMain(TestCase):
              patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
-             patch('unittest.TestLoader.discover', Mock(return_value=TestSuite())):
+             patch('unittest.TestLoader.discover', Mock(return_value=unittest.TestSuite())):
             main(['-j', '1'])
 
         cpu_count_mock.assert_not_called()
         self.assertEqual(stdout.getvalue(), '')
         self.assertEqual(stderr.getvalue(), '''\
 
-Ran 0 tests
+----------------------------------------------------------------------
+Ran 0 test in 0.000s
+
+OK
 ''')
 
     def test_pool_no_tests(self):
         with patch('multiprocessing.cpu_count', Mock(return_value=1)), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
-             patch('unittest.TestLoader.discover', Mock(return_value=TestSuite())):
+             patch('unittest.TestLoader.discover', Mock(return_value=unittest.TestSuite())):
             main([])
 
         self.assertEqual(stdout.getvalue(), '')
-        self.assertEqual(stderr.getvalue(), '''\
+        self.assert_output(stderr.getvalue(), '''\
 
-Ran 0 tests
+----------------------------------------------------------------------
+Ran 0 test in <SEC>s
+
+OK
 ''')
 
     def test_pool_success(self):
@@ -151,7 +182,10 @@ Ran 0 tests
         self.assertEqual(stdout.getvalue(), '')
         self.assert_output(stderr.getvalue(), '''\
 
-Ran 3 tests
+----------------------------------------------------------------------
+Ran 3 tests in <SEC>s
+
+OK
 ''')
 
     def test_success(self):
@@ -159,7 +193,7 @@ Ran 3 tests
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(SuccessTestCase))):
-            main([])
+            main(['-v'])
 
         self.assertEqual(stdout.getvalue(), '')
         self.assert_output(stderr.getvalue(), '''\
@@ -171,8 +205,22 @@ mock_3 (tests.test_main.SuccessTestCase) ... ok
 Ran 3 tests in <SEC>s
 
 OK
+''')
 
-Ran 3 tests
+    def test_success_dots(self):
+        with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('sys.stdout', StringIO()) as stdout, \
+             patch('sys.stderr', StringIO()) as stderr, \
+             patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(SuccessTestCase))):
+            main([])
+
+        self.assertEqual(stdout.getvalue(), '')
+        self.assert_output(stderr.getvalue(), '''\
+...
+----------------------------------------------------------------------
+Ran 3 tests in <SEC>s
+
+OK
 ''')
 
     def test_success_quiet(self):
@@ -184,13 +232,10 @@ Ran 3 tests
 
         self.assertEqual(stdout.getvalue(), '')
         self.assert_output(stderr.getvalue(), '''\
-...
 ----------------------------------------------------------------------
 Ran 3 tests in <SEC>s
 
 OK
-
-Ran 3 tests
 ''')
 
     def test_success_verbose(self):
@@ -210,8 +255,6 @@ mock_3 (tests.test_main.SuccessTestCase) ... ok
 Ran 3 tests in <SEC>s
 
 OK
-
-Ran 3 tests
 ''')
 
     def test_success_buffer(self):
@@ -219,7 +262,7 @@ Ran 3 tests
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(SuccessWithOutputTestCase))):
-            main(['-b'])
+            main(['-v', '-b'])
 
         self.assertEqual(stdout.getvalue(), '')
         self.assert_output(stderr.getvalue(), '''\
@@ -231,8 +274,6 @@ mock_3 (tests.test_main.SuccessWithOutputTestCase) ... ok
 Ran 3 tests in <SEC>s
 
 OK
-
-Ran 3 tests
 ''')
 
     def test_success_buffer_off(self):
@@ -240,7 +281,7 @@ Ran 3 tests
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(SuccessWithOutputTestCase))):
-            main([])
+            main(['-v'])
 
         self.assertEqual(stdout.getvalue(), '''\
 Hello stdout!
@@ -248,15 +289,13 @@ Hello stdout!
         self.assert_output(stderr.getvalue(), '''\
 mock_1 (tests.test_main.SuccessWithOutputTestCase) ... ok
 mock_2 (tests.test_main.SuccessWithOutputTestCase) ... ok
-mock_3 (tests.test_main.SuccessWithOutputTestCase) ... Hello stderr!
-ok
+Hello stderr!
+mock_3 (tests.test_main.SuccessWithOutputTestCase) ... ok
 
 ----------------------------------------------------------------------
 Ran 3 tests in <SEC>s
 
 OK
-
-Ran 3 tests
 ''')
 
     def test_failure(self):
@@ -265,7 +304,7 @@ Ran 3 tests
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(FailureTestCase))):
             with self.assertRaises(SystemExit) as cm_exc:
-                main([])
+                main(['-v'])
 
         self.assertEqual(cm_exc.exception.code, 1)
         self.assertEqual(stdout.getvalue(), '')
@@ -275,7 +314,7 @@ mock_2 (tests.test_main.FailureTestCase) ... FAIL
 mock_3 (tests.test_main.FailureTestCase) ... ok
 
 ======================================================================
-FAIL: mock_2 (tests.test_main.FailureTestCase)
+mock_2 (tests.test_main.FailureTestCase)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
   File "<FILE>", line <LINE>, in mock_2
@@ -286,20 +325,6 @@ AssertionError: None
 Ran 3 tests in <SEC>s
 
 FAILED (failures=1)
-
-Ran 3 tests
-
-
-FAILURES: 1
-
-========================================
-mock_2 (tests.test_main.FailureTestCase)
-----------------------------------------
-Traceback (most recent call last):
-  File "<FILE>", line <LINE>, in mock_2
-    self.fail()
-AssertionError: None
-
 ''')
 
     def test_error(self):
@@ -308,7 +333,7 @@ AssertionError: None
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(ErrorTestCase))):
             with self.assertRaises(SystemExit) as cm_exc:
-                main([])
+                main(['-v'])
 
         self.assertEqual(cm_exc.exception.code, 1)
         self.assertEqual(stdout.getvalue(), '')
@@ -318,7 +343,7 @@ mock_2 (tests.test_main.ErrorTestCase) ... ERROR
 mock_3 (tests.test_main.ErrorTestCase) ... ok
 
 ======================================================================
-ERROR: mock_2 (tests.test_main.ErrorTestCase)
+mock_2 (tests.test_main.ErrorTestCase)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
   File "<FILE>", line <LINE>, in mock_2
@@ -329,20 +354,46 @@ Exception
 Ran 3 tests in <SEC>s
 
 FAILED (errors=1)
+''')
 
-Ran 3 tests
+    def test_skipped(self):
+        with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('sys.stdout', StringIO()) as stdout, \
+             patch('sys.stderr', StringIO()) as stderr, \
+             patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(SkipTestCase))):
+            main(['-v'])
 
+        self.assertEqual(stdout.getvalue(), '')
+        self.assert_output(stderr.getvalue(), '''\
+mock_1 (tests.test_main.SkipTestCase) ... ok
+mock_2 (tests.test_main.SkipTestCase) ... skipped 'skip reason'
+mock_3 (tests.test_main.SkipTestCase) ... ok
 
-ERRORS: 1
+----------------------------------------------------------------------
+Ran 3 tests in <SEC>s
 
-========================================
-mock_2 (tests.test_main.ErrorTestCase)
-----------------------------------------
-Traceback (most recent call last):
-  File "<FILE>", line <LINE>, in mock_2
-    raise Exception()
-Exception
+OK (skipped=1)
+''')
 
+    def test_expected_failure(self):
+        with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('sys.stdout', StringIO()) as stdout, \
+             patch('sys.stderr', StringIO()) as stderr, \
+             patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(ExpectedFailureTestCase))):
+            with self.assertRaises(SystemExit) as cm_exc:
+                main(['-v'])
+
+        self.assertEqual(cm_exc.exception.code, 1)
+        self.assertEqual(stdout.getvalue(), '')
+        self.assert_output(re.sub(r'File ".*?", line \d+', 'File "<FILE>", line <LINE>', stderr.getvalue()), '''\
+mock_1 (tests.test_main.ExpectedFailureTestCase) ... ok
+mock_2 (tests.test_main.ExpectedFailureTestCase) ... expected failure
+mock_3 (tests.test_main.ExpectedFailureTestCase) ... unexpected success
+
+----------------------------------------------------------------------
+Ran 3 tests in <SEC>s
+
+FAILED (expected failures=1, unexpected successes=1)
 ''')
 
     def test_run_tests_coverage(self):
@@ -350,7 +401,7 @@ Exception
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(SuccessTestCase))):
-            main([])
+            main(['-v'])
 
         self.assertEqual(stdout.getvalue(), '')
         self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
@@ -362,8 +413,6 @@ mock_3 (tests.test_main.SuccessTestCase) ... ok
 Ran 3 tests in <SEC>s
 
 OK
-
-Ran 3 tests
 ''')
 
     def test_coverage(self):
@@ -374,7 +423,7 @@ Ran 3 tests
              patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(SuccessTestCase))):
             coverage_instance = coverage_mock.return_value
             coverage_instance.report.return_value = 100.
-            main(['--coverage'])
+            main(['-v', '--coverage'])
 
         self.assertListEqual(
             coverage_mock.mock_calls,
@@ -402,9 +451,6 @@ mock_3 (tests.test_main.SuccessTestCase) ... ok
 Ran 3 tests in <SEC>s
 
 OK
-
-Ran 3 tests
-
 
 Total coverage is 100.00%
 ''')
@@ -417,7 +463,7 @@ Total coverage is 100.00%
              patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(SuccessTestCase))):
             coverage_instance = coverage_mock.return_value
             coverage_instance.report.return_value = 100.
-            main(['--coverage-branch'])
+            main(['-v', '--coverage-branch'])
 
         self.assertListEqual(
             coverage_mock.mock_calls,
@@ -446,9 +492,6 @@ Ran 3 tests in <SEC>s
 
 OK
 
-Ran 3 tests
-
-
 Total coverage is 100.00%
 ''')
 
@@ -457,7 +500,7 @@ Total coverage is 100.00%
              patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
-             patch('unittest.TestLoader.discover', Mock(return_value=TestSuite())):
+             patch('unittest.TestLoader.discover', Mock(return_value=unittest.TestSuite())):
             coverage_instance = coverage_mock.return_value
             coverage_instance.report.return_value = 100.
             main(['--coverage-branch'])
@@ -477,8 +520,10 @@ Total coverage is 100.00%
         self.assertEqual(stdout.getvalue(), '')
         self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
 
-Ran 0 tests
+----------------------------------------------------------------------
+Ran 0 test in <SEC>s
 
+OK
 
 Total coverage is 100.00%
 ''')
@@ -491,7 +536,7 @@ Total coverage is 100.00%
              patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(SuccessTestCase))):
             coverage_instance = coverage_mock.return_value
             coverage_instance.report.return_value = 100.
-            main(['--coverage-branch', '--coverage-html', 'html_dir'])
+            main(['-v', '--coverage-branch', '--coverage-html', 'html_dir'])
 
         self.assertListEqual(
             coverage_mock.mock_calls,
@@ -521,9 +566,6 @@ Ran 3 tests in <SEC>s
 
 OK
 
-Ran 3 tests
-
-
 Total coverage is 100.00%
 ''')
 
@@ -535,7 +577,7 @@ Total coverage is 100.00%
              patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(SuccessTestCase))):
             coverage_instance = coverage_mock.return_value
             coverage_instance.report.return_value = 100.
-            main(['--coverage-branch', '--coverage-xml', 'xml_dir'])
+            main(['-v', '--coverage-branch', '--coverage-xml', 'xml_dir'])
 
         self.assertListEqual(
             coverage_mock.mock_calls,
@@ -565,9 +607,6 @@ Ran 3 tests in <SEC>s
 
 OK
 
-Ran 3 tests
-
-
 Total coverage is 100.00%
 ''')
 
@@ -580,7 +619,7 @@ Total coverage is 100.00%
             coverage_instance = coverage_mock.return_value
             coverage_instance.report.return_value = 99.
             with self.assertRaises(SystemExit) as cm_exc:
-                main(['--coverage-branch', '--coverage-fail-under', '100'])
+                main(['-v', '--coverage-branch', '--coverage-fail-under', '100'])
 
         self.assertEqual(cm_exc.exception.code, 2)
         self.assertListEqual(
@@ -610,9 +649,6 @@ Ran 3 tests in <SEC>s
 
 OK
 
-Ran 3 tests
-
-
 Total coverage is 99.00%
 ''')
 
@@ -625,6 +661,7 @@ Total coverage is 99.00%
             coverage_instance = coverage_mock.return_value
             coverage_instance.report.return_value = 100.
             main([
+                '-v',
                 '--coverage-branch',
                 '--coverage-rcfile', 'rcfile',
                 '--coverage-include', 'include*.py',
@@ -660,9 +697,6 @@ mock_3 (tests.test_main.SuccessTestCase) ... ok
 Ran 3 tests in <SEC>s
 
 OK
-
-Ran 3 tests
-
 
 Total coverage is 100.00%
 ''')
