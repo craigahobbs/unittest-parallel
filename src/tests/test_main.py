@@ -452,6 +452,7 @@ Ran 3 tests in <SEC>s
 
 OK
 
+
 Total coverage is 100.00%
 ''')
 
@@ -492,6 +493,7 @@ Ran 3 tests in <SEC>s
 
 OK
 
+
 Total coverage is 100.00%
 ''')
 
@@ -524,6 +526,7 @@ Total coverage is 100.00%
 Ran 0 test in <SEC>s
 
 OK
+
 
 Total coverage is 100.00%
 ''')
@@ -566,6 +569,7 @@ Ran 3 tests in <SEC>s
 
 OK
 
+
 Total coverage is 100.00%
 ''')
 
@@ -606,6 +610,7 @@ mock_3 (tests.test_main.SuccessTestCase) ... ok
 Ran 3 tests in <SEC>s
 
 OK
+
 
 Total coverage is 100.00%
 ''')
@@ -648,6 +653,7 @@ mock_3 (tests.test_main.SuccessTestCase) ... ok
 Ran 3 tests in <SEC>s
 
 OK
+
 
 Total coverage is 99.00%
 ''')
@@ -697,6 +703,7 @@ mock_3 (tests.test_main.SuccessTestCase) ... ok
 Ran 3 tests in <SEC>s
 
 OK
+
 
 Total coverage is 100.00%
 ''')

@@ -141,6 +141,7 @@ def main(argv=None):
             cov.combine(data_paths=[os.path.join(temp_dir, x) for x in os.listdir(temp_dir)])
 
             # Coverage report
+            print(file=sys.stderr)
             percent_covered = cov.report(ignore_errors=True)
             print(file=sys.stderr)
             print(f'Total coverage is {percent_covered:.2f}%', file=sys.stderr)
