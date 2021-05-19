@@ -438,7 +438,7 @@ OK
                 call().save(),
                 call(config_file=None),
                 call().combine(data_paths=[ANY, ANY]),
-                call().report(ignore_errors=True)
+                call().report(ignore_errors=True, file=ANY)
             ]
         )
         self.assertEqual(stdout.getvalue(), '')
@@ -479,7 +479,7 @@ Total coverage is 100.00%
                 call().save(),
                 call(config_file=None),
                 call().combine(data_paths=[ANY, ANY]),
-                call().report(ignore_errors=True)
+                call().report(ignore_errors=True, file=ANY)
             ]
         )
         self.assertEqual(stdout.getvalue(), '')
@@ -516,7 +516,7 @@ Total coverage is 100.00%
                 call().save(),
                 call(config_file=None),
                 call().combine(data_paths=[ANY]),
-                call().report(ignore_errors=True)
+                call().report(ignore_errors=True, file=ANY)
             ]
         )
         self.assertEqual(stdout.getvalue(), '')
@@ -554,7 +554,7 @@ Total coverage is 100.00%
                 call().save(),
                 call(config_file=None),
                 call().combine(data_paths=[ANY, ANY]),
-                call().report(ignore_errors=True),
+                call().report(ignore_errors=True, file=ANY),
                 call().html_report(directory='html_dir', ignore_errors=True)
             ]
         )
@@ -596,7 +596,7 @@ Total coverage is 100.00%
                 call().save(),
                 call(config_file=None),
                 call().combine(data_paths=[ANY, ANY]),
-                call().report(ignore_errors=True),
+                call().report(ignore_errors=True, file=ANY),
                 call().xml_report(ignore_errors=True, outfile='xml_dir')
             ]
         )
@@ -640,7 +640,7 @@ Total coverage is 100.00%
                 call().save(),
                 call(config_file=None),
                 call().combine(data_paths=[ANY, ANY]),
-                call().report(ignore_errors=True)
+                call().report(ignore_errors=True, file=ANY)
             ]
         )
         self.assertEqual(stdout.getvalue(), '')
@@ -690,7 +690,7 @@ Total coverage is 99.00%
                 call().save(),
                 call(config_file='rcfile'),
                 call().combine(data_paths=[ANY, ANY]),
-                call().report(ignore_errors=True)
+                call().report(ignore_errors=True, file=ANY)
             ]
         )
         self.assertEqual(stdout.getvalue(), '')
