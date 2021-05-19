@@ -436,8 +436,16 @@ OK
                 call().start(),
                 call().stop(),
                 call().save(),
+                call(branch=False, config_file=None, data_file=ANY, include=None, omit=[ANY], source=None),
+                call().start(),
+                call().stop(),
+                call().save(),
+                call(branch=False, config_file=None, data_file=ANY, include=None, omit=[ANY], source=None),
+                call().start(),
+                call().stop(),
+                call().save(),
                 call(config_file=None),
-                call().combine(data_paths=[ANY, ANY]),
+                call().combine(data_paths=[ANY, ANY, ANY, ANY]),
                 call().report(ignore_errors=True, file=ANY)
             ]
         )
@@ -477,8 +485,16 @@ Total coverage is 100.00%
                 call().start(),
                 call().stop(),
                 call().save(),
+                call(branch=True, config_file=None, data_file=ANY, include=None, omit=[ANY], source=None),
+                call().start(),
+                call().stop(),
+                call().save(),
+                call(branch=True, config_file=None, data_file=ANY, include=None, omit=[ANY], source=None),
+                call().start(),
+                call().stop(),
+                call().save(),
                 call(config_file=None),
-                call().combine(data_paths=[ANY, ANY]),
+                call().combine(data_paths=[ANY, ANY, ANY, ANY]),
                 call().report(ignore_errors=True, file=ANY)
             ]
         )
@@ -552,8 +568,16 @@ Total coverage is 100.00%
                 call().start(),
                 call().stop(),
                 call().save(),
+                call(branch=True, config_file=None, data_file=ANY, include=None, omit=[ANY], source=None),
+                call().start(),
+                call().stop(),
+                call().save(),
+                call(branch=True, config_file=None, data_file=ANY, include=None, omit=[ANY], source=None),
+                call().start(),
+                call().stop(),
+                call().save(),
                 call(config_file=None),
-                call().combine(data_paths=[ANY, ANY]),
+                call().combine(data_paths=[ANY, ANY, ANY, ANY]),
                 call().report(ignore_errors=True, file=ANY),
                 call().html_report(directory='html_dir', ignore_errors=True)
             ]
@@ -594,8 +618,16 @@ Total coverage is 100.00%
                 call().start(),
                 call().stop(),
                 call().save(),
+                call(branch=True, config_file=None, data_file=ANY, include=None, omit=[ANY], source=None),
+                call().start(),
+                call().stop(),
+                call().save(),
+                call(branch=True, config_file=None, data_file=ANY, include=None, omit=[ANY], source=None),
+                call().start(),
+                call().stop(),
+                call().save(),
                 call(config_file=None),
-                call().combine(data_paths=[ANY, ANY]),
+                call().combine(data_paths=[ANY, ANY, ANY, ANY]),
                 call().report(ignore_errors=True, file=ANY),
                 call().xml_report(ignore_errors=True, outfile='xml_dir')
             ]
@@ -638,8 +670,16 @@ Total coverage is 100.00%
                 call().start(),
                 call().stop(),
                 call().save(),
+                call(branch=True, config_file=None, data_file=ANY, include=None, omit=[ANY], source=None),
+                call().start(),
+                call().stop(),
+                call().save(),
+                call(branch=True, config_file=None, data_file=ANY, include=None, omit=[ANY], source=None),
+                call().start(),
+                call().stop(),
+                call().save(),
                 call(config_file=None),
-                call().combine(data_paths=[ANY, ANY]),
+                call().combine(data_paths=[ANY, ANY, ANY, ANY]),
                 call().report(ignore_errors=True, file=ANY)
             ]
         )
@@ -688,8 +728,18 @@ Total coverage is 99.00%
                 call().start(),
                 call().stop(),
                 call().save(),
+                call(branch=True, config_file='rcfile', data_file=ANY, include=['include*.py'],
+                     omit=['omit*.py', ANY], source=['source*.py']),
+                call().start(),
+                call().stop(),
+                call().save(),
+                call(branch=True, config_file='rcfile', data_file=ANY, include=['include*.py'],
+                     omit=['omit*.py', ANY], source=['source*.py']),
+                call().start(),
+                call().stop(),
+                call().save(),
                 call(config_file='rcfile'),
-                call().combine(data_paths=[ANY, ANY]),
+                call().combine(data_paths=[ANY, ANY, ANY, ANY]),
                 call().report(ignore_errors=True, file=ANY)
             ]
         )

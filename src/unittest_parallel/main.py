@@ -79,7 +79,7 @@ def main(argv=None):
         with multiprocessing.Pool(process_count) as pool:
             results = pool.map(
                 _run_tests,
-                ((test_suite, args, temp_dir) for test_suite in test_suites if test_suite.countTestCases() > 0)
+                ((test_case, args, temp_dir) for test_case in _iter_test_cases(test_suites))
             )
         stop_time = time.perf_counter()
         test_duration = stop_time - start_time
@@ -193,6 +193,14 @@ def _coverage(args, temp_dir):
         yield None
 
 
+def _iter_test_cases(test_suite):
+    if isinstance(test_suite, unittest.TestCase):
+        yield test_suite
+    else:
+        for sub_test_suite in test_suite:
+            yield from _iter_test_cases(sub_test_suite)
+
+
 class ParallelTextTestResult(unittest.TextTestResult):
 
     def __init__(self, stream, descriptions, verbosity):
@@ -245,10 +253,10 @@ class ParallelTextTestResult(unittest.TextTestResult):
 
 
 def _run_tests(pool_args):
-    test_suite, args, temp_dir = pool_args
+    test_case, args, temp_dir = pool_args
     with _coverage(args, temp_dir):
         runner = unittest.TextTestRunner(stream=StringIO(), resultclass=ParallelTextTestResult, verbosity=args.verbose, buffer=args.buffer)
-        result = runner.run(test_suite)
+        result = runner.run(test_case)
         return (
             result.testsRun,
             [_format_error(result, error) for error in result.errors],
