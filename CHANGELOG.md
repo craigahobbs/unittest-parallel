@@ -1,3 +1,7 @@
+## 1.2.0 (2021-05-19)
+
+- [f74e637](https://github.com/craigahobbs/unittest-parallel/commit/f74e637) - parallelize all test cases, not just top-level test suites
+
 ## 1.1.3 (2021-05-19)
 
 - [0c7fe1e](https://github.com/craigahobbs/unittest-parallel/commit/0c7fe1e) - coverage report to stderr
