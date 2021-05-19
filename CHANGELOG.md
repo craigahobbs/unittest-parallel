@@ -1,3 +1,7 @@
+## 1.1.1 (2021-05-19)
+
+- [25674d8](https://github.com/craigahobbs/unittest-parallel/commit/25674d8) - streamline reporting code
+
 ## 1.1.0 (2021-05-17)
 
 - [c86f809](https://github.com/craigahobbs/unittest-parallel/commit/c86f809) - more closely match Python unittest tool's output
