@@ -1,3 +1,7 @@
+## 1.1.3 (2021-05-19)
+
+- [0c7fe1e](https://github.com/craigahobbs/unittest-parallel/commit/0c7fe1e) - coverage report to stderr
+
 ## 1.1.2 (2021-05-19)
 
 - [7285299](https://github.com/craigahobbs/unittest-parallel/commit/7285299) - add blank line above coverage report
