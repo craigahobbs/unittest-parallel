@@ -100,39 +100,34 @@ def main(argv=None):
             unexpected_successes += result[5]
         is_success = not(errors or failures or unexpected_successes)
 
-        # Report test errors
-        for error in errors:
-            sys.stderr.write('\n')
-            sys.stderr.write(error)
-        for failure in failures:
-            sys.stderr.write('\n')
-            sys.stderr.write(failure)
-
         # Compute test info
         infos = []
         if failures:
-            infos.append('failures={0}'.format(len(failures)))
+            infos.append(f'failures={len(failures)}')
         if errors:
-            infos.append('errors={0}'.format(len(errors)))
+            infos.append(f'errors={len(errors)}')
         if skipped:
-            infos.append('skipped={0}'.format(skipped))
+            infos.append(f'skipped={skipped}')
         if expected_failures:
-            infos.append('expected failures={0}'.format(expected_failures))
+            infos.append(f'expected failures={expected_failures}')
         if unexpected_successes:
-            infos.append('unexpected successes={0}'.format(unexpected_successes))
+            infos.append(f'unexpected successes={unexpected_successes}')
+
+        # Report test errors
+        if errors or failures:
+            print(file=sys.stderr)
+            for error in errors:
+                print(error, file=sys.stderr)
+            for failure in failures:
+                print(failure, file=sys.stderr)
+        elif args.verbose > 0:
+            print(file=sys.stderr)
 
         # Test report
-        if args.verbose > 0:
-            sys.stderr.write('\n')
-        sys.stderr.write(unittest.TextTestResult.separator2)
-        sys.stderr.write('\nRan {0} {1} in {2:.3f}s\n'.format(tests_run, 'tests' if tests_run > 1 else 'test', test_duration))
-        if is_success:
-            sys.stderr.write('\nOK')
-        else:
-            sys.stderr.write('\nFAILED')
-        if infos:
-            sys.stderr.write(' ({0})'.format(', '.join(infos)))
-        sys.stderr.write('\n')
+        print(unittest.TextTestResult.separator2, file=sys.stderr)
+        print(f'Ran {tests_run} {"tests" if tests_run > 1 else "test"} in {test_duration:.3f}s', file=sys.stderr)
+        print(file=sys.stderr)
+        print(f'{"OK" if is_success else "FAILED"}{" (" + ", ".join(infos) + ")" if infos else ""}', file=sys.stderr)
 
         # Return an error status on failure
         if not is_success:
@@ -147,7 +142,8 @@ def main(argv=None):
 
             # Coverage report
             percent_covered = cov.report(ignore_errors=True)
-            sys.stderr.write('\nTotal coverage is {0:.2f}%\n'.format(percent_covered))
+            print(file=sys.stderr)
+            print(f'Total coverage is {percent_covered:.2f}%', file=sys.stderr)
 
             # HTML coverage report
             if args.coverage_html:
@@ -208,9 +204,7 @@ class ParallelTextTestResult(unittest.TextTestResult):
 
     def _add_helper(self, test, dots_message, show_all_message):
         if self.showAll:
-            self.stream.write(self.getDescription(test))
-            self.stream.write(" ... ")
-            self.stream.writeln(show_all_message)
+            self.stream.writeln(f'{self.getDescription(test)} ... {show_all_message}')
         elif self.dots:
             self.stream.write(dots_message)
         self.stream.flush()
@@ -233,7 +227,7 @@ class ParallelTextTestResult(unittest.TextTestResult):
     def addSkip(self, test, reason):
         # pylint: disable=bad-super-call
         super(unittest.TextTestResult, self).addSkip(test, reason)
-        self._add_helper(test, 's', 'skipped {0!r}'.format(reason))
+        self._add_helper(test, 's', f'skipped {reason!r}')
 
     def addExpectedFailure(self, test, err):
         # pylint: disable=bad-super-call
