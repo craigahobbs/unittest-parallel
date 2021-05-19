@@ -26,10 +26,9 @@ unittest-parallel -t . -s tests --coverage-branch
 
 ## How it works
 
-unittest-parallel uses Python's built-in unit test discovery to find all the test suites (TestCase
-classes) in your project. It then runs each test suite in a Python multi-processing pool of the
-requested size. Thus, the more test suites your unit tests are broken into, the better
-parallelization you'll get in your unit test runs.
+unittest-parallel uses Python's built-in unit test discovery to find all of the TestCase classes in
+your project. It then runs the tests of each TestCase class in a Python multi-processing pool of the
+requested size.
 
 
 ## Links
