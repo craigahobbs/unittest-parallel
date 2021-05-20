@@ -1,3 +1,7 @@
+## 1.2.1 (2021-05-20)
+
+- [8da77c2](https://github.com/craigahobbs/unittest-parallel/commit/8da77c2) - add example output to readme
+
 ## 1.2.0 (2021-05-19)
 
 - [f74e637](https://github.com/craigahobbs/unittest-parallel/commit/f74e637) - parallelize all test cases, not just top-level test suites
