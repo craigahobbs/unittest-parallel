@@ -24,16 +24,44 @@ unittest-parallel -t . -s tests --coverage-branch
 ```
 
 
-## How it works
-
-unittest-parallel uses Python's built-in unit test discovery to find all of the TestCase classes in
-your project. It then runs all tests in a Python multi-processing pool of the requested size.
-
-
 ## Links
 
 - [Package on pypi](https://pypi.org/project/unittest-parallel/)
 - [Source code on GitHub](https://github.com/craigahobbs/unittest-parallel)
+
+
+## Example output
+
+```
+$ unittest-parallel -v -t src -s src/tests --coverage-branch --coverage-fail-under 100
+
+test_array (tests.test_encode.TestDecodeQueryString) ... ok
+test_array_initial_non_zero (tests.test_encode.TestDecodeQueryString) ... ok
+test_negative_index (tests.test_encode.TestDecodeQueryString) ... ok
+...
+test_struct_empty (tests.test_schema.TestValidateTypeModelTypes) ... ok
+test_struct_base (tests.test_schema.TestValidateTypeModelTypes) ... ok
+test_struct_inconsistent_type_name (tests.test_schema.TestValidateTypeModelTypes) ... ok
+
+----------------------------------------------------------------------
+Ran 298 tests in 0.708s
+
+OK
+
+Name                                 Stmts   Miss Branch BrPart  Cover
+----------------------------------------------------------------------
+src/schema_markdown/__init__.py          5      0      0      0   100%
+src/schema_markdown/__main__.py          3      0      0      0   100%
+src/schema_markdown/encode.py           84      0     60      0   100%
+...
+src/tests/test_main.py                 179      0      4      0   100%
+src/tests/test_parser.py               363      0      0      0   100%
+src/tests/test_schema.py               828      0      0      0   100%
+----------------------------------------------------------------------
+TOTAL                                 2412      0    571      0   100%
+
+Total coverage is 100.00%
+```
 
 
 ## Usage
@@ -82,6 +110,12 @@ coverage options:
   --coverage-fail-under MIN
                         Fail if coverage percentage under min
 ```
+
+
+## How it works
+
+unittest-parallel uses Python's built-in unit test discovery to find all of the TestCase classes in
+your project. It then runs all tests in a Python multi-processing pool of the requested size.
 
 
 ## Development
