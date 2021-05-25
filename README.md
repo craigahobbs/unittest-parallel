@@ -48,6 +48,7 @@ parallelism.
 
 ```
 $ unittest-parallel -v -t src -s src/tests --coverage-branch --coverage-fail-under 100
+Running 298 test suites (298 total tests) across 8 processes
 
 test_array (tests.test_encode.TestDecodeQueryString) ... ok
 test_array_initial_non_zero (tests.test_encode.TestDecodeQueryString) ... ok
