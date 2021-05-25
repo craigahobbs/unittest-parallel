@@ -1,3 +1,7 @@
+## 1.3.0 (2021-05-25)
+
+- [3903dae](https://github.com/craigahobbs/unittest-parallel/commit/3903dae) - add --class-fixtures and --module-fixtures options
+
 ## 1.2.1 (2021-05-20)
 
 - [8da77c2](https://github.com/craigahobbs/unittest-parallel/commit/8da77c2) - add example output to readme
