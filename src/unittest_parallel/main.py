@@ -28,6 +28,10 @@ def main(argv=None):
                         help='Buffer stdout and stderr during tests')
     parser.add_argument('-j', '--jobs', metavar='COUNT', type=int, default=0,
                         help='The number of test processes (default is 0, all cores)')
+    parser.add_argument('--class-fixtures', action='store_true', default=False,
+                        help='One or more TestCase class has a setUpClass or tearDownClass method')
+    parser.add_argument('--module-fixtures', action='store_true', default=False,
+                        help='One or more test module has a setUpModule or tearDownModule method')
     parser.add_argument('--version', action='store_true',
                         help='show version number and quit')
     group_unittest = parser.add_argument_group('unittest options')
@@ -72,15 +76,31 @@ def main(argv=None):
         # Discover tests
         with _coverage(args, temp_dir):
             test_loader = unittest.TestLoader()
-            test_suites = test_loader.discover(args.start_directory, pattern=args.pattern, top_level_dir=args.top_level_directory)
+            discover_suite = test_loader.discover(args.start_directory, pattern=args.pattern, top_level_dir=args.top_level_directory)
+
+        # Get the parallelizable test suites
+        if args.module_fixtures:
+            test_suites = list(_iter_module_suites(discover_suite))
+        elif args.class_fixtures:
+            test_suites = list(_iter_class_suites(discover_suite))
+        else:
+            test_suites = list(_iter_test_cases(discover_suite))
+
+        # Don't use more processes than test suites
+        process_count = max(1, min(len(test_suites), process_count))
+
+        # Report test suites and processes
+        print(
+            f'Running {len(test_suites)} test suites ({discover_suite.countTestCases()} total tests) across {process_count} processes',
+            file=sys.stderr
+        )
+        if args.verbose > 1:
+            print(file=sys.stderr)
 
         # Run the tests in parallel
         start_time = time.perf_counter()
         with multiprocessing.Pool(process_count) as pool:
-            results = pool.map(
-                _run_tests,
-                ((test_case, args, temp_dir) for test_case in _iter_test_cases(test_suites))
-            )
+            results = pool.map(_run_tests, ((suite, args, temp_dir) for suite in test_suites))
         stop_time = time.perf_counter()
         test_duration = stop_time - start_time
 
@@ -173,7 +193,7 @@ def _coverage(args, temp_dir):
             data_file=coverage_file.name,
             branch=args.coverage_branch,
             include=args.coverage_include,
-            omit=list((args.coverage_omit if args.coverage_omit else []) + [__file__]),
+            omit=(args.coverage_omit if args.coverage_omit else []) + [__file__],
             source=args.coverage_source
         )
         try:
@@ -193,12 +213,30 @@ def _coverage(args, temp_dir):
         yield None
 
 
+# A "module suite" is a top-level test suite returned from TestLoader.discover
+def _iter_module_suites(test_suite):
+    for module_suite in test_suite:
+        if module_suite.countTestCases():
+            yield module_suite
+
+
+# A "class suite" is a test suite that contains test cases
+def _iter_class_suites(test_suite):
+    has_cases = any(isinstance(suite, unittest.TestCase) for suite in test_suite)
+    if has_cases:
+        yield test_suite
+    else:
+        for suite in test_suite:
+            yield from _iter_class_suites(suite)
+
+
 def _iter_test_cases(test_suite):
     if isinstance(test_suite, unittest.TestCase):
         yield test_suite
     else:
-        for sub_test_suite in test_suite:
-            yield from _iter_test_cases(sub_test_suite)
+        for suite in test_suite:
+            yield from _iter_test_cases(suite)
+
 
 
 class ParallelTextTestResult(unittest.TextTestResult):
@@ -253,10 +291,10 @@ class ParallelTextTestResult(unittest.TextTestResult):
 
 
 def _run_tests(pool_args):
-    test_case, args, temp_dir = pool_args
+    test_suite, args, temp_dir = pool_args
     with _coverage(args, temp_dir):
         runner = unittest.TextTestRunner(stream=StringIO(), resultclass=ParallelTextTestResult, verbosity=args.verbose, buffer=args.buffer)
-        result = runner.run(test_case)
+        result = runner.run(test_suite)
         return (
             result.testsRun,
             [_format_error(result, error) for error in result.errors],

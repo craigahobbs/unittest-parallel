@@ -30,6 +30,20 @@ unittest-parallel -t . -s tests --coverage-branch
 - [Source code on GitHub](https://github.com/craigahobbs/unittest-parallel)
 
 
+## How it works
+
+unittest-parallel uses Python's built-in unit test discovery to find all test cases in your project.
+It then runs all test cases in a Python multi-processing pool of the requested size.
+
+### Class and Module Fixtures
+
+Python's unittest framework supports
+[class and module fixtures.](https://docs.python.org/3/library/unittest.html#class-and-module-fixtures)
+Use the "--class-fixtures" option to execute class fixtures correctly. Use the "--module-fixtures"
+option to execute module fixtures correctly. Note that these options reduce the amount of
+parallelism.
+
+
 ## Example output
 
 ```
@@ -110,12 +124,6 @@ coverage options:
   --coverage-fail-under MIN
                         Fail if coverage percentage under min
 ```
-
-
-## How it works
-
-unittest-parallel uses Python's built-in unit test discovery to find all of the TestCase classes in
-your project. It then runs all tests in a Python multi-processing pool of the requested size.
 
 
 ## Development

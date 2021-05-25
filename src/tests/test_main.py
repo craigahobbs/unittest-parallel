@@ -38,6 +38,16 @@ class SuccessTestCase(unittest.TestCase):
         self.assertIsNotNone(self)
 
 
+class SuccessTestCase2(SuccessTestCase):
+    def mock_1(self):
+        self.assertIsNotNone(self)
+
+
+class SuccessTestCase3(SuccessTestCase):
+    def mock_1(self):
+        self.assertIsNotNone(self)
+
+
 class SuccessWithOutputTestCase(unittest.TestCase):
     def mock_1(self):
         self.assertIsNotNone(self)
@@ -99,16 +109,6 @@ class ExpectedFailureTestCase(unittest.TestCase):
         self.assertIsNotNone(self)
 
 
-def _create_test_suite(test_case_class):
-    return unittest.TestSuite(tests=[
-        unittest.TestSuite(tests=[
-            test_case_class('mock_1'),
-            test_case_class('mock_2'),
-            test_case_class('mock_3')
-        ])
-    ])
-
-
 class TestMain(unittest.TestCase):
 
     def assert_output(self, actual, expected):
@@ -149,6 +149,7 @@ class TestMain(unittest.TestCase):
         cpu_count_mock.assert_not_called()
         self.assertEqual(stdout.getvalue(), '')
         self.assertEqual(stderr.getvalue(), '''\
+Running 0 test suites (0 total tests) across 1 processes
 
 ----------------------------------------------------------------------
 Ran 0 test in 0.000s
@@ -156,8 +157,9 @@ Ran 0 test in 0.000s
 OK
 ''')
 
-    def test_pool_no_tests(self):
+    def test_no_tests(self):
         with patch('multiprocessing.cpu_count', Mock(return_value=1)), \
+             patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=unittest.TestSuite())):
@@ -165,6 +167,7 @@ OK
 
         self.assertEqual(stdout.getvalue(), '')
         self.assert_output(stderr.getvalue(), '''\
+Running 0 test suites (0 total tests) across 1 processes
 
 ----------------------------------------------------------------------
 Ran 0 test in <SEC>s
@@ -172,31 +175,148 @@ Ran 0 test in <SEC>s
 OK
 ''')
 
-    def test_pool_success(self):
+    def test_success(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[SuccessTestCase('mock_1'), SuccessTestCase('mock_2'), SuccessTestCase('mock_3')]),
+                unittest.TestSuite(tests=[SuccessTestCase2('mock_1')])
+            ]),
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[SuccessTestCase3('mock_1')])
+            ])
+        ])
         with patch('multiprocessing.cpu_count', Mock(return_value=1)), \
+             patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
-             patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(SuccessTestCase))):
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
+            main(['-v'])
+
+        self.assertEqual(stdout.getvalue(), '')
+        self.assert_output(stderr.getvalue(), '''\
+Running 5 test suites (5 total tests) across 1 processes
+
+mock_1 (tests.test_main.SuccessTestCase) ... ok
+mock_2 (tests.test_main.SuccessTestCase) ... ok
+mock_3 (tests.test_main.SuccessTestCase) ... ok
+mock_1 (tests.test_main.SuccessTestCase2) ... ok
+mock_1 (tests.test_main.SuccessTestCase3) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in <SEC>s
+
+OK
+''')
+
+    def test_success_max_suites(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[SuccessTestCase('mock_1'), SuccessTestCase('mock_2'), SuccessTestCase('mock_3')]),
+            ])
+        ])
+        with patch('multiprocessing.cpu_count', Mock(return_value=2)), \
+             patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('sys.stdout', StringIO()) as stdout, \
+             patch('sys.stderr', StringIO()) as stderr, \
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
             main([])
 
         self.assertEqual(stdout.getvalue(), '')
         self.assert_output(stderr.getvalue(), '''\
-
+Running 3 test suites (3 total tests) across 2 processes
+...
 ----------------------------------------------------------------------
 Ran 3 tests in <SEC>s
 
 OK
 ''')
 
-    def test_success(self):
-        with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+    def test_success_class_fixtures(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[SuccessTestCase('mock_1'), SuccessTestCase('mock_2'), SuccessTestCase('mock_3')]),
+                unittest.TestSuite(tests=[SuccessTestCase2('mock_1')])
+            ]),
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[SuccessTestCase3('mock_1')])
+            ])
+        ])
+        with patch('multiprocessing.cpu_count', Mock(return_value=1)), \
+             patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
-             patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(SuccessTestCase))):
-            main(['-v'])
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
+            main(['-v', '--class-fixtures'])
 
         self.assertEqual(stdout.getvalue(), '')
         self.assert_output(stderr.getvalue(), '''\
+Running 3 test suites (5 total tests) across 1 processes
+
+mock_1 (tests.test_main.SuccessTestCase) ... ok
+mock_2 (tests.test_main.SuccessTestCase) ... ok
+mock_3 (tests.test_main.SuccessTestCase) ... ok
+mock_1 (tests.test_main.SuccessTestCase2) ... ok
+mock_1 (tests.test_main.SuccessTestCase3) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in <SEC>s
+
+OK
+''')
+
+    def test_success_module_fixtures(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[SuccessTestCase('mock_1'), SuccessTestCase('mock_2'), SuccessTestCase('mock_3')]),
+                unittest.TestSuite(tests=[SuccessTestCase2('mock_1')])
+            ]),
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[SuccessTestCase3('mock_1')])
+            ])
+        ])
+        with patch('multiprocessing.cpu_count', Mock(return_value=1)), \
+             patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('sys.stdout', StringIO()) as stdout, \
+             patch('sys.stderr', StringIO()) as stderr, \
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
+            main(['-v', '--module-fixtures'])
+
+        self.assertEqual(stdout.getvalue(), '')
+        self.assert_output(stderr.getvalue(), '''\
+Running 2 test suites (5 total tests) across 1 processes
+
+mock_1 (tests.test_main.SuccessTestCase) ... ok
+mock_2 (tests.test_main.SuccessTestCase) ... ok
+mock_3 (tests.test_main.SuccessTestCase) ... ok
+mock_1 (tests.test_main.SuccessTestCase2) ... ok
+mock_1 (tests.test_main.SuccessTestCase3) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in <SEC>s
+
+OK
+''')
+
+    def test_success_module_fixtures_empty(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[SuccessTestCase('mock_1'), SuccessTestCase('mock_2'), SuccessTestCase('mock_3')])
+            ]),
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[])
+            ])
+        ])
+        with patch('multiprocessing.cpu_count', Mock(return_value=1)), \
+             patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('sys.stdout', StringIO()) as stdout, \
+             patch('sys.stderr', StringIO()) as stderr, \
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
+            main(['-v', '--module-fixtures'])
+
+        self.assertEqual(stdout.getvalue(), '')
+        self.assert_output(stderr.getvalue(), '''\
+Running 1 test suites (3 total tests) across 1 processes
+
 mock_1 (tests.test_main.SuccessTestCase) ... ok
 mock_2 (tests.test_main.SuccessTestCase) ... ok
 mock_3 (tests.test_main.SuccessTestCase) ... ok
@@ -208,14 +328,20 @@ OK
 ''')
 
     def test_success_dots(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[SuccessTestCase('mock_1'), SuccessTestCase('mock_2'), SuccessTestCase('mock_3')]),
+            ])
+        ])
         with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
-             patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(SuccessTestCase))):
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
             main([])
 
         self.assertEqual(stdout.getvalue(), '')
         self.assert_output(stderr.getvalue(), '''\
+Running 3 test suites (3 total tests) across 3 processes
 ...
 ----------------------------------------------------------------------
 Ran 3 tests in <SEC>s
@@ -224,14 +350,20 @@ OK
 ''')
 
     def test_success_quiet(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[SuccessTestCase('mock_1'), SuccessTestCase('mock_2'), SuccessTestCase('mock_3')])
+            ])
+        ])
         with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
-             patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(SuccessTestCase))):
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
             main(['-q'])
 
         self.assertEqual(stdout.getvalue(), '')
         self.assert_output(stderr.getvalue(), '''\
+Running 3 test suites (3 total tests) across 3 processes
 ----------------------------------------------------------------------
 Ran 3 tests in <SEC>s
 
@@ -239,14 +371,21 @@ OK
 ''')
 
     def test_success_verbose(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[SuccessTestCase('mock_1'), SuccessTestCase('mock_2'), SuccessTestCase('mock_3')])
+            ])
+        ])
         with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
-             patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(SuccessTestCase))):
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
             main(['-q', '-v'])
 
         self.assertEqual(stdout.getvalue(), '')
         self.assert_output(stderr.getvalue(), '''\
+Running 3 test suites (3 total tests) across 3 processes
+
 mock_1 (tests.test_main.SuccessTestCase) ... ok
 mock_2 (tests.test_main.SuccessTestCase) ... ok
 mock_3 (tests.test_main.SuccessTestCase) ... ok
@@ -258,14 +397,25 @@ OK
 ''')
 
     def test_success_buffer(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[
+                    SuccessWithOutputTestCase('mock_1'),
+                    SuccessWithOutputTestCase('mock_2'),
+                    SuccessWithOutputTestCase('mock_3')
+                ])
+            ])
+        ])
         with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
-             patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(SuccessWithOutputTestCase))):
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
             main(['-v', '-b'])
 
         self.assertEqual(stdout.getvalue(), '')
         self.assert_output(stderr.getvalue(), '''\
+Running 3 test suites (3 total tests) across 3 processes
+
 mock_1 (tests.test_main.SuccessWithOutputTestCase) ... ok
 mock_2 (tests.test_main.SuccessWithOutputTestCase) ... ok
 mock_3 (tests.test_main.SuccessWithOutputTestCase) ... ok
@@ -277,16 +427,27 @@ OK
 ''')
 
     def test_success_buffer_off(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[
+                    SuccessWithOutputTestCase('mock_1'),
+                    SuccessWithOutputTestCase('mock_2'),
+                    SuccessWithOutputTestCase('mock_3')
+                ])
+            ])
+        ])
         with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
-             patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(SuccessWithOutputTestCase))):
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
             main(['-v'])
 
         self.assertEqual(stdout.getvalue(), '''\
 Hello stdout!
 ''')
         self.assert_output(stderr.getvalue(), '''\
+Running 3 test suites (3 total tests) across 3 processes
+
 mock_1 (tests.test_main.SuccessWithOutputTestCase) ... ok
 mock_2 (tests.test_main.SuccessWithOutputTestCase) ... ok
 Hello stderr!
@@ -299,16 +460,23 @@ OK
 ''')
 
     def test_failure(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[FailureTestCase('mock_1'), FailureTestCase('mock_2'), FailureTestCase('mock_3')])
+            ])
+        ])
         with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
-             patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(FailureTestCase))):
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
             with self.assertRaises(SystemExit) as cm_exc:
                 main(['-v'])
 
         self.assertEqual(cm_exc.exception.code, 1)
         self.assertEqual(stdout.getvalue(), '')
         self.assert_output(stderr.getvalue(), '''\
+Running 3 test suites (3 total tests) across 3 processes
+
 mock_1 (tests.test_main.FailureTestCase) ... ok
 mock_2 (tests.test_main.FailureTestCase) ... FAIL
 mock_3 (tests.test_main.FailureTestCase) ... ok
@@ -328,16 +496,23 @@ FAILED (failures=1)
 ''')
 
     def test_error(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[ErrorTestCase('mock_1'), ErrorTestCase('mock_2'), ErrorTestCase('mock_3')])
+            ])
+        ])
         with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
-             patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(ErrorTestCase))):
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
             with self.assertRaises(SystemExit) as cm_exc:
                 main(['-v'])
 
         self.assertEqual(cm_exc.exception.code, 1)
         self.assertEqual(stdout.getvalue(), '')
         self.assert_output(re.sub(r'File ".*?", line \d+', 'File "<FILE>", line <LINE>', stderr.getvalue()), '''\
+Running 3 test suites (3 total tests) across 3 processes
+
 mock_1 (tests.test_main.ErrorTestCase) ... ok
 mock_2 (tests.test_main.ErrorTestCase) ... ERROR
 mock_3 (tests.test_main.ErrorTestCase) ... ok
@@ -357,14 +532,21 @@ FAILED (errors=1)
 ''')
 
     def test_skipped(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[SkipTestCase('mock_1'), SkipTestCase('mock_2'), SkipTestCase('mock_3')])
+            ])
+        ])
         with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
-             patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(SkipTestCase))):
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
             main(['-v'])
 
         self.assertEqual(stdout.getvalue(), '')
         self.assert_output(stderr.getvalue(), '''\
+Running 3 test suites (3 total tests) across 3 processes
+
 mock_1 (tests.test_main.SkipTestCase) ... ok
 mock_2 (tests.test_main.SkipTestCase) ... skipped 'skip reason'
 mock_3 (tests.test_main.SkipTestCase) ... ok
@@ -376,16 +558,27 @@ OK (skipped=1)
 ''')
 
     def test_expected_failure(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[
+                    ExpectedFailureTestCase('mock_1'),
+                    ExpectedFailureTestCase('mock_2'),
+                    ExpectedFailureTestCase('mock_3')
+                ])
+            ])
+        ])
         with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
-             patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(ExpectedFailureTestCase))):
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
             with self.assertRaises(SystemExit) as cm_exc:
                 main(['-v'])
 
         self.assertEqual(cm_exc.exception.code, 1)
         self.assertEqual(stdout.getvalue(), '')
         self.assert_output(re.sub(r'File ".*?", line \d+', 'File "<FILE>", line <LINE>', stderr.getvalue()), '''\
+Running 3 test suites (3 total tests) across 3 processes
+
 mock_1 (tests.test_main.ExpectedFailureTestCase) ... ok
 mock_2 (tests.test_main.ExpectedFailureTestCase) ... expected failure
 mock_3 (tests.test_main.ExpectedFailureTestCase) ... unexpected success
@@ -397,14 +590,21 @@ FAILED (expected failures=1, unexpected successes=1)
 ''')
 
     def test_run_tests_coverage(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[SuccessTestCase('mock_1'), SuccessTestCase('mock_2'), SuccessTestCase('mock_3')])
+            ])
+        ])
         with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
-             patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(SuccessTestCase))):
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
             main(['-v'])
 
         self.assertEqual(stdout.getvalue(), '')
         self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
+Running 3 test suites (3 total tests) across 3 processes
+
 mock_1 (tests.test_main.SuccessTestCase) ... ok
 mock_2 (tests.test_main.SuccessTestCase) ... ok
 mock_3 (tests.test_main.SuccessTestCase) ... ok
@@ -416,11 +616,16 @@ OK
 ''')
 
     def test_coverage(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[SuccessTestCase('mock_1'), SuccessTestCase('mock_2'), SuccessTestCase('mock_3')])
+            ])
+        ])
         with patch('coverage.Coverage') as coverage_mock, \
              patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
-             patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(SuccessTestCase))):
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
             coverage_instance = coverage_mock.return_value
             coverage_instance.report.return_value = 100.
             main(['-v', '--coverage'])
@@ -451,6 +656,8 @@ OK
         )
         self.assertEqual(stdout.getvalue(), '')
         self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
+Running 3 test suites (3 total tests) across 3 processes
+
 mock_1 (tests.test_main.SuccessTestCase) ... ok
 mock_2 (tests.test_main.SuccessTestCase) ... ok
 mock_3 (tests.test_main.SuccessTestCase) ... ok
@@ -465,11 +672,16 @@ Total coverage is 100.00%
 ''')
 
     def test_coverage_branch(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[SuccessTestCase('mock_1'), SuccessTestCase('mock_2'), SuccessTestCase('mock_3')])
+            ])
+        ])
         with patch('coverage.Coverage') as coverage_mock, \
              patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
-             patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(SuccessTestCase))):
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
             coverage_instance = coverage_mock.return_value
             coverage_instance.report.return_value = 100.
             main(['-v', '--coverage-branch'])
@@ -500,6 +712,8 @@ Total coverage is 100.00%
         )
         self.assertEqual(stdout.getvalue(), '')
         self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
+Running 3 test suites (3 total tests) across 3 processes
+
 mock_1 (tests.test_main.SuccessTestCase) ... ok
 mock_2 (tests.test_main.SuccessTestCase) ... ok
 mock_3 (tests.test_main.SuccessTestCase) ... ok
@@ -537,6 +751,7 @@ Total coverage is 100.00%
         )
         self.assertEqual(stdout.getvalue(), '')
         self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
+Running 0 test suites (0 total tests) across 1 processes
 
 ----------------------------------------------------------------------
 Ran 0 test in <SEC>s
@@ -548,11 +763,16 @@ Total coverage is 100.00%
 ''')
 
     def test_coverage_html(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[SuccessTestCase('mock_1'), SuccessTestCase('mock_2'), SuccessTestCase('mock_3')])
+            ])
+        ])
         with patch('coverage.Coverage') as coverage_mock, \
              patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
-             patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(SuccessTestCase))):
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
             coverage_instance = coverage_mock.return_value
             coverage_instance.report.return_value = 100.
             main(['-v', '--coverage-branch', '--coverage-html', 'html_dir'])
@@ -584,6 +804,8 @@ Total coverage is 100.00%
         )
         self.assertEqual(stdout.getvalue(), '')
         self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
+Running 3 test suites (3 total tests) across 3 processes
+
 mock_1 (tests.test_main.SuccessTestCase) ... ok
 mock_2 (tests.test_main.SuccessTestCase) ... ok
 mock_3 (tests.test_main.SuccessTestCase) ... ok
@@ -598,11 +820,16 @@ Total coverage is 100.00%
 ''')
 
     def test_coverage_xml(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[SuccessTestCase('mock_1'), SuccessTestCase('mock_2'), SuccessTestCase('mock_3')])
+            ])
+        ])
         with patch('coverage.Coverage') as coverage_mock, \
              patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
-             patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(SuccessTestCase))):
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
             coverage_instance = coverage_mock.return_value
             coverage_instance.report.return_value = 100.
             main(['-v', '--coverage-branch', '--coverage-xml', 'xml_dir'])
@@ -634,6 +861,8 @@ Total coverage is 100.00%
         )
         self.assertEqual(stdout.getvalue(), '')
         self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
+Running 3 test suites (3 total tests) across 3 processes
+
 mock_1 (tests.test_main.SuccessTestCase) ... ok
 mock_2 (tests.test_main.SuccessTestCase) ... ok
 mock_3 (tests.test_main.SuccessTestCase) ... ok
@@ -648,11 +877,16 @@ Total coverage is 100.00%
 ''')
 
     def test_coverage_fail_under(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[SuccessTestCase('mock_1'), SuccessTestCase('mock_2'), SuccessTestCase('mock_3')])
+            ])
+        ])
         with patch('coverage.Coverage') as coverage_mock, \
              patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
-             patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(SuccessTestCase))):
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
             coverage_instance = coverage_mock.return_value
             coverage_instance.report.return_value = 99.
             with self.assertRaises(SystemExit) as cm_exc:
@@ -685,6 +919,8 @@ Total coverage is 100.00%
         )
         self.assertEqual(stdout.getvalue(), '')
         self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
+Running 3 test suites (3 total tests) across 3 processes
+
 mock_1 (tests.test_main.SuccessTestCase) ... ok
 mock_2 (tests.test_main.SuccessTestCase) ... ok
 mock_3 (tests.test_main.SuccessTestCase) ... ok
@@ -699,11 +935,16 @@ Total coverage is 99.00%
 ''')
 
     def test_coverage_other(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[SuccessTestCase('mock_1'), SuccessTestCase('mock_2'), SuccessTestCase('mock_3')])
+            ])
+        ])
         with patch('coverage.Coverage') as coverage_mock, \
              patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
-             patch('unittest.TestLoader.discover', Mock(return_value=_create_test_suite(SuccessTestCase))):
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
             coverage_instance = coverage_mock.return_value
             coverage_instance.report.return_value = 100.
             main([
@@ -745,6 +986,8 @@ Total coverage is 99.00%
         )
         self.assertEqual(stdout.getvalue(), '')
         self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
+Running 3 test suites (3 total tests) across 3 processes
+
 mock_1 (tests.test_main.SuccessTestCase) ... ok
 mock_2 (tests.test_main.SuccessTestCase) ... ok
 mock_3 (tests.test_main.SuccessTestCase) ... ok
