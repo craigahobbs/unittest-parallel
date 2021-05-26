@@ -1,3 +1,7 @@
+## 1.3.1 (2021-05-26)
+
+- [595cffa](https://github.com/craigahobbs/unittest-parallel/commit/595cffa) - update command line help
+
 ## 1.3.0 (2021-05-25)
 
 - [3903dae](https://github.com/craigahobbs/unittest-parallel/commit/3903dae) - add --class-fixtures and --module-fixtures options
