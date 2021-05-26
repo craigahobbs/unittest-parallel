@@ -29,9 +29,9 @@ def main(argv=None):
     parser.add_argument('-j', '--jobs', metavar='COUNT', type=int, default=0,
                         help='The number of test processes (default is 0, all cores)')
     parser.add_argument('--class-fixtures', action='store_true', default=False,
-                        help='One or more TestCase class has a setUpClass or tearDownClass method')
+                        help='One or more TestCase class has a setUpClass method')
     parser.add_argument('--module-fixtures', action='store_true', default=False,
-                        help='One or more test module has a setUpModule or tearDownModule method')
+                        help='One or more test module has a setUpModule method')
     parser.add_argument('--version', action='store_true',
                         help='show version number and quit')
     group_unittest = parser.add_argument_group('unittest options')

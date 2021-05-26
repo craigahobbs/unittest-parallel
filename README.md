@@ -82,7 +82,8 @@ Total coverage is 100.00%
 ## Usage
 
 ```
-usage: unittest-parallel [-h] [-v] [-q] [-b] [-j COUNT] [--version] [-s START]
+usage: unittest-parallel [-h] [-v] [-q] [-b] [-j COUNT] [--class-fixtures]
+                         [--module-fixtures] [--version] [-s START]
                          [-p PATTERN] [-t TOP] [--coverage]
                          [--coverage-branch] [--coverage-rcfile RCFILE]
                          [--coverage-include PAT] [--coverage-omit PAT]
@@ -96,6 +97,8 @@ options:
   -b, --buffer          Buffer stdout and stderr during tests
   -j COUNT, --jobs COUNT
                         The number of test processes (default is 0, all cores)
+  --class-fixtures      One or more TestCase class has a setUpClass method
+  --module-fixtures     One or more test module has a setUpModule method
   --version             show version number and quit
 
 unittest options:
