@@ -1,3 +1,7 @@
+## 1.4.0 (2021-06-05)
+
+- [8708156](https://github.com/craigahobbs/unittest-parallel/commit/8708156) - add --failfast argument
+
 ## 1.3.1 (2021-05-26)
 
 - [595cffa](https://github.com/craigahobbs/unittest-parallel/commit/595cffa) - update command line help
