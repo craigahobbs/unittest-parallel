@@ -20,10 +20,12 @@ def main(argv=None):
 
     # Command line parsing
     parser = argparse.ArgumentParser(prog='unittest-parallel')
-    parser.add_argument('-v', '--verbose', dest='verbose', action='store_const', const=2, default=1,
+    parser.add_argument('-v', '--verbose', action='store_const', const=2, default=1,
                         help='Verbose output')
     parser.add_argument('-q', '--quiet', dest='verbose', action='store_const', const=0, default=1,
                         help='Quiet output')
+    parser.add_argument('-f', '--failfast', action='store_true', default=False,
+                        help='Stop on first fail or error')
     parser.add_argument('-b', '--buffer', action='store_true', default=False,
                         help='Buffer stdout and stderr during tests')
     parser.add_argument('-j', '--jobs', metavar='COUNT', type=int, default=0,
@@ -99,8 +101,9 @@ def main(argv=None):
 
         # Run the tests in parallel
         start_time = time.perf_counter()
-        with multiprocessing.Pool(process_count) as pool:
-            results = pool.map(_run_tests, ((suite, args, temp_dir) for suite in test_suites))
+        with multiprocessing.Pool(process_count) as pool, multiprocessing.Manager() as manager:
+            test_manager = ParallelTestManager(manager, args, temp_dir)
+            results = pool.map(test_manager.run_tests, test_suites)
         stop_time = time.perf_counter()
         test_duration = stop_time - start_time
 
@@ -213,14 +216,14 @@ def _coverage(args, temp_dir):
         yield None
 
 
-# A "module suite" is a top-level test suite returned from TestLoader.discover
+# Iterate module-level test suites - all top-level test suites returned from TestLoader.discover
 def _iter_module_suites(test_suite):
     for module_suite in test_suite:
         if module_suite.countTestCases():
             yield module_suite
 
 
-# A "class suite" is a test suite that contains test cases
+# Iterate class-level test suites - test suites that contains test cases
 def _iter_class_suites(test_suite):
     has_cases = any(isinstance(suite, unittest.TestCase) for suite in test_suite)
     if has_cases:
@@ -230,6 +233,7 @@ def _iter_class_suites(test_suite):
             yield from _iter_class_suites(suite)
 
 
+# Iterate test cases (methods)
 def _iter_test_cases(test_suite):
     if isinstance(test_suite, unittest.TestCase):
         yield test_suite
@@ -237,6 +241,52 @@ def _iter_test_cases(test_suite):
         for suite in test_suite:
             yield from _iter_test_cases(suite)
 
+
+class ParallelTestManager:
+
+    def __init__(self, manager, args, temp_dir):
+        self.args = args
+        self.temp_dir = temp_dir
+        self.failfast = manager.Event()
+
+    def run_tests(self, test_suite):
+        # Fail fast?
+        if self.failfast.is_set():
+            return [0, [], [], 0, 0, 0]
+
+        # Run unit tests
+        with _coverage(self.args, self.temp_dir):
+            runner = unittest.TextTestRunner(
+                stream=StringIO(),
+                resultclass=ParallelTextTestResult,
+                verbosity=self.args.verbose,
+                failfast=self.args.failfast,
+                buffer=self.args.buffer
+            )
+            result = runner.run(test_suite)
+
+            # Set failfast, if necessary
+            if result.shouldStop:
+                self.failfast.set()
+
+            # Return (test_count, errors, failures, skipped_count, expected_failure_count, unexpected_success_count)
+            return (
+                result.testsRun,
+                [self._format_error(result, error) for error in result.errors],
+                [self._format_error(result, failure) for failure in result.failures],
+                len(result.skipped),
+                len(result.expectedFailures),
+                len(result.unexpectedSuccesses)
+            )
+
+    @staticmethod
+    def _format_error(result, error):
+        return '\n'.join([
+            unittest.TextTestResult.separator1,
+            result.getDescription(error[0]),
+            unittest.TextTestResult.separator2,
+            error[1]
+        ])
 
 
 class ParallelTextTestResult(unittest.TextTestResult):
@@ -288,27 +338,3 @@ class ParallelTextTestResult(unittest.TextTestResult):
 
     def printErrors(self):
         pass
-
-
-def _run_tests(pool_args):
-    test_suite, args, temp_dir = pool_args
-    with _coverage(args, temp_dir):
-        runner = unittest.TextTestRunner(stream=StringIO(), resultclass=ParallelTextTestResult, verbosity=args.verbose, buffer=args.buffer)
-        result = runner.run(test_suite)
-        return (
-            result.testsRun,
-            [_format_error(result, error) for error in result.errors],
-            [_format_error(result, failure) for failure in result.failures],
-            len(result.skipped),
-            len(result.expectedFailures),
-            len(result.unexpectedSuccesses)
-        )
-
-
-def _format_error(result, error):
-    return '\n'.join([
-        unittest.TextTestResult.separator1,
-        result.getDescription(error[0]),
-        unittest.TextTestResult.separator2,
-        error[1]
-    ])

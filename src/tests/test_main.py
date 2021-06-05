@@ -148,11 +148,11 @@ class TestMain(unittest.TestCase):
 
         cpu_count_mock.assert_not_called()
         self.assertEqual(stdout.getvalue(), '')
-        self.assertEqual(stderr.getvalue(), '''\
+        self.assert_output(stderr.getvalue(), '''\
 Running 0 test suites (0 total tests) across 1 processes
 
 ----------------------------------------------------------------------
-Ran 0 test in 0.000s
+Ran 0 test in <SEC>s
 
 OK
 ''')
@@ -394,6 +394,41 @@ mock_3 (tests.test_main.SuccessTestCase) ... ok
 Ran 3 tests in <SEC>s
 
 OK
+''')
+
+    def test_success_failfast(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[FailureTestCase('mock_1'), FailureTestCase('mock_2'), FailureTestCase('mock_3')])
+            ])
+        ])
+        with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('sys.stdout', StringIO()) as stdout, \
+             patch('sys.stderr', StringIO()) as stderr, \
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
+            with self.assertRaises(SystemExit) as cm_exc:
+                main(['-v', '-f'])
+
+        self.assertEqual(cm_exc.exception.code, 1)
+        self.assertEqual(stdout.getvalue(), '')
+        self.assert_output(stderr.getvalue(), '''\
+Running 3 test suites (3 total tests) across 3 processes
+
+mock_1 (tests.test_main.FailureTestCase) ... ok
+mock_2 (tests.test_main.FailureTestCase) ... FAIL
+
+======================================================================
+mock_2 (tests.test_main.FailureTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<FILE>", line <LINE>, in mock_2
+    self.fail()
+AssertionError: None
+
+----------------------------------------------------------------------
+Ran 2 tests in <SEC>s
+
+FAILED (failures=1)
 ''')
 
     def test_success_buffer(self):
