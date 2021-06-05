@@ -27,6 +27,27 @@ class MockMultiprocessingPool:
         return [func(arg) for arg in args]
 
 
+class MockMultiprocessingManagerEvent:
+    def __init__(self):
+        self._value = False
+
+    def set(self):
+        self._value = True
+
+    def is_set(self):
+        return self._value
+
+
+class MockMultiprocessingManager:
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
+
+    Event = MockMultiprocessingManagerEvent
+
+
 class SuccessTestCase(unittest.TestCase):
     def mock_1(self):
         self.assertIsNotNone(self)
@@ -141,6 +162,7 @@ class TestMain(unittest.TestCase):
     def test_jobs(self):
         with patch('multiprocessing.cpu_count', Mock(return_value=1)) as cpu_count_mock, \
              patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=unittest.TestSuite())):
@@ -160,6 +182,7 @@ OK
     def test_no_tests(self):
         with patch('multiprocessing.cpu_count', Mock(return_value=1)), \
              patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=unittest.TestSuite())):
@@ -187,6 +210,7 @@ OK
         ])
         with patch('multiprocessing.cpu_count', Mock(return_value=1)), \
              patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
@@ -216,6 +240,7 @@ OK
         ])
         with patch('multiprocessing.cpu_count', Mock(return_value=2)), \
              patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
@@ -243,6 +268,7 @@ OK
         ])
         with patch('multiprocessing.cpu_count', Mock(return_value=1)), \
              patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
@@ -276,6 +302,7 @@ OK
         ])
         with patch('multiprocessing.cpu_count', Mock(return_value=1)), \
              patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
@@ -308,6 +335,7 @@ OK
         ])
         with patch('multiprocessing.cpu_count', Mock(return_value=1)), \
              patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
@@ -334,6 +362,7 @@ OK
             ])
         ])
         with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
@@ -356,6 +385,7 @@ OK
             ])
         ])
         with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
@@ -377,6 +407,7 @@ OK
             ])
         ])
         with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
@@ -403,6 +434,7 @@ OK
             ])
         ])
         with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
@@ -442,6 +474,7 @@ FAILED (failures=1)
             ])
         ])
         with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
@@ -472,6 +505,7 @@ OK
             ])
         ])
         with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
@@ -501,6 +535,7 @@ OK
             ])
         ])
         with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
@@ -537,6 +572,7 @@ FAILED (failures=1)
             ])
         ])
         with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
@@ -573,6 +609,7 @@ FAILED (errors=1)
             ])
         ])
         with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
@@ -603,6 +640,7 @@ OK (skipped=1)
             ])
         ])
         with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
@@ -631,6 +669,7 @@ FAILED (expected failures=1, unexpected successes=1)
             ])
         ])
         with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
@@ -658,6 +697,7 @@ OK
         ])
         with patch('coverage.Coverage') as coverage_mock, \
              patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
@@ -714,6 +754,7 @@ Total coverage is 100.00%
         ])
         with patch('coverage.Coverage') as coverage_mock, \
              patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
@@ -765,6 +806,7 @@ Total coverage is 100.00%
     def test_coverage_no_tests(self):
         with patch('coverage.Coverage') as coverage_mock, \
              patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=unittest.TestSuite())):
@@ -805,6 +847,7 @@ Total coverage is 100.00%
         ])
         with patch('coverage.Coverage') as coverage_mock, \
              patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
@@ -862,6 +905,7 @@ Total coverage is 100.00%
         ])
         with patch('coverage.Coverage') as coverage_mock, \
              patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
@@ -919,6 +963,7 @@ Total coverage is 100.00%
         ])
         with patch('coverage.Coverage') as coverage_mock, \
              patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
@@ -977,6 +1022,7 @@ Total coverage is 99.00%
         ])
         with patch('coverage.Coverage') as coverage_mock, \
              patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
