@@ -1,9 +1,9 @@
 # unittest-parallel
 
-![PyPI - Status](https://img.shields.io/pypi/status/unittest-parallel)
-![PyPI](https://img.shields.io/pypi/v/unittest-parallel)
-![GitHub](https://img.shields.io/github/license/craigahobbs/unittest-parallel)
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/unittest-parallel)
+[![PyPI - Status](https://img.shields.io/pypi/status/unittest-parallel)](https://pypi.org/project/unittest-parallel/)
+[![PyPI](https://img.shields.io/pypi/v/unittest-parallel)](https://pypi.org/project/unittest-parallel/)
+[![GitHub](https://img.shields.io/github/license/craigahobbs/unittest-parallel)](https://github.com/craigahobbs/unittest-parallel/blob/main/LICENSE)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/unittest-parallel)](https://pypi.org/project/unittest-parallel/)
 
 unittest-parallel is a parallel unit test runner for Python with coverage support.
 
@@ -22,12 +22,6 @@ To run your unit tests with coverage, add either the "--coverage" option (for li
 ```
 unittest-parallel -t . -s tests --coverage-branch
 ```
-
-
-## Links
-
-- [Package on pypi](https://pypi.org/project/unittest-parallel/)
-- [Source code on GitHub](https://github.com/craigahobbs/unittest-parallel)
 
 
 ## How it works
