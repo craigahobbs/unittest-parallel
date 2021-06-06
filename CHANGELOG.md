@@ -1,3 +1,7 @@
+## 1.4.1 (2021-06-06)
+
+- [616535b](https://github.com/craigahobbs/unittest-parallel/commit/616535b) - update readme
+
 ## 1.4.0 (2021-06-05)
 
 - [8708156](https://github.com/craigahobbs/unittest-parallel/commit/8708156) - add --failfast argument
