@@ -5,10 +5,6 @@
 [![GitHub](https://img.shields.io/github/license/craigahobbs/unittest-parallel)](https://github.com/craigahobbs/unittest-parallel/blob/main/LICENSE)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/unittest-parallel)](https://pypi.org/project/unittest-parallel/)
 
-[![Pure Python](https://raw.githubusercontent.com/craigahobbs/python-build/main/badges/python-pure.svg)](https://github.com/craigahobbs/unittest-parallel/tree/main/src/unittest_parallel)
-[![100% Coverage](https://raw.githubusercontent.com/craigahobbs/python-build/main/badges/coverage-100.svg)](https://github.com/craigahobbs/python-build#readme)
-[![Strict Linting](https://raw.githubusercontent.com/craigahobbs/python-build/main/badges/linting-strict.svg)](https://github.com/craigahobbs/python-build#readme)
-
 unittest-parallel is a parallel unit test runner for Python with coverage support.
 
 To run unittest-parallel, specify the directory containing your unit tests with the "-s" argument
