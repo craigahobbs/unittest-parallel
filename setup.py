@@ -51,7 +51,7 @@ def main():
         entry_points={
             'console_scripts': [
                 PACKAGE_NAME + ' = ' + MODULE_NAME + '.main:main'
-            ],
+            ]
         }
     )
 
