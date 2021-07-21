@@ -1,10 +1,14 @@
-# Download Python Build base makefile and pylintrc
+# Licensed under the MIT License
+# https://github.com/craigahobbs/unittest-parallel/blob/main/LICENSE
+
+# Download Python Build
 define WGET
 ifeq '$$(wildcard $(notdir $(1)))' ''
 $$(info Downloading $(notdir $(1)))
-_WGET := $$(shell if which wget; then wget -q $(1); else curl -Os $(1); fi)
+_WGET := $$(shell $(call WGET_CMD, $(1)))
 endif
 endef
+WGET_CMD = if which wget; then wget -q $(1); else curl -Os $(1); fi
 $(eval $(call WGET, https://raw.githubusercontent.com/craigahobbs/python-build/main/Makefile.base))
 $(eval $(call WGET, https://raw.githubusercontent.com/craigahobbs/python-build/main/pylintrc))
 
