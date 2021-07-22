@@ -1,3 +1,11 @@
+## 1.4.3 (2021-07-22)
+
+- [d3c59cb](https://github.com/craigahobbs/unittest-parallel/commit/d3c59cb) - remove version argument
+
+## 1.4.2 (2021-06-11)
+
+- [dfa12b2](https://github.com/craigahobbs/unittest-parallel/commit/dfa12b2) - update readme
+
 ## 1.4.1 (2021-06-06)
 
 - [616535b](https://github.com/craigahobbs/unittest-parallel/commit/616535b) - update readme
