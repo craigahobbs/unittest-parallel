@@ -19,7 +19,7 @@ def main():
         description='Parallel unit test runner with coverage support',
         long_description=long_description,
         long_description_content_type='text/markdown',
-        version='1.4.2',
+        version='1.4.3',
         author='Craig Hobbs',
         author_email='craigahobbs@gmail.com',
         keywords='test unittest coverage parallel',
