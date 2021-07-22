@@ -13,8 +13,6 @@ import unittest
 
 import coverage
 
-from . import __version__ as VERSION
-
 
 def main(argv=None):
 
@@ -34,8 +32,6 @@ def main(argv=None):
                         help='One or more TestCase class has a setUpClass method')
     parser.add_argument('--module-fixtures', action='store_true', default=False,
                         help='One or more test module has a setUpModule method')
-    parser.add_argument('--version', action='store_true',
-                        help='show version number and quit')
     group_unittest = parser.add_argument_group('unittest options')
     group_unittest.add_argument('-s', '--start-directory', metavar='START', default='.',
                                 help="Directory to start discovery ('.' default)")
@@ -63,8 +59,6 @@ def main(argv=None):
     group_coverage.add_argument('--coverage-fail-under', metavar='MIN', type=float,
                                 help='Fail if coverage percentage under min')
     args = parser.parse_args(args=argv)
-    if args.version:
-        parser.exit(message=VERSION + '\n')
     if args.coverage_branch:
         args.coverage = args.coverage_branch
 

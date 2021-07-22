@@ -7,7 +7,6 @@ import sys
 import unittest
 from unittest.mock import ANY, Mock, call, patch
 
-from unittest_parallel import __version__
 import unittest_parallel.__main__
 from unittest_parallel.main import main
 
@@ -148,16 +147,6 @@ class TestMain(unittest.TestCase):
 
     def test_module_main(self):
         self.assertTrue(unittest_parallel.__main__)
-
-    def test_version(self):
-        with patch('sys.stdout', StringIO()) as stdout, \
-             patch('sys.stderr', StringIO()) as stderr:
-            with self.assertRaises(SystemExit) as cm_exc:
-                main(['--version'])
-
-        self.assertEqual(cm_exc.exception.code, 0)
-        self.assertEqual(stdout.getvalue(), '')
-        self.assertEqual(stderr.getvalue(), str(__version__) + '\n')
 
     def test_jobs(self):
         with patch('multiprocessing.cpu_count', Mock(return_value=1)) as cpu_count_mock, \
