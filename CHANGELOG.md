@@ -1,3 +1,7 @@
+## 1.4.4 (2021-08-18)
+
+- [51f4d79](https://github.com/craigahobbs/unittest-parallel/commit/51f4d79) - updates from python-package-template
+
 ## 1.4.3 (2021-07-22)
 
 - [d3c59cb](https://github.com/craigahobbs/unittest-parallel/commit/d3c59cb) - remove version argument
