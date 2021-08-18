@@ -5,8 +5,6 @@ import os
 
 from setuptools import setup
 
-MODULE_NAME = 'unittest_parallel'
-PACKAGE_NAME = 'unittest-parallel'
 
 def main():
     # Read the readme for use as the long description
@@ -15,15 +13,15 @@ def main():
 
     # Do the setup
     setup(
-        name=PACKAGE_NAME,
+        name='unittest-parallel',
         description='Parallel unit test runner with coverage support',
         long_description=long_description,
         long_description_content_type='text/markdown',
         version='1.4.3',
-        author='Craig Hobbs',
+        author='Craig A. Hobbs',
         author_email='craigahobbs@gmail.com',
         keywords='test unittest coverage parallel',
-        url='https://github.com/craigahobbs/' + PACKAGE_NAME,
+        url='https://github.com/craigahobbs/unittest-parallel',
         license='MIT',
         classifiers=[
             'Development Status :: 5 - Production/Stable',
@@ -39,16 +37,17 @@ def main():
             'Topic :: Utilities'
         ],
         package_dir={'': 'src'},
-        packages=[MODULE_NAME],
+        packages=['unittest_parallel'],
         install_requires=[
             'coverage >= 5.1'
         ],
         entry_points={
             'console_scripts': [
-                PACKAGE_NAME + ' = ' + MODULE_NAME + '.main:main'
+                'unittest-parallel = unittest_parallel.main:main'
             ]
         }
     )
+
 
 if __name__ == '__main__':
     main()

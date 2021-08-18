@@ -1,6 +1,10 @@
 # Licensed under the MIT License
 # https://github.com/craigahobbs/unittest-parallel/blob/main/LICENSE
 
+"""
+unittest-parallel command-line script main module
+"""
+
 import argparse
 from contextlib import contextmanager
 from io import StringIO
@@ -15,8 +19,11 @@ import coverage
 
 
 def main(argv=None):
+    """
+    unittest-parallel command-line script main entry point
+    """
 
-    # Command line parsing
+    # Command line arguments
     parser = argparse.ArgumentParser(prog='unittest-parallel')
     parser.add_argument('-v', '--verbose', action='store_const', const=2, default=1,
                         help='Verbose output')

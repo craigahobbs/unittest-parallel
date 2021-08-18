@@ -126,4 +126,9 @@ coverage options:
 
 ## Development
 
-This project is developed using [Python Build](https://github.com/craigahobbs/python-build#readme).
+This project is developed using [Python Build](https://github.com/craigahobbs/python-build#readme). It was started
+using [python-package-template](https://github.com/craigahobbs/python-package-template#readme) as follows:
+
+```
+template-specialize python-package-template/template/ unittest-parallel/ -k package unittest-parallel -k name 'Craig A. Hobbs' -k email 'craigahobbs@gmail.com' -k github 'craigahobbs' -k nodoc 1
+```

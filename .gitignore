@@ -1,8 +1,7 @@
-*.egg-info
-.coverage
-.eggs/
+/.coverage
+/Makefile.base
+/build/
+/dist/
+/pylintrc
+/src/*.egg-info/
 __pycache__/
-build/
-dist/
-Makefile.base
-pylintrc

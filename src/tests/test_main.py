@@ -1,5 +1,5 @@
 # Licensed under the MIT License
-# https://github.com/craigahobbs/template-specialize/blob/main/LICENSE
+# https://github.com/craigahobbs/unittest-parallel/blob/main/LICENSE
 
 from io import StringIO
 import re
