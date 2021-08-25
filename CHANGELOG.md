@@ -1,3 +1,7 @@
+## 1.4.5 (2021-08-24)
+
+- [192eac2](https://github.com/craigahobbs/unittest-parallel/commit/192eac2) - update readme
+
 ## 1.4.4 (2021-08-18)
 
 - [51f4d79](https://github.com/craigahobbs/unittest-parallel/commit/51f4d79) - updates from python-package-template
