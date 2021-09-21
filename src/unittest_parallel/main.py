@@ -297,6 +297,9 @@ class ParallelTextTestResult(unittest.TextTestResult):
         super().__init__(stream, descriptions, verbosity)
 
     def startTest(self, test):
+        if self.showAll:
+            self.stream.writeln(f'{self.getDescription(test)} ...')
+            self.stream.flush()
         # pylint: disable=bad-super-call
         super(unittest.TextTestResult, self).startTest(test)
 

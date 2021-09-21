@@ -209,10 +209,15 @@ OK
         self.assert_output(stderr.getvalue(), '''\
 Running 5 test suites (5 total tests) across 1 processes
 
+mock_1 (tests.test_main.SuccessTestCase) ...
 mock_1 (tests.test_main.SuccessTestCase) ... ok
+mock_2 (tests.test_main.SuccessTestCase) ...
 mock_2 (tests.test_main.SuccessTestCase) ... ok
+mock_3 (tests.test_main.SuccessTestCase) ...
 mock_3 (tests.test_main.SuccessTestCase) ... ok
+mock_1 (tests.test_main.SuccessTestCase2) ...
 mock_1 (tests.test_main.SuccessTestCase2) ... ok
+mock_1 (tests.test_main.SuccessTestCase3) ...
 mock_1 (tests.test_main.SuccessTestCase3) ... ok
 
 ----------------------------------------------------------------------
@@ -267,10 +272,15 @@ OK
         self.assert_output(stderr.getvalue(), '''\
 Running 3 test suites (5 total tests) across 1 processes
 
+mock_1 (tests.test_main.SuccessTestCase) ...
 mock_1 (tests.test_main.SuccessTestCase) ... ok
+mock_2 (tests.test_main.SuccessTestCase) ...
 mock_2 (tests.test_main.SuccessTestCase) ... ok
+mock_3 (tests.test_main.SuccessTestCase) ...
 mock_3 (tests.test_main.SuccessTestCase) ... ok
+mock_1 (tests.test_main.SuccessTestCase2) ...
 mock_1 (tests.test_main.SuccessTestCase2) ... ok
+mock_1 (tests.test_main.SuccessTestCase3) ...
 mock_1 (tests.test_main.SuccessTestCase3) ... ok
 
 ----------------------------------------------------------------------
@@ -301,10 +311,15 @@ OK
         self.assert_output(stderr.getvalue(), '''\
 Running 2 test suites (5 total tests) across 1 processes
 
+mock_1 (tests.test_main.SuccessTestCase) ...
 mock_1 (tests.test_main.SuccessTestCase) ... ok
+mock_2 (tests.test_main.SuccessTestCase) ...
 mock_2 (tests.test_main.SuccessTestCase) ... ok
+mock_3 (tests.test_main.SuccessTestCase) ...
 mock_3 (tests.test_main.SuccessTestCase) ... ok
+mock_1 (tests.test_main.SuccessTestCase2) ...
 mock_1 (tests.test_main.SuccessTestCase2) ... ok
+mock_1 (tests.test_main.SuccessTestCase3) ...
 mock_1 (tests.test_main.SuccessTestCase3) ... ok
 
 ----------------------------------------------------------------------
@@ -334,8 +349,11 @@ OK
         self.assert_output(stderr.getvalue(), '''\
 Running 1 test suites (3 total tests) across 1 processes
 
+mock_1 (tests.test_main.SuccessTestCase) ...
 mock_1 (tests.test_main.SuccessTestCase) ... ok
+mock_2 (tests.test_main.SuccessTestCase) ...
 mock_2 (tests.test_main.SuccessTestCase) ... ok
+mock_3 (tests.test_main.SuccessTestCase) ...
 mock_3 (tests.test_main.SuccessTestCase) ... ok
 
 ----------------------------------------------------------------------
@@ -406,8 +424,11 @@ OK
         self.assert_output(stderr.getvalue(), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
+mock_1 (tests.test_main.SuccessTestCase) ...
 mock_1 (tests.test_main.SuccessTestCase) ... ok
+mock_2 (tests.test_main.SuccessTestCase) ...
 mock_2 (tests.test_main.SuccessTestCase) ... ok
+mock_3 (tests.test_main.SuccessTestCase) ...
 mock_3 (tests.test_main.SuccessTestCase) ... ok
 
 ----------------------------------------------------------------------
@@ -435,7 +456,9 @@ OK
         self.assert_output(stderr.getvalue(), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
+mock_1 (tests.test_main.FailureTestCase) ...
 mock_1 (tests.test_main.FailureTestCase) ... ok
+mock_2 (tests.test_main.FailureTestCase) ...
 mock_2 (tests.test_main.FailureTestCase) ... FAIL
 
 ======================================================================
@@ -473,8 +496,11 @@ FAILED (failures=1)
         self.assert_output(stderr.getvalue(), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
+mock_1 (tests.test_main.SuccessWithOutputTestCase) ...
 mock_1 (tests.test_main.SuccessWithOutputTestCase) ... ok
+mock_2 (tests.test_main.SuccessWithOutputTestCase) ...
 mock_2 (tests.test_main.SuccessWithOutputTestCase) ... ok
+mock_3 (tests.test_main.SuccessWithOutputTestCase) ...
 mock_3 (tests.test_main.SuccessWithOutputTestCase) ... ok
 
 ----------------------------------------------------------------------
@@ -506,8 +532,11 @@ Hello stdout!
         self.assert_output(stderr.getvalue(), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
+mock_1 (tests.test_main.SuccessWithOutputTestCase) ...
 mock_1 (tests.test_main.SuccessWithOutputTestCase) ... ok
+mock_2 (tests.test_main.SuccessWithOutputTestCase) ...
 mock_2 (tests.test_main.SuccessWithOutputTestCase) ... ok
+mock_3 (tests.test_main.SuccessWithOutputTestCase) ...
 Hello stderr!
 mock_3 (tests.test_main.SuccessWithOutputTestCase) ... ok
 
@@ -536,8 +565,11 @@ OK
         self.assert_output(stderr.getvalue(), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
+mock_1 (tests.test_main.FailureTestCase) ...
 mock_1 (tests.test_main.FailureTestCase) ... ok
+mock_2 (tests.test_main.FailureTestCase) ...
 mock_2 (tests.test_main.FailureTestCase) ... FAIL
+mock_3 (tests.test_main.FailureTestCase) ...
 mock_3 (tests.test_main.FailureTestCase) ... ok
 
 ======================================================================
@@ -573,8 +605,11 @@ FAILED (failures=1)
         self.assert_output(re.sub(r'File ".*?", line \d+', 'File "<FILE>", line <LINE>', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
+mock_1 (tests.test_main.ErrorTestCase) ...
 mock_1 (tests.test_main.ErrorTestCase) ... ok
+mock_2 (tests.test_main.ErrorTestCase) ...
 mock_2 (tests.test_main.ErrorTestCase) ... ERROR
+mock_3 (tests.test_main.ErrorTestCase) ...
 mock_3 (tests.test_main.ErrorTestCase) ... ok
 
 ======================================================================
@@ -608,8 +643,11 @@ FAILED (errors=1)
         self.assert_output(stderr.getvalue(), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
+mock_1 (tests.test_main.SkipTestCase) ...
 mock_1 (tests.test_main.SkipTestCase) ... ok
+mock_2 (tests.test_main.SkipTestCase) ...
 mock_2 (tests.test_main.SkipTestCase) ... skipped 'skip reason'
+mock_3 (tests.test_main.SkipTestCase) ...
 mock_3 (tests.test_main.SkipTestCase) ... ok
 
 ----------------------------------------------------------------------
@@ -641,8 +679,11 @@ OK (skipped=1)
         self.assert_output(re.sub(r'File ".*?", line \d+', 'File "<FILE>", line <LINE>', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
+mock_1 (tests.test_main.ExpectedFailureTestCase) ...
 mock_1 (tests.test_main.ExpectedFailureTestCase) ... ok
+mock_2 (tests.test_main.ExpectedFailureTestCase) ...
 mock_2 (tests.test_main.ExpectedFailureTestCase) ... expected failure
+mock_3 (tests.test_main.ExpectedFailureTestCase) ...
 mock_3 (tests.test_main.ExpectedFailureTestCase) ... unexpected success
 
 ----------------------------------------------------------------------
@@ -668,8 +709,11 @@ FAILED (expected failures=1, unexpected successes=1)
         self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
+mock_1 (tests.test_main.SuccessTestCase) ...
 mock_1 (tests.test_main.SuccessTestCase) ... ok
+mock_2 (tests.test_main.SuccessTestCase) ...
 mock_2 (tests.test_main.SuccessTestCase) ... ok
+mock_3 (tests.test_main.SuccessTestCase) ...
 mock_3 (tests.test_main.SuccessTestCase) ... ok
 
 ----------------------------------------------------------------------
@@ -722,8 +766,11 @@ OK
         self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
+mock_1 (tests.test_main.SuccessTestCase) ...
 mock_1 (tests.test_main.SuccessTestCase) ... ok
+mock_2 (tests.test_main.SuccessTestCase) ...
 mock_2 (tests.test_main.SuccessTestCase) ... ok
+mock_3 (tests.test_main.SuccessTestCase) ...
 mock_3 (tests.test_main.SuccessTestCase) ... ok
 
 ----------------------------------------------------------------------
@@ -779,8 +826,11 @@ Total coverage is 100.00%
         self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
+mock_1 (tests.test_main.SuccessTestCase) ...
 mock_1 (tests.test_main.SuccessTestCase) ... ok
+mock_2 (tests.test_main.SuccessTestCase) ...
 mock_2 (tests.test_main.SuccessTestCase) ... ok
+mock_3 (tests.test_main.SuccessTestCase) ...
 mock_3 (tests.test_main.SuccessTestCase) ... ok
 
 ----------------------------------------------------------------------
@@ -873,8 +923,11 @@ Total coverage is 100.00%
         self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
+mock_1 (tests.test_main.SuccessTestCase) ...
 mock_1 (tests.test_main.SuccessTestCase) ... ok
+mock_2 (tests.test_main.SuccessTestCase) ...
 mock_2 (tests.test_main.SuccessTestCase) ... ok
+mock_3 (tests.test_main.SuccessTestCase) ...
 mock_3 (tests.test_main.SuccessTestCase) ... ok
 
 ----------------------------------------------------------------------
@@ -931,8 +984,11 @@ Total coverage is 100.00%
         self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
+mock_1 (tests.test_main.SuccessTestCase) ...
 mock_1 (tests.test_main.SuccessTestCase) ... ok
+mock_2 (tests.test_main.SuccessTestCase) ...
 mock_2 (tests.test_main.SuccessTestCase) ... ok
+mock_3 (tests.test_main.SuccessTestCase) ...
 mock_3 (tests.test_main.SuccessTestCase) ... ok
 
 ----------------------------------------------------------------------
@@ -990,8 +1046,11 @@ Total coverage is 100.00%
         self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
+mock_1 (tests.test_main.SuccessTestCase) ...
 mock_1 (tests.test_main.SuccessTestCase) ... ok
+mock_2 (tests.test_main.SuccessTestCase) ...
 mock_2 (tests.test_main.SuccessTestCase) ... ok
+mock_3 (tests.test_main.SuccessTestCase) ...
 mock_3 (tests.test_main.SuccessTestCase) ... ok
 
 ----------------------------------------------------------------------
@@ -1058,8 +1117,11 @@ Total coverage is 99.00%
         self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
+mock_1 (tests.test_main.SuccessTestCase) ...
 mock_1 (tests.test_main.SuccessTestCase) ... ok
+mock_2 (tests.test_main.SuccessTestCase) ...
 mock_2 (tests.test_main.SuccessTestCase) ... ok
+mock_3 (tests.test_main.SuccessTestCase) ...
 mock_3 (tests.test_main.SuccessTestCase) ... ok
 
 ----------------------------------------------------------------------
