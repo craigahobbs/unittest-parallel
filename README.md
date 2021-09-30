@@ -42,32 +42,43 @@ parallelism.
 
 ```
 $ unittest-parallel -v -t src -s src/tests --coverage-branch --coverage-fail-under 100
-Running 298 test suites (298 total tests) across 8 processes
+Running 299 test suites (299 total tests) across 8 processes
 
+test_first_list_then_dict (tests.test_encode.TestDecodeQueryString) ...
+test_first_list_then_dict (tests.test_encode.TestDecodeQueryString) ... ok
+test_compile_stdin (tests.test_main.TestMain) ...
+test_validate_stdin (tests.test_main.TestMain) ...
+test_array (tests.test_encode.TestDecodeQueryString) ...
 test_array (tests.test_encode.TestDecodeQueryString) ... ok
-test_array_initial_non_zero (tests.test_encode.TestDecodeQueryString) ... ok
-test_negative_index (tests.test_encode.TestDecodeQueryString) ... ok
 ...
+test_simple (tests.test_schema.TestValidateTypeModelTypes) ... ok
+test_typedef_unknown_type (tests.test_schema.TestValidateTypeModelTypes) ...
+test_typedef_unknown_type (tests.test_schema.TestValidateTypeModelTypes) ... ok
+test_struct_empty (tests.test_schema.TestValidateTypeModelTypes) ...
 test_struct_empty (tests.test_schema.TestValidateTypeModelTypes) ... ok
-test_struct_base (tests.test_schema.TestValidateTypeModelTypes) ... ok
-test_struct_inconsistent_type_name (tests.test_schema.TestValidateTypeModelTypes) ... ok
 
 ----------------------------------------------------------------------
-Ran 298 tests in 0.708s
+Ran 299 tests in 0.731s
 
 OK
 
 Name                                 Stmts   Miss Branch BrPart  Cover
 ----------------------------------------------------------------------
 src/schema_markdown/__init__.py          5      0      0      0   100%
-src/schema_markdown/__main__.py          3      0      0      0   100%
+src/schema_markdown/__main__.py          2      0      0      0   100%
 src/schema_markdown/encode.py           84      0     60      0   100%
-...
-src/tests/test_main.py                 179      0      4      0   100%
+src/schema_markdown/main.py             45      0     16      0   100%
+src/schema_markdown/parser.py          327      0    186      0   100%
+src/schema_markdown/schema.py          275      0    203      0   100%
+src/schema_markdown/schema_util.py     150      0    106      0   100%
+src/schema_markdown/type_model.py        4      0      0      0   100%
+src/tests/__init__.py                    0      0      0      0   100%
+src/tests/test_encode.py               154      0      0      0   100%
+src/tests/test_main.py                 191      0      4      0   100%
 src/tests/test_parser.py               363      0      0      0   100%
-src/tests/test_schema.py               828      0      0      0   100%
+src/tests/test_schema.py               938      0      0      0   100%
 ----------------------------------------------------------------------
-TOTAL                                 2412      0    571      0   100%
+TOTAL                                 2538      0    575      0   100%
 
 Total coverage is 100.00%
 ```
@@ -78,11 +89,12 @@ Total coverage is 100.00%
 ```
 usage: unittest-parallel [-h] [-v] [-q] [-f] [-b] [-j COUNT]
                          [--class-fixtures] [--module-fixtures]
-                         [-s START] [-p PATTERN] [-t TOP] [--coverage]
-                         [--coverage-branch] [--coverage-rcfile RCFILE]
-                         [--coverage-include PAT] [--coverage-omit PAT]
-                         [--coverage-source SRC] [--coverage-html DIR]
-                         [--coverage-xml FILE] [--coverage-fail-under MIN]
+                         [--disable-process-pooling] [-s START] [-p PATTERN]
+                         [-t TOP] [--coverage] [--coverage-branch]
+                         [--coverage-rcfile RCFILE] [--coverage-include PAT]
+                         [--coverage-omit PAT] [--coverage-source SRC]
+                         [--coverage-html DIR] [--coverage-xml FILE]
+                         [--coverage-fail-under MIN]
 
 options:
   -h, --help            show this help message and exit
@@ -94,6 +106,8 @@ options:
                         The number of test processes (default is 0, all cores)
   --class-fixtures      One or more TestCase class has a setUpClass method
   --module-fixtures     One or more test module has a setUpModule method
+  --disable-process-pooling
+                        Do not reuse processes used to run test suites
 
 unittest options:
   -s START, --start-directory START
