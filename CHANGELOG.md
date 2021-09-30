@@ -1,3 +1,11 @@
+## 1.5.0 (2021-09-30)
+
+- [9cc1952](https://github.com/craigahobbs/unittest-parallel/commit/9cc1952) - Use spawn to start processes and add an option to use new processes.
+
+## 1.4.6 (2021-09-21)
+
+- [c83ecd3](https://github.com/craigahobbs/unittest-parallel/commit/c83ecd3) - add start-test report in verbose mode for long-running tests
+
 ## 1.4.5 (2021-08-24)
 
 - [192eac2](https://github.com/craigahobbs/unittest-parallel/commit/192eac2) - update readme
