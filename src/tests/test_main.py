@@ -2,6 +2,7 @@
 # https://github.com/craigahobbs/unittest-parallel/blob/main/LICENSE
 
 from io import StringIO
+import multiprocessing
 import re
 import sys
 import unittest
@@ -12,7 +13,7 @@ from unittest_parallel.main import main
 
 
 class MockMultiprocessingPool:
-    def __init__(self, count):
+    def __init__(self, count, **kwargs):
         pass
 
     def __enter__(self):
@@ -24,6 +25,14 @@ class MockMultiprocessingPool:
     @staticmethod
     def map(func, args):
         return [func(arg) for arg in args]
+
+
+class MockMultiprocessingContext:
+    def __init__(self, method=None):
+        pass
+
+    def Pool(self, count, **kwargs):
+        return MockMultiprocessingPool(count, **kwargs)
 
 
 class MockMultiprocessingManagerEvent:
@@ -150,8 +159,8 @@ class TestMain(unittest.TestCase):
 
     def test_jobs(self):
         with patch('multiprocessing.cpu_count', Mock(return_value=1)) as cpu_count_mock, \
-             patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
              patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
+             patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=unittest.TestSuite())):
@@ -168,9 +177,32 @@ Ran 0 test in <SEC>s
 OK
 ''')
 
+    def test_disable_process_pooling(self):
+        context_mock = Mock(spec=type(multiprocessing.get_context()))
+        with patch('multiprocessing.cpu_count', Mock(return_value=1)), \
+             patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
+             patch('multiprocessing.get_context', return_value=context_mock) as get_context_mock, \
+             patch('sys.stdout', StringIO()) as stdout, \
+             patch('sys.stderr', StringIO()) as stderr, \
+             patch('unittest.TestLoader.discover', Mock(return_value=unittest.TestSuite())):
+            context_mock.Pool.side_effect = lambda *args, **kwargs: MockMultiprocessingPool(*args, **kwargs)
+            main(['--disable-process-pooling'])
+
+        get_context_mock.assert_called_with(method='spawn')
+        context_mock.Pool.assert_called_with(1, maxtasksperchild=1)
+        self.assertEqual(stdout.getvalue(), '')
+        self.assert_output(stderr.getvalue(), '''\
+Running 0 test suites (0 total tests) across 1 processes
+
+----------------------------------------------------------------------
+Ran 0 test in <SEC>s
+
+OK
+''')
+
     def test_no_tests(self):
         with patch('multiprocessing.cpu_count', Mock(return_value=1)), \
-             patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
              patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
@@ -198,7 +230,7 @@ OK
             ])
         ])
         with patch('multiprocessing.cpu_count', Mock(return_value=1)), \
-             patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
              patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
@@ -233,7 +265,7 @@ OK
             ])
         ])
         with patch('multiprocessing.cpu_count', Mock(return_value=2)), \
-             patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
              patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
@@ -261,7 +293,7 @@ OK
             ])
         ])
         with patch('multiprocessing.cpu_count', Mock(return_value=1)), \
-             patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
              patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
@@ -300,7 +332,7 @@ OK
             ])
         ])
         with patch('multiprocessing.cpu_count', Mock(return_value=1)), \
-             patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
              patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
@@ -338,7 +370,7 @@ OK
             ])
         ])
         with patch('multiprocessing.cpu_count', Mock(return_value=1)), \
-             patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
              patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
@@ -368,7 +400,7 @@ OK
                 unittest.TestSuite(tests=[SuccessTestCase('mock_1'), SuccessTestCase('mock_2'), SuccessTestCase('mock_3')]),
             ])
         ])
-        with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+        with patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
              patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
@@ -391,7 +423,7 @@ OK
                 unittest.TestSuite(tests=[SuccessTestCase('mock_1'), SuccessTestCase('mock_2'), SuccessTestCase('mock_3')])
             ])
         ])
-        with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+        with patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
              patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
@@ -413,7 +445,7 @@ OK
                 unittest.TestSuite(tests=[SuccessTestCase('mock_1'), SuccessTestCase('mock_2'), SuccessTestCase('mock_3')])
             ])
         ])
-        with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+        with patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
              patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
@@ -443,7 +475,7 @@ OK
                 unittest.TestSuite(tests=[FailureTestCase('mock_1'), FailureTestCase('mock_2'), FailureTestCase('mock_3')])
             ])
         ])
-        with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+        with patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
              patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
@@ -485,7 +517,7 @@ FAILED (failures=1)
                 ])
             ])
         ])
-        with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+        with patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
              patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
@@ -519,7 +551,7 @@ OK
                 ])
             ])
         ])
-        with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+        with patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
              patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
@@ -552,7 +584,7 @@ OK
                 unittest.TestSuite(tests=[FailureTestCase('mock_1'), FailureTestCase('mock_2'), FailureTestCase('mock_3')])
             ])
         ])
-        with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+        with patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
              patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
@@ -592,7 +624,7 @@ FAILED (failures=1)
                 unittest.TestSuite(tests=[ErrorTestCase('mock_1'), ErrorTestCase('mock_2'), ErrorTestCase('mock_3')])
             ])
         ])
-        with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+        with patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
              patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
@@ -632,7 +664,7 @@ FAILED (errors=1)
                 unittest.TestSuite(tests=[SkipTestCase('mock_1'), SkipTestCase('mock_2'), SkipTestCase('mock_3')])
             ])
         ])
-        with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+        with patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
              patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
@@ -666,7 +698,7 @@ OK (skipped=1)
                 ])
             ])
         ])
-        with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+        with patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
              patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
@@ -698,7 +730,7 @@ FAILED (expected failures=1, unexpected successes=1)
                 unittest.TestSuite(tests=[SuccessTestCase('mock_1'), SuccessTestCase('mock_2'), SuccessTestCase('mock_3')])
             ])
         ])
-        with patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+        with patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
              patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
@@ -729,7 +761,7 @@ OK
             ])
         ])
         with patch('coverage.Coverage') as coverage_mock, \
-             patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
              patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
@@ -789,7 +821,7 @@ Total coverage is 100.00%
             ])
         ])
         with patch('coverage.Coverage') as coverage_mock, \
-             patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
              patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
@@ -844,7 +876,7 @@ Total coverage is 100.00%
 
     def test_coverage_no_tests(self):
         with patch('coverage.Coverage') as coverage_mock, \
-             patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
              patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
@@ -885,7 +917,7 @@ Total coverage is 100.00%
             ])
         ])
         with patch('coverage.Coverage') as coverage_mock, \
-             patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
              patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
@@ -946,7 +978,7 @@ Total coverage is 100.00%
             ])
         ])
         with patch('coverage.Coverage') as coverage_mock, \
-             patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
              patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
@@ -1007,7 +1039,7 @@ Total coverage is 100.00%
             ])
         ])
         with patch('coverage.Coverage') as coverage_mock, \
-             patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
              patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
@@ -1069,7 +1101,7 @@ Total coverage is 99.00%
             ])
         ])
         with patch('coverage.Coverage') as coverage_mock, \
-             patch('multiprocessing.Pool', new=MockMultiprocessingPool), \
+             patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
              patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
