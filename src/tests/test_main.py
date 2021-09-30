@@ -31,6 +31,7 @@ class MockMultiprocessingContext:
     def __init__(self, method=None):
         pass
 
+    # pylint: disable=invalid-name, no-self-use
     def Pool(self, count, **kwargs):
         return MockMultiprocessingPool(count, **kwargs)
 
@@ -185,7 +186,7 @@ OK
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=unittest.TestSuite())):
-            context_mock.Pool.side_effect = lambda *args, **kwargs: MockMultiprocessingPool(*args, **kwargs)
+            context_mock.Pool.side_effect = MockMultiprocessingPool
             main(['--disable-process-pooling'])
 
         get_context_mock.assert_called_with(method='spawn')

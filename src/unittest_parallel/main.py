@@ -40,7 +40,7 @@ def main(argv=None):
     parser.add_argument('--module-fixtures', action='store_true', default=False,
                         help='One or more test module has a setUpModule method')
     parser.add_argument('--disable-process-pooling', action='store_true', default=False,
-                        help='Do not reuse processes used to run test suites.')
+                        help='Do not reuse processes used to run test suites')
     group_unittest = parser.add_argument_group('unittest options')
     group_unittest.add_argument('-s', '--start-directory', metavar='START', default='.',
                                 help="Directory to start discovery ('.' default)")
@@ -106,8 +106,8 @@ def main(argv=None):
         start_time = time.perf_counter()
         multiprocessing_context = multiprocessing.get_context(method='spawn')
         maxtasksperchild = 1 if args.disable_process_pooling else None
-        with multiprocessing_context.Pool(
-                process_count, maxtasksperchild=maxtasksperchild) as pool, multiprocessing.Manager() as manager:
+        with multiprocessing_context.Pool(process_count, maxtasksperchild=maxtasksperchild) as pool, \
+             multiprocessing.Manager() as manager:
             test_manager = ParallelTestManager(manager, args, temp_dir)
             results = pool.map(test_manager.run_tests, test_suites)
         stop_time = time.perf_counter()
