@@ -142,18 +142,16 @@ class ExpectedFailureTestCase(unittest.TestCase):
 class TestMain(unittest.TestCase):
 
     def assert_output(self, actual, expected):
-        self.assertEqual(
-            re.sub(
-                r'File ".*?", line \d+',
-                'File "<FILE>", line <LINE>',
-                re.sub(
-                    r'\d+\.\d{3}s',
-                    '<SEC>s',
-                    actual
-                )
-            ),
-            expected
-        )
+        # Normalize test timing output
+        actual = re.sub(r'\d+\.\d{3}s', '<SEC>s', actual)
+
+        # Normalize file and line number output
+        actual = re.sub(r'File ".*?", line \d+', 'File "<FILE>", line <LINE>', actual)
+
+        # Normalize error message output
+        actual = re.sub(r'^\s*\^+\s*$\n', '', actual, flags=re.MULTILINE)
+
+        self.assertEqual(actual, expected)
 
     def test_module_main(self):
         self.assertTrue(unittest_parallel.__main__)
