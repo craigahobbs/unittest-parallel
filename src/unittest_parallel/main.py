@@ -172,7 +172,6 @@ def main(argv=None):
             # Coverage report
             print(file=sys.stderr)
             percent_covered = cov.report(ignore_errors=True, file=sys.stderr)
-            print(file=sys.stderr)
             print(f'Total coverage is {percent_covered:.2f}%', file=sys.stderr)
 
             # HTML coverage report

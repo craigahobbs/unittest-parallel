@@ -1066,7 +1066,6 @@ Ran 3 tests in <SEC>s
 
 OK
 
-
 Total coverage is 100.00%
 ''')
         else: # pragma: no cover
@@ -1084,7 +1083,6 @@ mock_3 (tests.test_main.SuccessTestCase.mock_3) ... ok
 Ran 3 tests in <SEC>s
 
 OK
-
 
 Total coverage is 100.00%
 ''')
@@ -1146,7 +1144,6 @@ Ran 3 tests in <SEC>s
 
 OK
 
-
 Total coverage is 100.00%
 ''')
         else: # pragma: no cover
@@ -1164,7 +1161,6 @@ mock_3 (tests.test_main.SuccessTestCase.mock_3) ... ok
 Ran 3 tests in <SEC>s
 
 OK
-
 
 Total coverage is 100.00%
 ''')
@@ -1200,7 +1196,6 @@ Running 0 test suites (0 total tests) across 1 processes
 Ran 0 test in <SEC>s
 
 OK
-
 
 Total coverage is 100.00%
 ''')
@@ -1263,7 +1258,6 @@ Ran 3 tests in <SEC>s
 
 OK
 
-
 Total coverage is 100.00%
 ''')
         else: # pragma: no cover
@@ -1281,7 +1275,6 @@ mock_3 (tests.test_main.SuccessTestCase.mock_3) ... ok
 Ran 3 tests in <SEC>s
 
 OK
-
 
 Total coverage is 100.00%
 ''')
@@ -1344,7 +1337,6 @@ Ran 3 tests in <SEC>s
 
 OK
 
-
 Total coverage is 100.00%
 ''')
         else: # pragma: no cover
@@ -1362,7 +1354,6 @@ mock_3 (tests.test_main.SuccessTestCase.mock_3) ... ok
 Ran 3 tests in <SEC>s
 
 OK
-
 
 Total coverage is 100.00%
 ''')
@@ -1426,7 +1417,6 @@ Ran 3 tests in <SEC>s
 
 OK
 
-
 Total coverage is 99.00%
 ''')
         else: # pragma: no cover
@@ -1444,7 +1434,6 @@ mock_3 (tests.test_main.SuccessTestCase.mock_3) ... ok
 Ran 3 tests in <SEC>s
 
 OK
-
 
 Total coverage is 99.00%
 ''')
@@ -1517,7 +1506,6 @@ Ran 3 tests in <SEC>s
 
 OK
 
-
 Total coverage is 100.00%
 ''')
         else: # pragma: no cover
@@ -1535,7 +1523,6 @@ mock_3 (tests.test_main.SuccessTestCase.mock_3) ... ok
 Ran 3 tests in <SEC>s
 
 OK
-
 
 Total coverage is 100.00%
 ''')
