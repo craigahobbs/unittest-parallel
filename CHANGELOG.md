@@ -1,3 +1,11 @@
+## 1.5.1 (2022-04-10)
+
+- [3db999b](https://github.com/craigahobbs/unittest-parallel/commit/3db999b) - remove extra newline prior to total coverage report
+
+- [d4af98d](https://github.com/craigahobbs/unittest-parallel/commit/d4af98d) - fix tests under python 3.11 broken by https://bugs.python.org/issue14265
+
+- [94dd448](https://github.com/craigahobbs/unittest-parallel/commit/94dd448) - add python 3.11 support, remove python 3.6
+
 ## 1.5.0 (2021-09-30)
 
 - [9cc1952](https://github.com/craigahobbs/unittest-parallel/commit/9cc1952) - Use spawn to start processes and add an option to use new processes.
