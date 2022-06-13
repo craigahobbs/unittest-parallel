@@ -31,7 +31,7 @@ class MockMultiprocessingContext:
     def __init__(self, method=None):
         pass
 
-    # pylint: disable=invalid-name, no-self-use
+    # pylint: disable=invalid-name
     def Pool(self, count, **kwargs):
         return MockMultiprocessingPool(count, **kwargs)
 
