@@ -33,21 +33,23 @@ def main(argv=None):
                         help='Stop on first fail or error')
     parser.add_argument('-b', '--buffer', action='store_true', default=False,
                         help='Buffer stdout and stderr during tests')
-    parser.add_argument('-j', '--jobs', metavar='COUNT', type=int, default=0,
-                        help='The number of test processes (default is 0, all cores)')
-    parser.add_argument('--class-fixtures', action='store_true', default=False,
-                        help='One or more TestCase class has a setUpClass method')
-    parser.add_argument('--module-fixtures', action='store_true', default=False,
-                        help='One or more test module has a setUpModule method')
-    parser.add_argument('--disable-process-pooling', action='store_true', default=False,
-                        help='Do not reuse processes used to run test suites')
-    group_unittest = parser.add_argument_group('unittest options')
-    group_unittest.add_argument('-s', '--start-directory', metavar='START', default='.',
-                                help="Directory to start discovery ('.' default)")
-    group_unittest.add_argument('-p', '--pattern', metavar='PATTERN', default='test*.py',
-                                help="Pattern to match tests ('test*.py' default)")
-    group_unittest.add_argument('-t', '--top-level-directory', metavar='TOP',
-                                help='Top level directory of project (defaults to start directory)')
+    parser.add_argument('-k', dest='testNamePatterns', action='append', type=_convert_select_pattern,
+                        help='Only run tests which match the given substring')
+    parser.add_argument('-s', '--start-directory', metavar='START', default='.',
+                        help="Directory to start discovery ('.' default)")
+    parser.add_argument('-p', '--pattern', metavar='PATTERN', default='test*.py',
+                        help="Pattern to match tests ('test*.py' default)")
+    parser.add_argument('-t', '--top-level-directory', metavar='TOP',
+                        help='Top level directory of project (defaults to start directory)')
+    group_parallel = parser.add_argument_group('parallelization options')
+    group_parallel.add_argument('-j', '--jobs', metavar='COUNT', type=int, default=0,
+                                help='The number of test processes (default is 0, all cores)')
+    group_parallel.add_argument('--class-fixtures', action='store_true', default=False,
+                                help='One or more TestCase class has a setUpClass method')
+    group_parallel.add_argument('--module-fixtures', action='store_true', default=False,
+                                help='One or more test module has a setUpModule method')
+    group_parallel.add_argument('--disable-process-pooling', action='store_true', default=False,
+                                help='Do not reuse processes used to run test suites')
     group_coverage = parser.add_argument_group('coverage options')
     group_coverage.add_argument('--coverage', action='store_true',
                                 help='Run tests with coverage')
@@ -81,6 +83,8 @@ def main(argv=None):
         # Discover tests
         with _coverage(args, temp_dir):
             test_loader = unittest.TestLoader()
+            if args.testNamePatterns:
+                test_loader.testNamePatterns = args.testNamePatterns
             discover_suite = test_loader.discover(args.start_directory, pattern=args.pattern, top_level_dir=args.top_level_directory)
 
         # Get the parallelizable test suites
@@ -185,6 +189,12 @@ def main(argv=None):
             # Fail under
             if args.coverage_fail_under and percent_covered < args.coverage_fail_under:
                 parser.exit(status=2)
+
+
+def _convert_select_pattern(pattern):
+    if not '*' in pattern:
+        return f'*{pattern}*'
+    return pattern
 
 
 @contextmanager

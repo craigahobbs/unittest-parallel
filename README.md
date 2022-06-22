@@ -87,14 +87,14 @@ Total coverage is 100.00%
 ## Usage
 
 ```
-usage: unittest-parallel [-h] [-v] [-q] [-f] [-b] [-j COUNT]
+usage: unittest-parallel [-h] [-v] [-q] [-f] [-b] [-k TESTNAMEPATTERNS]
+                         [-s START] [-p PATTERN] [-t TOP] [-j COUNT]
                          [--class-fixtures] [--module-fixtures]
-                         [--disable-process-pooling] [-s START] [-p PATTERN]
-                         [-t TOP] [--coverage] [--coverage-branch]
-                         [--coverage-rcfile RCFILE] [--coverage-include PAT]
-                         [--coverage-omit PAT] [--coverage-source SRC]
-                         [--coverage-html DIR] [--coverage-xml FILE]
-                         [--coverage-fail-under MIN]
+                         [--disable-process-pooling] [--coverage]
+                         [--coverage-branch] [--coverage-rcfile RCFILE]
+                         [--coverage-include PAT] [--coverage-omit PAT]
+                         [--coverage-source SRC] [--coverage-html DIR]
+                         [--coverage-xml FILE] [--coverage-fail-under MIN]
 
 options:
   -h, --help            show this help message and exit
@@ -102,14 +102,7 @@ options:
   -q, --quiet           Quiet output
   -f, --failfast        Stop on first fail or error
   -b, --buffer          Buffer stdout and stderr during tests
-  -j COUNT, --jobs COUNT
-                        The number of test processes (default is 0, all cores)
-  --class-fixtures      One or more TestCase class has a setUpClass method
-  --module-fixtures     One or more test module has a setUpModule method
-  --disable-process-pooling
-                        Do not reuse processes used to run test suites
-
-unittest options:
+  -k TESTNAMEPATTERNS   Only run tests which match the given substring
   -s START, --start-directory START
                         Directory to start discovery ('.' default)
   -p PATTERN, --pattern PATTERN
@@ -117,6 +110,14 @@ unittest options:
   -t TOP, --top-level-directory TOP
                         Top level directory of project (defaults to start
                         directory)
+
+parallelization options:
+  -j COUNT, --jobs COUNT
+                        The number of test processes (default is 0, all cores)
+  --class-fixtures      One or more TestCase class has a setUpClass method
+  --module-fixtures     One or more test module has a setUpModule method
+  --disable-process-pooling
+                        Do not reuse processes used to run test suites
 
 coverage options:
   --coverage            Run tests with coverage
