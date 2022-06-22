@@ -1,3 +1,7 @@
+## 1.5.2 (2022-06-22)
+
+- [f42eb48](https://github.com/craigahobbs/unittest-parallel/commit/f42eb48) - add -k option
+
 ## 1.5.1 (2022-04-10)
 
 - [3db999b](https://github.com/craigahobbs/unittest-parallel/commit/3db999b) - remove extra newline prior to total coverage report
