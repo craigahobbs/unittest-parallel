@@ -237,7 +237,7 @@ OK
             main(['-v'])
 
         self.assertEqual(stdout.getvalue(), '')
-        if sys.version_info < (3, 11):
+        if sys.version_info < (3, 11): # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
 Running 5 test suites (5 total tests) across 1 processes
 
@@ -257,7 +257,7 @@ Ran 5 tests in <SEC>s
 
 OK
 ''')
-        else: # pragma: no cover
+        else:
             self.assert_output(stderr.getvalue(), '''\
 Running 5 test suites (5 total tests) across 1 processes
 
@@ -321,7 +321,7 @@ OK
             main(['-v', '--class-fixtures'])
 
         self.assertEqual(stdout.getvalue(), '')
-        if sys.version_info < (3, 11):
+        if sys.version_info < (3, 11): # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
 Running 3 test suites (5 total tests) across 1 processes
 
@@ -341,7 +341,7 @@ Ran 5 tests in <SEC>s
 
 OK
 ''')
-        else: # pragma: no cover
+        else:
             self.assert_output(stderr.getvalue(), '''\
 Running 3 test suites (5 total tests) across 1 processes
 
@@ -381,7 +381,7 @@ OK
             main(['-v', '--module-fixtures'])
 
         self.assertEqual(stdout.getvalue(), '')
-        if sys.version_info < (3, 11):
+        if sys.version_info < (3, 11): # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
 Running 2 test suites (5 total tests) across 1 processes
 
@@ -401,7 +401,7 @@ Ran 5 tests in <SEC>s
 
 OK
 ''')
-        else: # pragma: no cover
+        else:
             self.assert_output(stderr.getvalue(), '''\
 Running 2 test suites (5 total tests) across 1 processes
 
@@ -440,7 +440,7 @@ OK
             main(['-v', '--module-fixtures'])
 
         self.assertEqual(stdout.getvalue(), '')
-        if sys.version_info < (3, 11):
+        if sys.version_info < (3, 11): # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
 Running 1 test suites (3 total tests) across 1 processes
 
@@ -456,7 +456,7 @@ Ran 3 tests in <SEC>s
 
 OK
 ''')
-        else: # pragma: no cover
+        else:
             self.assert_output(stderr.getvalue(), '''\
 Running 1 test suites (3 total tests) across 1 processes
 
@@ -532,7 +532,7 @@ OK
             main(['-q', '-v'])
 
         self.assertEqual(stdout.getvalue(), '')
-        if sys.version_info < (3, 11):
+        if sys.version_info < (3, 11): # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -548,7 +548,7 @@ Ran 3 tests in <SEC>s
 
 OK
 ''')
-        else: # pragma: no cover
+        else:
             self.assert_output(stderr.getvalue(), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -581,7 +581,7 @@ OK
 
         self.assertEqual(cm_exc.exception.code, 1)
         self.assertEqual(stdout.getvalue(), '')
-        if sys.version_info < (3, 11):
+        if sys.version_info < (3, 11): # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -603,7 +603,7 @@ Ran 2 tests in <SEC>s
 
 FAILED (failures=1)
 ''')
-        else: # pragma: no cover
+        else:
             self.assert_output(stderr.getvalue(), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -644,7 +644,7 @@ FAILED (failures=1)
             main(['-v', '-b'])
 
         self.assertEqual(stdout.getvalue(), '')
-        if sys.version_info < (3, 11):
+        if sys.version_info < (3, 11): # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -660,7 +660,7 @@ Ran 3 tests in <SEC>s
 
 OK
 ''')
-        else: # pragma: no cover
+        else:
             self.assert_output(stderr.getvalue(), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -697,7 +697,7 @@ OK
         self.assertEqual(stdout.getvalue(), '''\
 Hello stdout!
 ''')
-        if sys.version_info < (3, 11):
+        if sys.version_info < (3, 11): # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -714,7 +714,7 @@ Ran 3 tests in <SEC>s
 
 OK
 ''')
-        else: # pragma: no cover
+        else:
             self.assert_output(stderr.getvalue(), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -748,7 +748,7 @@ OK
             main(['-v', '-k', '1'])
 
         self.assertEqual(stdout.getvalue(), '')
-        if sys.version_info < (3, 11):
+        if sys.version_info < (3, 11): # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
 Running 1 test suites (1 total tests) across 1 processes
 
@@ -760,7 +760,7 @@ Ran 1 test in <SEC>s
 
 OK
 ''')
-        else: # pragma: no cover
+        else:
             self.assert_output(stderr.getvalue(), '''\
 Running 1 test suites (1 total tests) across 1 processes
 
@@ -789,7 +789,7 @@ OK
             main(['-v', '-k', '*_1'])
 
         self.assertEqual(stdout.getvalue(), '')
-        if sys.version_info < (3, 11):
+        if sys.version_info < (3, 11): # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
 Running 1 test suites (1 total tests) across 1 processes
 
@@ -801,7 +801,7 @@ Ran 1 test in <SEC>s
 
 OK
 ''')
-        else: # pragma: no cover
+        else:
             self.assert_output(stderr.getvalue(), '''\
 Running 1 test suites (1 total tests) across 1 processes
 
@@ -830,7 +830,7 @@ OK
 
         self.assertEqual(cm_exc.exception.code, 1)
         self.assertEqual(stdout.getvalue(), '')
-        if sys.version_info < (3, 11):
+        if sys.version_info < (3, 11): # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -854,7 +854,7 @@ Ran 3 tests in <SEC>s
 
 FAILED (failures=1)
 ''')
-        else: # pragma: no cover
+        else:
             self.assert_output(stderr.getvalue(), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -895,7 +895,7 @@ FAILED (failures=1)
 
         self.assertEqual(cm_exc.exception.code, 1)
         self.assertEqual(stdout.getvalue(), '')
-        if sys.version_info < (3, 11):
+        if sys.version_info < (3, 11): # pragma: no cover
             self.assert_output(re.sub(r'File ".*?", line \d+', 'File "<FILE>", line <LINE>', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -919,7 +919,7 @@ Ran 3 tests in <SEC>s
 
 FAILED (errors=1)
 ''')
-        else: # pragma: no cover
+        else:
             self.assert_output(re.sub(r'File ".*?", line \d+', 'File "<FILE>", line <LINE>', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -958,7 +958,7 @@ FAILED (errors=1)
             main(['-v'])
 
         self.assertEqual(stdout.getvalue(), '')
-        if sys.version_info < (3, 11):
+        if sys.version_info < (3, 11): # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -974,7 +974,7 @@ Ran 3 tests in <SEC>s
 
 OK (skipped=1)
 ''')
-        else: # pragma: no cover
+        else:
             self.assert_output(stderr.getvalue(), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -1011,7 +1011,7 @@ OK (skipped=1)
 
         self.assertEqual(cm_exc.exception.code, 1)
         self.assertEqual(stdout.getvalue(), '')
-        if sys.version_info < (3, 11):
+        if sys.version_info < (3, 11): # pragma: no cover
             self.assert_output(re.sub(r'File ".*?", line \d+', 'File "<FILE>", line <LINE>', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -1027,7 +1027,7 @@ Ran 3 tests in <SEC>s
 
 FAILED (expected failures=1, unexpected successes=1)
 ''')
-        else: # pragma: no cover
+        else:
             self.assert_output(re.sub(r'File ".*?", line \d+', 'File "<FILE>", line <LINE>', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -1058,7 +1058,7 @@ FAILED (expected failures=1, unexpected successes=1)
             main(['-v'])
 
         self.assertEqual(stdout.getvalue(), '')
-        if sys.version_info < (3, 11):
+        if sys.version_info < (3, 11): # pragma: no cover
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -1074,7 +1074,7 @@ Ran 3 tests in <SEC>s
 
 OK
 ''')
-        else: # pragma: no cover
+        else:
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -1132,7 +1132,7 @@ OK
             ]
         )
         self.assertEqual(stdout.getvalue(), '')
-        if sys.version_info < (3, 11):
+        if sys.version_info < (3, 11): # pragma: no cover
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -1150,7 +1150,7 @@ OK
 
 Total coverage is 100.00%
 ''')
-        else: # pragma: no cover
+        else:
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -1210,7 +1210,7 @@ Total coverage is 100.00%
             ]
         )
         self.assertEqual(stdout.getvalue(), '')
-        if sys.version_info < (3, 11):
+        if sys.version_info < (3, 11): # pragma: no cover
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -1228,7 +1228,7 @@ OK
 
 Total coverage is 100.00%
 ''')
-        else: # pragma: no cover
+        else:
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -1324,7 +1324,7 @@ Total coverage is 100.00%
             ]
         )
         self.assertEqual(stdout.getvalue(), '')
-        if sys.version_info < (3, 11):
+        if sys.version_info < (3, 11): # pragma: no cover
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -1342,7 +1342,7 @@ OK
 
 Total coverage is 100.00%
 ''')
-        else: # pragma: no cover
+        else:
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -1403,7 +1403,7 @@ Total coverage is 100.00%
             ]
         )
         self.assertEqual(stdout.getvalue(), '')
-        if sys.version_info < (3, 11):
+        if sys.version_info < (3, 11): # pragma: no cover
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -1421,7 +1421,7 @@ OK
 
 Total coverage is 100.00%
 ''')
-        else: # pragma: no cover
+        else:
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -1483,7 +1483,7 @@ Total coverage is 100.00%
             ]
         )
         self.assertEqual(stdout.getvalue(), '')
-        if sys.version_info < (3, 11):
+        if sys.version_info < (3, 11): # pragma: no cover
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -1501,7 +1501,7 @@ OK
 
 Total coverage is 99.00%
 ''')
-        else: # pragma: no cover
+        else:
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -1572,7 +1572,7 @@ Total coverage is 99.00%
             ]
         )
         self.assertEqual(stdout.getvalue(), '')
-        if sys.version_info < (3, 11):
+        if sys.version_info < (3, 11): # pragma: no cover
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -1590,7 +1590,7 @@ OK
 
 Total coverage is 100.00%
 ''')
-        else: # pragma: no cover
+        else:
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
