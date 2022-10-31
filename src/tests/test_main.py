@@ -257,7 +257,7 @@ Ran 5 tests in <SEC>s
 
 OK
 ''')
-        else:
+        else: # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
 Running 5 test suites (5 total tests) across 1 processes
 
@@ -341,7 +341,7 @@ Ran 5 tests in <SEC>s
 
 OK
 ''')
-        else:
+        else: # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
 Running 3 test suites (5 total tests) across 1 processes
 
@@ -401,7 +401,7 @@ Ran 5 tests in <SEC>s
 
 OK
 ''')
-        else:
+        else: # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
 Running 2 test suites (5 total tests) across 1 processes
 
@@ -456,7 +456,7 @@ Ran 3 tests in <SEC>s
 
 OK
 ''')
-        else:
+        else: # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
 Running 1 test suites (3 total tests) across 1 processes
 
@@ -548,7 +548,7 @@ Ran 3 tests in <SEC>s
 
 OK
 ''')
-        else:
+        else: # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -603,7 +603,7 @@ Ran 2 tests in <SEC>s
 
 FAILED (failures=1)
 ''')
-        else:
+        else: # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -660,7 +660,7 @@ Ran 3 tests in <SEC>s
 
 OK
 ''')
-        else:
+        else: # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -714,7 +714,7 @@ Ran 3 tests in <SEC>s
 
 OK
 ''')
-        else:
+        else: # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -760,7 +760,7 @@ Ran 1 test in <SEC>s
 
 OK
 ''')
-        else:
+        else: # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
 Running 1 test suites (1 total tests) across 1 processes
 
@@ -801,7 +801,7 @@ Ran 1 test in <SEC>s
 
 OK
 ''')
-        else:
+        else: # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
 Running 1 test suites (1 total tests) across 1 processes
 
@@ -854,7 +854,7 @@ Ran 3 tests in <SEC>s
 
 FAILED (failures=1)
 ''')
-        else:
+        else: # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -919,7 +919,7 @@ Ran 3 tests in <SEC>s
 
 FAILED (errors=1)
 ''')
-        else:
+        else: # pragma: no cover
             self.assert_output(re.sub(r'File ".*?", line \d+', 'File "<FILE>", line <LINE>', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -974,7 +974,7 @@ Ran 3 tests in <SEC>s
 
 OK (skipped=1)
 ''')
-        else:
+        else: # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -1027,7 +1027,7 @@ Ran 3 tests in <SEC>s
 
 FAILED (expected failures=1, unexpected successes=1)
 ''')
-        else:
+        else: # pragma: no cover
             self.assert_output(re.sub(r'File ".*?", line \d+', 'File "<FILE>", line <LINE>', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -1074,7 +1074,7 @@ Ran 3 tests in <SEC>s
 
 OK
 ''')
-        else:
+        else: # pragma: no cover
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -1150,7 +1150,7 @@ OK
 
 Total coverage is 100.00%
 ''')
-        else:
+        else: # pragma: no cover
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -1228,7 +1228,7 @@ OK
 
 Total coverage is 100.00%
 ''')
-        else:
+        else: # pragma: no cover
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -1342,7 +1342,7 @@ OK
 
 Total coverage is 100.00%
 ''')
-        else:
+        else: # pragma: no cover
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -1421,7 +1421,7 @@ OK
 
 Total coverage is 100.00%
 ''')
-        else:
+        else: # pragma: no cover
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -1501,7 +1501,7 @@ OK
 
 Total coverage is 99.00%
 ''')
-        else:
+        else: # pragma: no cover
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
@@ -1590,7 +1590,7 @@ OK
 
 Total coverage is 100.00%
 ''')
-        else:
+        else: # pragma: no cover
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
 Running 3 test suites (3 total tests) across 3 processes
 
