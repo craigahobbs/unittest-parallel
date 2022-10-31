@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.3 (2022-10-31)
+
+- [b4ebdb4](https://github.com/craigahobbs/unittest-parallel/commit/b4ebdb4) - add pyproject.toml and setup.cfg, remove setup.py
+
 ## 1.5.2 (2022-06-22)
 
 - [f42eb48](https://github.com/craigahobbs/unittest-parallel/commit/f42eb48) - add -k option
