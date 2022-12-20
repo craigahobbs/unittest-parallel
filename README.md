@@ -7,21 +7,29 @@
 
 unittest-parallel is a parallel unit test runner for Python with coverage support.
 
+
+## Links
+
+- [Source code](https://github.com/craigahobbs/unittest-parallel)
+
+
+## Run Unit Tests in Parallel
+
 To run unittest-parallel, specify the directory containing your unit tests with the "-s" argument
 and your package's top-level directory using the "-t" argument:
 
-```
+~~~
 unittest-parallel -t . -s tests
-```
+~~~
 
 By default, unittest-parallel runs unit tests on all CPU cores available.
 
 To run your unit tests with coverage, add either the "--coverage" option (for line coverage) or the
 "--coverage-branch" for line and branch coverage.
 
-```
+~~~
 unittest-parallel -t . -s tests --coverage-branch
-```
+~~~
 
 
 ## How it works
@@ -40,7 +48,7 @@ parallelism.
 
 ## Example output
 
-```
+~~~
 $ unittest-parallel -v -t src -s src/tests --coverage-branch --coverage-fail-under 100
 Running 299 test suites (299 total tests) across 8 processes
 
@@ -81,12 +89,12 @@ src/tests/test_schema.py               938      0      0      0   100%
 TOTAL                                 2538      0    575      0   100%
 
 Total coverage is 100.00%
-```
+~~~
 
 
 ## Usage
 
-```
+~~~
 usage: unittest-parallel [-h] [-v] [-q] [-f] [-b] [-k TESTNAMEPATTERNS]
                          [-s START] [-p PATTERN] [-t TOP] [-j COUNT]
                          [--class-fixtures] [--module-fixtures]
@@ -136,14 +144,14 @@ coverage options:
   --coverage-xml FILE   Generate coverage XML report
   --coverage-fail-under MIN
                         Fail if coverage percentage under min
-```
+~~~
 
 
 ## Development
 
-This project is developed using [python-build](https://github.com/craigahobbs/python-build#readme). It was started
-using [python-template](https://github.com/craigahobbs/python-template#readme) as follows:
+This package is developed using [python-build](https://github.com/craigahobbs/python-build#readme).
+It was started using [python-template](https://github.com/craigahobbs/python-template#readme) as follows:
 
-```
+~~~
 template-specialize python-template/template/ unittest-parallel/ -k package unittest-parallel -k name 'Craig A. Hobbs' -k email 'craigahobbs@gmail.com' -k github 'craigahobbs' -k noapi 1
-```
+~~~
