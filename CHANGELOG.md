@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.6.0 (2023-06-28)
+
+- [f7d4f66](https://github.com/craigahobbs/unittest-parallel/commit/f7d4f66) - add --level option \(defaults to 'module'\), remove --class-fixtures and --module-fixtures options
+
 ## 1.5.4 (2023-06-28)
 
 - [9991244](https://github.com/craigahobbs/unittest-parallel/commit/9991244) - add python 3.12 support, remove python 3.7 support \(end-of-life\)
