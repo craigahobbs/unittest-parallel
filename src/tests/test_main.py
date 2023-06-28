@@ -240,7 +240,7 @@ OK
         self.assertEqual(stdout.getvalue(), '')
         if sys.version_info < (3, 11): # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
-Running 5 test suites (5 total tests) across 1 processes
+Running 2 test suites (5 total tests) across 1 processes
 
 mock_1 (tests.test_main.SuccessTestCase) ...
 mock_1 (tests.test_main.SuccessTestCase) ... ok
@@ -260,7 +260,7 @@ OK
 ''')
         else: # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
-Running 5 test suites (5 total tests) across 1 processes
+Running 2 test suites (5 total tests) across 1 processes
 
 mock_1 (tests.test_main.SuccessTestCase.mock_1) ...
 mock_1 (tests.test_main.SuccessTestCase.mock_1) ... ok
@@ -295,7 +295,7 @@ OK
 
         self.assertEqual(stdout.getvalue(), '')
         self.assert_output(stderr.getvalue(), '''\
-Running 3 test suites (3 total tests) across 2 processes
+Running 1 test suites (3 total tests) across 1 processes
 ...
 ----------------------------------------------------------------------
 Ran 3 tests in <SEC>s
@@ -303,7 +303,7 @@ Ran 3 tests in <SEC>s
 OK
 ''')
 
-    def test_success_class_fixtures(self):
+    def test_success_level_class(self):
         discover_suite = unittest.TestSuite(tests=[
             unittest.TestSuite(tests=[
                 unittest.TestSuite(tests=[SuccessTestCase('mock_1'), SuccessTestCase('mock_2'), SuccessTestCase('mock_3')]),
@@ -319,7 +319,7 @@ OK
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
-            main(['-v', '--class-fixtures'])
+            main(['-v', '--level', 'class'])
 
         self.assertEqual(stdout.getvalue(), '')
         if sys.version_info < (3, 11): # pragma: no cover
@@ -363,7 +363,7 @@ Ran 5 tests in <SEC>s
 OK
 ''')
 
-    def test_success_module_fixtures(self):
+    def test_success_level_test(self):
         discover_suite = unittest.TestSuite(tests=[
             unittest.TestSuite(tests=[
                 unittest.TestSuite(tests=[SuccessTestCase('mock_1'), SuccessTestCase('mock_2'), SuccessTestCase('mock_3')]),
@@ -379,12 +379,12 @@ OK
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
-            main(['-v', '--module-fixtures'])
+            main(['-v', '--level', 'test'])
 
         self.assertEqual(stdout.getvalue(), '')
         if sys.version_info < (3, 11): # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
-Running 2 test suites (5 total tests) across 1 processes
+Running 5 test suites (5 total tests) across 1 processes
 
 mock_1 (tests.test_main.SuccessTestCase) ...
 mock_1 (tests.test_main.SuccessTestCase) ... ok
@@ -404,7 +404,7 @@ OK
 ''')
         else: # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
-Running 2 test suites (5 total tests) across 1 processes
+Running 5 test suites (5 total tests) across 1 processes
 
 mock_1 (tests.test_main.SuccessTestCase.mock_1) ...
 mock_1 (tests.test_main.SuccessTestCase.mock_1) ... ok
@@ -423,7 +423,7 @@ Ran 5 tests in <SEC>s
 OK
 ''')
 
-    def test_success_module_fixtures_empty(self):
+    def test_success_level_module(self):
         discover_suite = unittest.TestSuite(tests=[
             unittest.TestSuite(tests=[
                 unittest.TestSuite(tests=[SuccessTestCase('mock_1'), SuccessTestCase('mock_2'), SuccessTestCase('mock_3')])
@@ -438,7 +438,7 @@ OK
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
-            main(['-v', '--module-fixtures'])
+            main(['-v', '--level', 'module'])
 
         self.assertEqual(stdout.getvalue(), '')
         if sys.version_info < (3, 11): # pragma: no cover
@@ -489,7 +489,7 @@ OK
 
         self.assertEqual(stdout.getvalue(), '')
         self.assert_output(stderr.getvalue(), '''\
-Running 3 test suites (3 total tests) across 3 processes
+Running 1 test suites (3 total tests) across 1 processes
 ...
 ----------------------------------------------------------------------
 Ran 3 tests in <SEC>s
@@ -512,7 +512,7 @@ OK
 
         self.assertEqual(stdout.getvalue(), '')
         self.assert_output(stderr.getvalue(), '''\
-Running 3 test suites (3 total tests) across 3 processes
+Running 1 test suites (3 total tests) across 1 processes
 ----------------------------------------------------------------------
 Ran 3 tests in <SEC>s
 
@@ -535,7 +535,7 @@ OK
         self.assertEqual(stdout.getvalue(), '')
         if sys.version_info < (3, 11): # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
-Running 3 test suites (3 total tests) across 3 processes
+Running 1 test suites (3 total tests) across 1 processes
 
 mock_1 (tests.test_main.SuccessTestCase) ...
 mock_1 (tests.test_main.SuccessTestCase) ... ok
@@ -551,7 +551,7 @@ OK
 ''')
         else: # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
-Running 3 test suites (3 total tests) across 3 processes
+Running 1 test suites (3 total tests) across 1 processes
 
 mock_1 (tests.test_main.SuccessTestCase.mock_1) ...
 mock_1 (tests.test_main.SuccessTestCase.mock_1) ... ok
@@ -578,7 +578,7 @@ OK
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
             with self.assertRaises(SystemExit) as cm_exc:
-                main(['-v', '-f'])
+                main(['-v', '-f', '--level', 'test'])
 
         self.assertEqual(cm_exc.exception.code, 1)
         self.assertEqual(stdout.getvalue(), '')
@@ -647,7 +647,7 @@ FAILED (failures=1)
         self.assertEqual(stdout.getvalue(), '')
         if sys.version_info < (3, 11): # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
-Running 3 test suites (3 total tests) across 3 processes
+Running 1 test suites (3 total tests) across 1 processes
 
 mock_1 (tests.test_main.SuccessWithOutputTestCase) ...
 mock_1 (tests.test_main.SuccessWithOutputTestCase) ... ok
@@ -663,7 +663,7 @@ OK
 ''')
         else: # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
-Running 3 test suites (3 total tests) across 3 processes
+Running 1 test suites (3 total tests) across 1 processes
 
 mock_1 (tests.test_main.SuccessWithOutputTestCase.mock_1) ...
 mock_1 (tests.test_main.SuccessWithOutputTestCase.mock_1) ... ok
@@ -700,7 +700,7 @@ Hello stdout!
 ''')
         if sys.version_info < (3, 11): # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
-Running 3 test suites (3 total tests) across 3 processes
+Running 1 test suites (3 total tests) across 1 processes
 
 mock_1 (tests.test_main.SuccessWithOutputTestCase) ...
 mock_1 (tests.test_main.SuccessWithOutputTestCase) ... ok
@@ -717,7 +717,7 @@ OK
 ''')
         else: # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
-Running 3 test suites (3 total tests) across 3 processes
+Running 1 test suites (3 total tests) across 1 processes
 
 mock_1 (tests.test_main.SuccessWithOutputTestCase.mock_1) ...
 mock_1 (tests.test_main.SuccessWithOutputTestCase.mock_1) ... ok
@@ -833,7 +833,7 @@ OK
         self.assertEqual(stdout.getvalue(), '')
         if sys.version_info < (3, 11): # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
-Running 3 test suites (3 total tests) across 3 processes
+Running 1 test suites (3 total tests) across 1 processes
 
 mock_1 (tests.test_main.FailureTestCase) ...
 mock_1 (tests.test_main.FailureTestCase) ... ok
@@ -857,7 +857,7 @@ FAILED (failures=1)
 ''')
         else: # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
-Running 3 test suites (3 total tests) across 3 processes
+Running 1 test suites (3 total tests) across 1 processes
 
 mock_1 (tests.test_main.FailureTestCase.mock_1) ...
 mock_1 (tests.test_main.FailureTestCase.mock_1) ... ok
@@ -898,7 +898,7 @@ FAILED (failures=1)
         self.assertEqual(stdout.getvalue(), '')
         if sys.version_info < (3, 11): # pragma: no cover
             self.assert_output(re.sub(r'File ".*?", line \d+', 'File "<FILE>", line <LINE>', stderr.getvalue()), '''\
-Running 3 test suites (3 total tests) across 3 processes
+Running 1 test suites (3 total tests) across 1 processes
 
 mock_1 (tests.test_main.ErrorTestCase) ...
 mock_1 (tests.test_main.ErrorTestCase) ... ok
@@ -922,7 +922,7 @@ FAILED (errors=1)
 ''')
         else: # pragma: no cover
             self.assert_output(re.sub(r'File ".*?", line \d+', 'File "<FILE>", line <LINE>', stderr.getvalue()), '''\
-Running 3 test suites (3 total tests) across 3 processes
+Running 1 test suites (3 total tests) across 1 processes
 
 mock_1 (tests.test_main.ErrorTestCase.mock_1) ...
 mock_1 (tests.test_main.ErrorTestCase.mock_1) ... ok
@@ -961,7 +961,7 @@ FAILED (errors=1)
         self.assertEqual(stdout.getvalue(), '')
         if sys.version_info < (3, 11): # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
-Running 3 test suites (3 total tests) across 3 processes
+Running 1 test suites (3 total tests) across 1 processes
 
 mock_1 (tests.test_main.SkipTestCase) ...
 mock_1 (tests.test_main.SkipTestCase) ... ok
@@ -977,7 +977,7 @@ OK (skipped=1)
 ''')
         else: # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
-Running 3 test suites (3 total tests) across 3 processes
+Running 1 test suites (3 total tests) across 1 processes
 
 mock_1 (tests.test_main.SkipTestCase.mock_1) ...
 mock_1 (tests.test_main.SkipTestCase.mock_1) ... ok
@@ -1014,7 +1014,7 @@ OK (skipped=1)
         self.assertEqual(stdout.getvalue(), '')
         if sys.version_info < (3, 11): # pragma: no cover
             self.assert_output(re.sub(r'File ".*?", line \d+', 'File "<FILE>", line <LINE>', stderr.getvalue()), '''\
-Running 3 test suites (3 total tests) across 3 processes
+Running 1 test suites (3 total tests) across 1 processes
 
 mock_1 (tests.test_main.ExpectedFailureTestCase) ...
 mock_1 (tests.test_main.ExpectedFailureTestCase) ... ok
@@ -1030,7 +1030,7 @@ FAILED (expected failures=1, unexpected successes=1)
 ''')
         else: # pragma: no cover
             self.assert_output(re.sub(r'File ".*?", line \d+', 'File "<FILE>", line <LINE>', stderr.getvalue()), '''\
-Running 3 test suites (3 total tests) across 3 processes
+Running 1 test suites (3 total tests) across 1 processes
 
 mock_1 (tests.test_main.ExpectedFailureTestCase.mock_1) ...
 mock_1 (tests.test_main.ExpectedFailureTestCase.mock_1) ... ok
@@ -1061,7 +1061,7 @@ FAILED (expected failures=1, unexpected successes=1)
         self.assertEqual(stdout.getvalue(), '')
         if sys.version_info < (3, 11): # pragma: no cover
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
-Running 3 test suites (3 total tests) across 3 processes
+Running 1 test suites (3 total tests) across 1 processes
 
 mock_1 (tests.test_main.SuccessTestCase) ...
 mock_1 (tests.test_main.SuccessTestCase) ... ok
@@ -1077,7 +1077,7 @@ OK
 ''')
         else: # pragma: no cover
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
-Running 3 test suites (3 total tests) across 3 processes
+Running 1 test suites (3 total tests) across 1 processes
 
 mock_1 (tests.test_main.SuccessTestCase.mock_1) ...
 mock_1 (tests.test_main.SuccessTestCase.mock_1) ... ok
@@ -1119,23 +1119,15 @@ OK
                 call().start(),
                 call().stop(),
                 call().save(),
-                call(branch=False, config_file=None, data_file=ANY, include=None, omit=[ANY], source=None),
-                call().start(),
-                call().stop(),
-                call().save(),
-                call(branch=False, config_file=None, data_file=ANY, include=None, omit=[ANY], source=None),
-                call().start(),
-                call().stop(),
-                call().save(),
                 call(config_file=None),
-                call().combine(data_paths=[ANY, ANY, ANY, ANY]),
+                call().combine(data_paths=[ANY, ANY]),
                 call().report(ignore_errors=True, file=ANY)
             ]
         )
         self.assertEqual(stdout.getvalue(), '')
         if sys.version_info < (3, 11): # pragma: no cover
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
-Running 3 test suites (3 total tests) across 3 processes
+Running 1 test suites (3 total tests) across 1 processes
 
 mock_1 (tests.test_main.SuccessTestCase) ...
 mock_1 (tests.test_main.SuccessTestCase) ... ok
@@ -1153,7 +1145,7 @@ Total coverage is 100.00%
 ''')
         else: # pragma: no cover
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
-Running 3 test suites (3 total tests) across 3 processes
+Running 1 test suites (3 total tests) across 1 processes
 
 mock_1 (tests.test_main.SuccessTestCase.mock_1) ...
 mock_1 (tests.test_main.SuccessTestCase.mock_1) ... ok
@@ -1197,23 +1189,15 @@ Total coverage is 100.00%
                 call().start(),
                 call().stop(),
                 call().save(),
-                call(branch=True, config_file=None, data_file=ANY, include=None, omit=[ANY], source=None),
-                call().start(),
-                call().stop(),
-                call().save(),
-                call(branch=True, config_file=None, data_file=ANY, include=None, omit=[ANY], source=None),
-                call().start(),
-                call().stop(),
-                call().save(),
                 call(config_file=None),
-                call().combine(data_paths=[ANY, ANY, ANY, ANY]),
+                call().combine(data_paths=[ANY, ANY]),
                 call().report(ignore_errors=True, file=ANY)
             ]
         )
         self.assertEqual(stdout.getvalue(), '')
         if sys.version_info < (3, 11): # pragma: no cover
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
-Running 3 test suites (3 total tests) across 3 processes
+Running 1 test suites (3 total tests) across 1 processes
 
 mock_1 (tests.test_main.SuccessTestCase) ...
 mock_1 (tests.test_main.SuccessTestCase) ... ok
@@ -1231,7 +1215,7 @@ Total coverage is 100.00%
 ''')
         else: # pragma: no cover
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
-Running 3 test suites (3 total tests) across 3 processes
+Running 1 test suites (3 total tests) across 1 processes
 
 mock_1 (tests.test_main.SuccessTestCase.mock_1) ...
 mock_1 (tests.test_main.SuccessTestCase.mock_1) ... ok
@@ -1310,16 +1294,8 @@ Total coverage is 100.00%
                 call().start(),
                 call().stop(),
                 call().save(),
-                call(branch=True, config_file=None, data_file=ANY, include=None, omit=[ANY], source=None),
-                call().start(),
-                call().stop(),
-                call().save(),
-                call(branch=True, config_file=None, data_file=ANY, include=None, omit=[ANY], source=None),
-                call().start(),
-                call().stop(),
-                call().save(),
                 call(config_file=None),
-                call().combine(data_paths=[ANY, ANY, ANY, ANY]),
+                call().combine(data_paths=[ANY, ANY]),
                 call().report(ignore_errors=True, file=ANY),
                 call().html_report(directory='html_dir', ignore_errors=True)
             ]
@@ -1327,7 +1303,7 @@ Total coverage is 100.00%
         self.assertEqual(stdout.getvalue(), '')
         if sys.version_info < (3, 11): # pragma: no cover
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
-Running 3 test suites (3 total tests) across 3 processes
+Running 1 test suites (3 total tests) across 1 processes
 
 mock_1 (tests.test_main.SuccessTestCase) ...
 mock_1 (tests.test_main.SuccessTestCase) ... ok
@@ -1345,7 +1321,7 @@ Total coverage is 100.00%
 ''')
         else: # pragma: no cover
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
-Running 3 test suites (3 total tests) across 3 processes
+Running 1 test suites (3 total tests) across 1 processes
 
 mock_1 (tests.test_main.SuccessTestCase.mock_1) ...
 mock_1 (tests.test_main.SuccessTestCase.mock_1) ... ok
@@ -1389,16 +1365,8 @@ Total coverage is 100.00%
                 call().start(),
                 call().stop(),
                 call().save(),
-                call(branch=True, config_file=None, data_file=ANY, include=None, omit=[ANY], source=None),
-                call().start(),
-                call().stop(),
-                call().save(),
-                call(branch=True, config_file=None, data_file=ANY, include=None, omit=[ANY], source=None),
-                call().start(),
-                call().stop(),
-                call().save(),
                 call(config_file=None),
-                call().combine(data_paths=[ANY, ANY, ANY, ANY]),
+                call().combine(data_paths=[ANY, ANY]),
                 call().report(ignore_errors=True, file=ANY),
                 call().xml_report(ignore_errors=True, outfile='xml_dir')
             ]
@@ -1406,7 +1374,7 @@ Total coverage is 100.00%
         self.assertEqual(stdout.getvalue(), '')
         if sys.version_info < (3, 11): # pragma: no cover
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
-Running 3 test suites (3 total tests) across 3 processes
+Running 1 test suites (3 total tests) across 1 processes
 
 mock_1 (tests.test_main.SuccessTestCase) ...
 mock_1 (tests.test_main.SuccessTestCase) ... ok
@@ -1424,7 +1392,7 @@ Total coverage is 100.00%
 ''')
         else: # pragma: no cover
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
-Running 3 test suites (3 total tests) across 3 processes
+Running 1 test suites (3 total tests) across 1 processes
 
 mock_1 (tests.test_main.SuccessTestCase.mock_1) ...
 mock_1 (tests.test_main.SuccessTestCase.mock_1) ... ok
@@ -1470,23 +1438,15 @@ Total coverage is 100.00%
                 call().start(),
                 call().stop(),
                 call().save(),
-                call(branch=True, config_file=None, data_file=ANY, include=None, omit=[ANY], source=None),
-                call().start(),
-                call().stop(),
-                call().save(),
-                call(branch=True, config_file=None, data_file=ANY, include=None, omit=[ANY], source=None),
-                call().start(),
-                call().stop(),
-                call().save(),
                 call(config_file=None),
-                call().combine(data_paths=[ANY, ANY, ANY, ANY]),
+                call().combine(data_paths=[ANY, ANY]),
                 call().report(ignore_errors=True, file=ANY)
             ]
         )
         self.assertEqual(stdout.getvalue(), '')
         if sys.version_info < (3, 11): # pragma: no cover
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
-Running 3 test suites (3 total tests) across 3 processes
+Running 1 test suites (3 total tests) across 1 processes
 
 mock_1 (tests.test_main.SuccessTestCase) ...
 mock_1 (tests.test_main.SuccessTestCase) ... ok
@@ -1504,7 +1464,7 @@ Total coverage is 99.00%
 ''')
         else: # pragma: no cover
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
-Running 3 test suites (3 total tests) across 3 processes
+Running 1 test suites (3 total tests) across 1 processes
 
 mock_1 (tests.test_main.SuccessTestCase.mock_1) ...
 mock_1 (tests.test_main.SuccessTestCase.mock_1) ... ok
@@ -1557,25 +1517,15 @@ Total coverage is 99.00%
                 call().start(),
                 call().stop(),
                 call().save(),
-                call(branch=True, config_file='rcfile', data_file=ANY, include=['include*.py'],
-                     omit=['omit*.py', ANY], source=['source*.py']),
-                call().start(),
-                call().stop(),
-                call().save(),
-                call(branch=True, config_file='rcfile', data_file=ANY, include=['include*.py'],
-                     omit=['omit*.py', ANY], source=['source*.py']),
-                call().start(),
-                call().stop(),
-                call().save(),
                 call(config_file='rcfile'),
-                call().combine(data_paths=[ANY, ANY, ANY, ANY]),
+                call().combine(data_paths=[ANY, ANY]),
                 call().report(ignore_errors=True, file=ANY)
             ]
         )
         self.assertEqual(stdout.getvalue(), '')
         if sys.version_info < (3, 11): # pragma: no cover
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
-Running 3 test suites (3 total tests) across 3 processes
+Running 1 test suites (3 total tests) across 1 processes
 
 mock_1 (tests.test_main.SuccessTestCase) ...
 mock_1 (tests.test_main.SuccessTestCase) ... ok
@@ -1593,7 +1543,7 @@ Total coverage is 100.00%
 ''')
         else: # pragma: no cover
             self.assertEqual(re.sub(r'\d+\.\d{3}s', '<SEC>s', stderr.getvalue()), '''\
-Running 3 test suites (3 total tests) across 3 processes
+Running 1 test suites (3 total tests) across 1 processes
 
 mock_1 (tests.test_main.SuccessTestCase.mock_1) ...
 mock_1 (tests.test_main.SuccessTestCase.mock_1) ... ok

@@ -44,10 +44,8 @@ def main(argv=None):
     group_parallel = parser.add_argument_group('parallelization options')
     group_parallel.add_argument('-j', '--jobs', metavar='COUNT', type=int, default=0,
                                 help='The number of test processes (default is 0, all cores)')
-    group_parallel.add_argument('--class-fixtures', action='store_true', default=False,
-                                help='One or more TestCase class has a setUpClass method')
-    group_parallel.add_argument('--module-fixtures', action='store_true', default=False,
-                                help='One or more test module has a setUpModule method')
+    group_parallel.add_argument('--level', choices=['module', 'class', 'test'], default='module',
+                                help="Set the test parallelism level (default is 'module')")
     group_parallel.add_argument('--disable-process-pooling', action='store_true', default=False,
                                 help='Do not reuse processes used to run test suites')
     group_coverage = parser.add_argument_group('coverage options')
@@ -88,12 +86,12 @@ def main(argv=None):
             discover_suite = test_loader.discover(args.start_directory, pattern=args.pattern, top_level_dir=args.top_level_directory)
 
         # Get the parallelizable test suites
-        if args.module_fixtures:
-            test_suites = list(_iter_module_suites(discover_suite))
-        elif args.class_fixtures:
-            test_suites = list(_iter_class_suites(discover_suite))
-        else:
+        if args.level == 'test':
             test_suites = list(_iter_test_cases(discover_suite))
+        elif args.level == 'class':
+            test_suites = list(_iter_class_suites(discover_suite))
+        else: # args.level == 'module'
+            test_suites = list(_iter_module_suites(discover_suite))
 
         # Don't use more processes than test suites
         process_count = max(1, min(len(test_suites), process_count))
