@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.4 (2023-06-28)
+
+- [9991244](https://github.com/craigahobbs/unittest-parallel/commit/9991244) - add python 3.12 support, remove python 3.7 support \(end-of-life\)
+
 ## 1.5.3 (2022-10-31)
 
 - [b4ebdb4](https://github.com/craigahobbs/unittest-parallel/commit/b4ebdb4) - add pyproject.toml and setup.cfg, remove setup.py
