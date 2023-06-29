@@ -312,7 +312,6 @@ class ParallelTextTestResult(unittest.TextTestResult):
         if self.showAll:
             self.stream.writeln(f'{self.getDescription(test)} ...')
             self.stream.flush()
-        # pylint: disable=bad-super-call
         super(unittest.TextTestResult, self).startTest(test)
 
     def _add_helper(self, test, dots_message, show_all_message):
@@ -323,32 +322,26 @@ class ParallelTextTestResult(unittest.TextTestResult):
         self.stream.flush()
 
     def addSuccess(self, test):
-        # pylint: disable=bad-super-call
         super(unittest.TextTestResult, self).addSuccess(test)
         self._add_helper(test, '.', 'ok')
 
     def addError(self, test, err):
-        # pylint: disable=bad-super-call
         super(unittest.TextTestResult, self).addError(test, err)
         self._add_helper(test, 'E', 'ERROR')
 
     def addFailure(self, test, err):
-        # pylint: disable=bad-super-call
         super(unittest.TextTestResult, self).addFailure(test, err)
         self._add_helper(test, 'F', 'FAIL')
 
     def addSkip(self, test, reason):
-        # pylint: disable=bad-super-call
         super(unittest.TextTestResult, self).addSkip(test, reason)
         self._add_helper(test, 's', f'skipped {reason!r}')
 
     def addExpectedFailure(self, test, err):
-        # pylint: disable=bad-super-call
         super(unittest.TextTestResult, self).addExpectedFailure(test, err)
         self._add_helper(test, 'x', 'expected failure')
 
     def addUnexpectedSuccess(self, test):
-        # pylint: disable=bad-super-call
         super(unittest.TextTestResult, self).addUnexpectedSuccess(test)
         self._add_helper(test, 'u', 'unexpected success')
 
