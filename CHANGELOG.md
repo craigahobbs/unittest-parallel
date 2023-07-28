@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.6.1 (2023-07-28)
+
+- [8faa353](https://github.com/craigahobbs/unittest-parallel/commit/8faa353) - fix API usage for coverage 7.2
+
+- [aeab410](https://github.com/craigahobbs/unittest-parallel/commit/aeab410) - remove useless pylint suppressions
+
 ## 1.6.0 (2023-06-28)
 
 - [f7d4f66](https://github.com/craigahobbs/unittest-parallel/commit/f7d4f66) - add --level option \(defaults to 'module'\), remove --class-fixtures and --module-fixtures options
