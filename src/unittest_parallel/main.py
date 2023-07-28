@@ -168,7 +168,10 @@ def main(argv=None):
         if args.coverage:
 
             # Combine the coverage files
-            cov = coverage.Coverage(config_file=args.coverage_rcfile)
+            cov_options = {}
+            if args.coverage_rcfile is not None:
+                cov_options['config_file'] = args.coverage_rcfile
+            cov = coverage.Coverage(**cov_options)
             cov.combine(data_paths=[os.path.join(temp_dir, x) for x in os.listdir(temp_dir)])
 
             # Coverage report
@@ -204,14 +207,16 @@ def _coverage(args, temp_dir):
             pass
 
         # Create the coverage object
-        cov = coverage.Coverage(
-            config_file=args.coverage_rcfile,
-            data_file=coverage_file.name,
-            branch=args.coverage_branch,
-            include=args.coverage_include,
-            omit=(args.coverage_omit if args.coverage_omit else []) + [__file__],
-            source=args.coverage_source
-        )
+        cov_options = {
+            'branch': args.coverage_branch,
+            'data_file': coverage_file.name,
+            'include': args.coverage_include,
+            'omit': (args.coverage_omit if args.coverage_omit else []) + [__file__],
+            'source': args.coverage_source
+        }
+        if args.coverage_rcfile is not None:
+            cov_options['config_file'] = args.coverage_rcfile
+        cov = coverage.Coverage(**cov_options)
         try:
             # Start measuring code coverage
             cov.start()
