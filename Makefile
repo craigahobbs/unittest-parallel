@@ -12,9 +12,6 @@ WGET_CMD = if which wget; then wget -q -c $(1); else curl -f -Os $(1); fi
 $(eval $(call WGET, https://raw.githubusercontent.com/craigahobbs/python-build/main/Makefile.base))
 $(eval $(call WGET, https://raw.githubusercontent.com/craigahobbs/python-build/main/pylintrc))
 
-# Extra Python docker images
-PYTHON_IMAGES_EXTRA := python:3.12.0
-
 # Include python-build
 include Makefile.base
 

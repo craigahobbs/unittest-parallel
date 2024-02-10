@@ -975,7 +975,7 @@ Ran 3 tests in <SEC>s
 
 OK (skipped=1)
 ''')
-        elif sys.version_info < (3, 12, 1): # pragma: no cover
+        else: # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
 Running 1 test suites (3 total tests) across 1 processes
 
@@ -988,21 +988,6 @@ mock_3 (tests.test_main.SkipTestCase.mock_3) ... ok
 
 ----------------------------------------------------------------------
 Ran 3 tests in <SEC>s
-
-OK (skipped=1)
-''')
-        else: # pragma: no cover
-            self.assert_output(stderr.getvalue(), '''\
-Running 1 test suites (3 total tests) across 1 processes
-
-mock_1 (tests.test_main.SkipTestCase.mock_1) ...
-mock_1 (tests.test_main.SkipTestCase.mock_1) ... ok
-mock_2 (tests.test_main.SkipTestCase.mock_2) ... skipped 'skip reason'
-mock_3 (tests.test_main.SkipTestCase.mock_3) ...
-mock_3 (tests.test_main.SkipTestCase.mock_3) ... ok
-
-----------------------------------------------------------------------
-Ran 2 tests in <SEC>s
 
 OK (skipped=1)
 ''')
