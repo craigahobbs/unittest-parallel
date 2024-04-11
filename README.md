@@ -8,11 +8,6 @@
 unittest-parallel is a parallel unit test runner for Python with coverage support.
 
 
-## Links
-
-- [Source code](https://github.com/craigahobbs/unittest-parallel)
-
-
 ## Run Unit Tests in Parallel
 
 To run unittest-parallel, specify the directory containing your unit tests with the `-s` argument
