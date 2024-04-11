@@ -604,6 +604,28 @@ Ran 2 tests in <SEC>s
 
 FAILED (failures=1)
 ''')
+        elif sys.version_info < (3, 13): # pragma: no cover
+            self.assert_output(stderr.getvalue(), '''\
+Running 3 test suites (3 total tests) across 3 processes
+
+mock_1 (tests.test_main.FailureTestCase.mock_1) ...
+mock_1 (tests.test_main.FailureTestCase.mock_1) ... ok
+mock_2 (tests.test_main.FailureTestCase.mock_2) ...
+mock_2 (tests.test_main.FailureTestCase.mock_2) ... FAIL
+
+======================================================================
+mock_2 (tests.test_main.FailureTestCase.mock_2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<FILE>", line <LINE>, in mock_2
+    self.fail()
+AssertionError: None
+
+----------------------------------------------------------------------
+Ran 2 tests in <SEC>s
+
+FAILED (failures=1)
+''')
         else: # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
 Running 3 test suites (3 total tests) across 3 processes
@@ -619,6 +641,7 @@ mock_2 (tests.test_main.FailureTestCase.mock_2)
 Traceback (most recent call last):
   File "<FILE>", line <LINE>, in mock_2
     self.fail()
+    ~~~~~~~~~^^
 AssertionError: None
 
 ----------------------------------------------------------------------
@@ -855,6 +878,30 @@ Ran 3 tests in <SEC>s
 
 FAILED (failures=1)
 ''')
+        elif sys.version_info < (3, 13): # pragma: no cover
+            self.assert_output(stderr.getvalue(), '''\
+Running 1 test suites (3 total tests) across 1 processes
+
+mock_1 (tests.test_main.FailureTestCase.mock_1) ...
+mock_1 (tests.test_main.FailureTestCase.mock_1) ... ok
+mock_2 (tests.test_main.FailureTestCase.mock_2) ...
+mock_2 (tests.test_main.FailureTestCase.mock_2) ... FAIL
+mock_3 (tests.test_main.FailureTestCase.mock_3) ...
+mock_3 (tests.test_main.FailureTestCase.mock_3) ... ok
+
+======================================================================
+mock_2 (tests.test_main.FailureTestCase.mock_2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<FILE>", line <LINE>, in mock_2
+    self.fail()
+AssertionError: None
+
+----------------------------------------------------------------------
+Ran 3 tests in <SEC>s
+
+FAILED (failures=1)
+''')
         else: # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
 Running 1 test suites (3 total tests) across 1 processes
@@ -872,6 +919,7 @@ mock_2 (tests.test_main.FailureTestCase.mock_2)
 Traceback (most recent call last):
   File "<FILE>", line <LINE>, in mock_2
     self.fail()
+    ~~~~~~~~~^^
 AssertionError: None
 
 ----------------------------------------------------------------------
