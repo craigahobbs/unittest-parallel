@@ -14,6 +14,7 @@ import sys
 import tempfile
 import time
 import unittest
+import importlib
 
 import coverage
 
@@ -41,6 +42,8 @@ def main(argv=None):
                         help="Pattern to match tests ('test*.py' default)")
     parser.add_argument('-t', '--top-level-directory', metavar='TOP',
                         help='Top level directory of project (defaults to start directory)')
+    parser.add_argument('-r', '--runner', nargs=2, metavar='RUNNER', default=unittest.TextTestRunner,
+                        help='Custom unittest runner module and class')
     group_parallel = parser.add_argument_group('parallelization options')
     group_parallel.add_argument('-j', '--jobs', metavar='COUNT', type=int, default=0,
                                 help='The number of test processes (default is 0, all cores)')
@@ -103,6 +106,12 @@ def main(argv=None):
         )
         if args.verbose > 1:
             print(file=sys.stderr)
+
+        # Load the customer runner module (if provided)
+        if args.runner != unittest.TextTestRunner:
+            custom_module = importlib.import_module(args.runner[0])
+            args.runner = getattr(custom_module, args.runner[1])
+
 
         # Run the tests in parallel
         start_time = time.perf_counter()
@@ -274,7 +283,7 @@ class ParallelTestManager:
 
         # Run unit tests
         with _coverage(self.args, self.temp_dir):
-            runner = unittest.TextTestRunner(
+            runner = self.args.runner(
                 stream=StringIO(),
                 resultclass=ParallelTextTestResult,
                 verbosity=self.args.verbose,

@@ -1607,3 +1607,51 @@ OK
 
 Total coverage is 100.00%
 ''')
+
+    
+    def test_invalid_custom_runner(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[SuccessTestCase('mock_1'), SuccessTestCase('mock_2'), SuccessTestCase('mock_3')]),
+            ])
+        ])
+        with patch('multiprocessing.cpu_count', Mock(return_value=2)), \
+             patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
+             patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
+             patch('sys.stdout', StringIO()) as stdout, \
+             patch('sys.stderr', StringIO()) as stderr, \
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
+            with self.assertRaises(ModuleNotFoundError):
+                main(['-v', '--runner', 'invalid_method', 'InvalidClass'])
+    
+    def test_teamcity_custom_runner(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[SuccessTestCase('mock_1'), SuccessTestCase('mock_2'), SuccessTestCase('mock_3')]),
+            ])
+        ])
+        with patch('multiprocessing.cpu_count', Mock(return_value=2)), \
+             patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
+             patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
+             patch('sys.stdout', StringIO()) as stdout, \
+             patch('sys.stderr', StringIO()) as stderr, \
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
+            main(['-v', '--runner', 'teamcity.unittestpy', 'TeamcityTestRunner'])
+
+        self.assertEqual(stdout.getvalue(), '')
+
+    def test_unittest_custom_runner_as_param(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[SuccessTestCase('mock_1'), SuccessTestCase('mock_2'), SuccessTestCase('mock_3')]),
+            ])
+        ])
+        with patch('multiprocessing.cpu_count', Mock(return_value=2)), \
+             patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
+             patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
+             patch('sys.stdout', StringIO()) as stdout, \
+             patch('sys.stderr', StringIO()) as stderr, \
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
+            main(['-v', '--runner', 'unittest', 'TextTestRunner'])
+
+        self.assertEqual(stdout.getvalue(), '')
