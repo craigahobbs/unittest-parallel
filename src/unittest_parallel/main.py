@@ -112,7 +112,6 @@ def main(argv=None):
             custom_module = importlib.import_module(args.runner[0])
             args.runner = getattr(custom_module, args.runner[1])
 
-
         # Run the tests in parallel
         start_time = time.perf_counter()
         multiprocessing_context = multiprocessing.get_context(method='spawn')
