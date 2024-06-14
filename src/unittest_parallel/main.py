@@ -7,6 +7,7 @@ unittest-parallel command-line script main module
 
 import argparse
 from contextlib import contextmanager
+import importlib
 from io import StringIO
 import multiprocessing
 import os
@@ -14,7 +15,6 @@ import sys
 import tempfile
 import time
 import unittest
-import importlib
 
 import coverage
 
