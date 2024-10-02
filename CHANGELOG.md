@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.6.2 (2024-10-02)
+
+- [20a07cc](https://github.com/craigahobbs/unittest-parallel/commit/20a07cc) - add Python 3.13, remove Python 3.8 \(end-of-life\)
+
 ## 1.6.1 (2023-07-28)
 
 - [8faa353](https://github.com/craigahobbs/unittest-parallel/commit/8faa353) - fix API usage for coverage 7.2
