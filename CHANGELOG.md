@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.0 (2024-11-27)
+
+- [f8a4a9a](https://github.com/craigahobbs/unittest-parallel/commit/f8a4a9a) - add --runner argument to specify a custom test runner
+
 ## 1.6.2 (2024-10-02)
 
 - [20a07cc](https://github.com/craigahobbs/unittest-parallel/commit/20a07cc) - add Python 3.13, remove Python 3.8 \(end-of-life\)
