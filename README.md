@@ -57,8 +57,8 @@ your project.
 
 ~~~
 usage: unittest-parallel [-h] [-v] [-q] [-f] [-b] [-k TESTNAMEPATTERNS]
-                         [-s START] [-p PATTERN] [-t TOP] [-j COUNT]
-                         [--level {module,class,test}]
+                         [-s START] [-p PATTERN] [-t TOP] [-r RUNNER]
+                         [-j COUNT] [--level {module,class,test}]
                          [--disable-process-pooling] [--coverage]
                          [--coverage-branch] [--coverage-rcfile RCFILE]
                          [--coverage-include PAT] [--coverage-omit PAT]
@@ -72,17 +72,17 @@ options:
   -f, --failfast        Stop on first fail or error
   -b, --buffer          Buffer stdout and stderr during tests
   -k TESTNAMEPATTERNS   Only run tests which match the given substring
-  -s START, --start-directory START
+  -s, --start-directory START
                         Directory to start discovery ('.' default)
-  -p PATTERN, --pattern PATTERN
+  -p, --pattern PATTERN
                         Pattern to match tests ('test*.py' default)
-  -t TOP, --top-level-directory TOP
+  -t, --top-level-directory TOP
                         Top level directory of project (defaults to start
                         directory)
+  -r, --runner RUNNER   Custom unittest runner <module>.<class>
 
 parallelization options:
-  -j COUNT, --jobs COUNT
-                        The number of test processes (default is 0, all cores)
+  -j, --jobs COUNT      The number of test processes (default is 0, all cores)
   --level {module,class,test}
                         Set the test parallelism level (default is 'module')
   --disable-process-pooling

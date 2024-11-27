@@ -1607,3 +1607,54 @@ OK
 
 Total coverage is 100.00%
 ''')
+
+    def test_runner(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[SuccessTestCase('mock_1')])
+            ])
+        ])
+        with patch('multiprocessing.cpu_count', Mock(return_value=1)), \
+             patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
+             patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
+             patch('sys.stdout', StringIO()) as stdout, \
+             patch('sys.stderr', StringIO()) as stderr, \
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
+            main(['-v', '-r', 'unittest.TextTestRunner'])
+
+        self.assertEqual(stdout.getvalue(), '')
+        if sys.version_info < (3, 11): # pragma: no cover
+            self.assert_output(stderr.getvalue(), '''\
+Running 1 test suites (1 total tests) across 1 processes
+
+mock_1 (tests.test_main.SuccessTestCase) ...
+mock_1 (tests.test_main.SuccessTestCase) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in <SEC>s
+
+OK
+''')
+        else: # pragma: no cover
+            self.assert_output(stderr.getvalue(), '''\
+Running 1 test suites (1 total tests) across 1 processes
+
+mock_1 (tests.test_main.SuccessTestCase.mock_1) ...
+mock_1 (tests.test_main.SuccessTestCase.mock_1) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in <SEC>s
+
+OK
+''')
+
+    def test_runner_unknown(self):
+        with patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
+             patch('multiprocessing.Manager', new=MockMultiprocessingManager), \
+             patch('sys.stdout', StringIO()) as stdout, \
+             patch('sys.stderr', StringIO()) as stderr:
+            with self.assertRaises(AttributeError) as cm_exc:
+                main(['-v', '-r', 'unittest.UnknownTestRunner'])
+            self.assertEqual(str(cm_exc.exception), "module 'unittest' has no attribute 'UnknownTestRunner'")
+        self.assert_output(stderr.getvalue(), '')
+        self.assert_output(stdout.getvalue(), '')

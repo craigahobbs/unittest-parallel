@@ -7,6 +7,7 @@ unittest-parallel command-line script main module
 
 import argparse
 from contextlib import contextmanager
+import importlib
 from io import StringIO
 import multiprocessing
 import os
@@ -41,6 +42,8 @@ def main(argv=None):
                         help="Pattern to match tests ('test*.py' default)")
     parser.add_argument('-t', '--top-level-directory', metavar='TOP',
                         help='Top level directory of project (defaults to start directory)')
+    parser.add_argument('-r', '--runner', metavar='RUNNER',
+                        help='Custom unittest runner <module>.<class>')
     group_parallel = parser.add_argument_group('parallelization options')
     group_parallel.add_argument('-j', '--jobs', metavar='COUNT', type=int, default=0,
                                 help='The number of test processes (default is 0, all cores)')
@@ -69,11 +72,18 @@ def main(argv=None):
                                 help='Fail if coverage percentage under min')
     args = parser.parse_args(args=argv)
     if args.coverage_branch:
-        args.coverage = args.coverage_branch
+        args.coverage = True
 
+    # Determine the number of test processes
     process_count = max(0, args.jobs)
     if process_count == 0:
         process_count = multiprocessing.cpu_count()
+
+    # Load the custom runner class (if provided)
+    if args.runner is not None:
+        runner_module_name, runner_class_name = args.runner.rsplit('.', 1)
+        runner_module = importlib.import_module(runner_module_name)
+        args.runner_class = getattr(runner_module, runner_class_name)
 
     # Create the temporary directory (for coverage files)
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -274,7 +284,8 @@ class ParallelTestManager:
 
         # Run unit tests
         with _coverage(self.args, self.temp_dir):
-            runner = unittest.TextTestRunner(
+            runner_class = unittest.TextTestRunner if self.args.runner is None else self.args.runner_class
+            runner = runner_class(
                 stream=StringIO(),
                 resultclass=ParallelTextTestResult,
                 verbosity=self.args.verbose,
