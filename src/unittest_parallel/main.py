@@ -42,8 +42,10 @@ def main(argv=None):
                         help="Pattern to match tests ('test*.py' default)")
     parser.add_argument('-t', '--top-level-directory', metavar='TOP',
                         help='Top level directory of project (defaults to start directory)')
-    parser.add_argument('-r', '--runner', metavar='RUNNER',
-                        help='Custom unittest runner <module>.<class>')
+    parser.add_argument('--runner', metavar='RUNNER',
+                        help='Custom unittest runner class <module>.<class>')
+    parser.add_argument('--result', metavar='RESULT',
+                        help='Custom unittest result class <module>.<class>')
     group_parallel = parser.add_argument_group('parallelization options')
     group_parallel.add_argument('-j', '--jobs', metavar='COUNT', type=int, default=0,
                                 help='The number of test processes (default is 0, all cores)')
@@ -84,6 +86,12 @@ def main(argv=None):
         runner_module_name, runner_class_name = args.runner.rsplit('.', 1)
         runner_module = importlib.import_module(runner_module_name)
         args.runner_class = getattr(runner_module, runner_class_name)
+
+    # Load the custom result class (if provided)
+    if args.result is not None:
+        result_module_name, result_class_name = args.result.rsplit('.', 1)
+        result_module = importlib.import_module(result_module_name)
+        args.result_class = getattr(result_module, result_class_name)
 
     # Create the temporary directory (for coverage files)
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -165,10 +173,11 @@ def main(argv=None):
             print(file=sys.stderr)
 
         # Test report
-        print(unittest.TextTestResult.separator2, file=sys.stderr)
-        print(f'Ran {tests_run} {"tests" if tests_run > 1 else "test"} in {test_duration:.3f}s', file=sys.stderr)
-        print(file=sys.stderr)
-        print(f'{"OK" if is_success else "FAILED"}{" (" + ", ".join(infos) + ")" if infos else ""}', file=sys.stderr)
+        if not args.runner and not args.result:
+            print(unittest.TextTestResult.separator2, file=sys.stderr)
+            print(f'Ran {tests_run} {"tests" if tests_run > 1 else "test"} in {test_duration:.3f}s', file=sys.stderr)
+            print(file=sys.stderr)
+            print(f'{"OK" if is_success else "FAILED"}{" (" + ", ".join(infos) + ")" if infos else ""}', file=sys.stderr)
 
         # Return an error status on failure
         if not is_success:
@@ -284,10 +293,12 @@ class ParallelTestManager:
 
         # Run unit tests
         with _coverage(self.args, self.temp_dir):
-            runner_class = unittest.TextTestRunner if self.args.runner is None else self.args.runner_class
+            runner_class = unittest.TextTestRunner if not self.args.runner else self.args.runner_class
+            runner_stream = StringIO() if not self.args.runner and not self.args.result else None
+            result_class = ParallelTextTestResult if not self.args.result else self.args.result_class
             runner = runner_class(
-                stream=StringIO(),
-                resultclass=ParallelTextTestResult,
+                stream=runner_stream,
+                resultclass=result_class,
                 verbosity=self.args.verbose,
                 failfast=self.args.failfast,
                 buffer=self.args.buffer
