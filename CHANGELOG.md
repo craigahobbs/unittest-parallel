@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.1 (2024-12-18)
+
+- [3ed316a](https://github.com/craigahobbs/unittest-parallel/commit/3ed316a) - add --result argument to specify a custom test result class
+
 ## 1.7.0 (2024-11-27)
 
 - [f8a4a9a](https://github.com/craigahobbs/unittest-parallel/commit/f8a4a9a) - add --runner argument to specify a custom test runner
