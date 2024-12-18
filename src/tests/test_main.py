@@ -1629,11 +1629,11 @@ Running 1 test suites (1 total tests) across 1 processes
 
 mock_1 (tests.test_main.SuccessTestCase) ...
 mock_1 (tests.test_main.SuccessTestCase) ... ok
-
 ----------------------------------------------------------------------
 Ran 1 test in <SEC>s
 
 OK
+
 ''')
         else: # pragma: no cover
             self.assert_output(stderr.getvalue(), '''\
