@@ -57,8 +57,9 @@ your project.
 
 ~~~
 usage: unittest-parallel [-h] [-v] [-q] [-f] [-b] [-k TESTNAMEPATTERNS]
-                         [-s START] [-p PATTERN] [-t TOP] [-r RUNNER]
-                         [-j COUNT] [--level {module,class,test}]
+                         [-s START] [-p PATTERN] [-t TOP] [--runner RUNNER]
+                         [--result RESULT] [-j COUNT]
+                         [--level {module,class,test}]
                          [--disable-process-pooling] [--coverage]
                          [--coverage-branch] [--coverage-rcfile RCFILE]
                          [--coverage-include PAT] [--coverage-omit PAT]
@@ -79,7 +80,8 @@ options:
   -t, --top-level-directory TOP
                         Top level directory of project (defaults to start
                         directory)
-  -r, --runner RUNNER   Custom unittest runner <module>.<class>
+  --runner RUNNER       Custom unittest runner class <module>.<class>
+  --result RESULT       Custom unittest result class <module>.<class>
 
 parallelization options:
   -j, --jobs COUNT      The number of test processes (default is 0, all cores)
