@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.7.2 (2025-05-09)
+
+- [bfeaded](https://github.com/craigahobbs/unittest-parallel/commit/bfeaded) - add Python 3.14
+
+- [26adaaf](https://github.com/craigahobbs/unittest-parallel/commit/26adaaf) - remove setup.cfg license classifier
+
 ## 1.7.1 (2024-12-18)
 
 - [3ed316a](https://github.com/craigahobbs/unittest-parallel/commit/3ed316a) - add --result argument to specify a custom test result class
