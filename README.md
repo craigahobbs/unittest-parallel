@@ -1,4 +1,4 @@
-# unittest-parallel
+ # unittest-parallel
 
 [![PyPI - Status](https://img.shields.io/pypi/status/unittest-parallel)](https://pypi.org/project/unittest-parallel/)
 [![PyPI](https://img.shields.io/pypi/v/unittest-parallel)](https://pypi.org/project/unittest-parallel/)
@@ -17,9 +17,9 @@ and your package's top-level directory using the `-t` argument:
 unittest-parallel -t . -s tests
 ~~~
 
-By default, unittest-parallel runs unit test modules on all CPU cores available.
+By default, unittest-parallel runs tests using all CPU cores.
 
-To run your unit tests with coverage, add either the `--coverage` option (for line coverage) or the
+To run tests with coverage, add either the `--coverage` option (for line coverage) or the
 `--coverage-branch` for line and branch coverage.
 
 ~~~
@@ -29,28 +29,47 @@ unittest-parallel -t . -s tests --coverage-branch
 
 ## Parallelism Level
 
-By default, unittest-parallel runs test modules in parallel, which works with
-[test class and module fixtures](https://docs.python.org/3/library/unittest.html#class-and-module-fixtures).
-If you don't have any module fixtures, you can use the `--level=class` option to run test classes in
-parallel. If you don't have any module or class fixtures, you can use the `--level=test` option to
-run individual tests in parallel.
+By default, unittest-parallel runs test modules in parallel (`--level=module`). Here is the list of
+all parallelism options:
+
+- `--level=module` - Run test modules in parallel (default)
+
+- `--level=class` - Run test classes in parallel. Use this option if you have
+  [class fixtures](https://docs.python.org/3/library/unittest.html#class-and-module-fixtures).
+
+- `--level=test` - Run individual tests in parallel. Using this option will likely fail if you have any
+  [class or module fixtures](https://docs.python.org/3/library/unittest.html#class-and-module-fixtures).
 
 
-## Do I Need unittest-parallel?
+## Speedup Potential
 
-unittest-parallel helps the most when you have many long-running unit tests, such as those that make
-web service calls or are compute-intensive. If you just have many fast-running unit tests,
-unittest-parallel may slow down unit test execution due to the cost of parallelization.
+unittest-parallel provides the most significant speedups when you have *slow-running* unit tests and
+many CPU cores. Slow-running tests are those that take considerably longer to run than an empty unit
+test.
 
-For example, for one of my projects with thousands of long-running unit tests, running tests with
-unittest-parallel is **five times faster** than running tests using Python's built-in unit test
-runner.
+For projects with a large number of slow-running test modules (or classes or tests),
+unittest-parallel with 2 CPU cores is roughly 2 times faster than `unittest discover`. With 4 CPU
+cores, it is 4 times faster, and so on.
 
-For another project, with hundreds of fast-running unit tests, running tests using unittest-parallel
-is **twice as slow** as running them using Python's built-in unit test runner.
+If you have few slow-running test modules (or classes or tests), running with unittest-parallel may
+be slightly slower than `unittest discover`.
 
-To determine if unittest-parallel will improve your unit test run times, you'll need to try it on
-your project.
+Theoretically, unittest-parallel with infinite CPU cores runs as long as your slowest test.
+
+
+### Real-World Speedups
+
+In a production application with thousands of slow-running unit tests, unittest-parallel with 4
+CPU cores was 4 times faster than `unittest discover`.
+
+[A user reports](https://github.com/craigahobbs/unittest-parallel/issues/24) that their tests
+ran 20 times faster on their development machine and 6 times faster on their test machine.
+
+[Another user](https://github.com/craigahobbs/unittest-parallel/issues/5) reports that "it shaved
+70% off the runtime of my painfully long integration tests."
+
+[Another user](https://github.com/craigahobbs/unittest-parallel/issues/3) reports that "tests take
+2x less times to run."
 
 
 ## Usage
