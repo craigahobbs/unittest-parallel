@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.3 (2025-06-30)
+
+- [d4ef985](https://github.com/craigahobbs/unittest-parallel/commit/d4ef985) - update readme
+
 ## 1.7.2 (2025-05-09)
 
 - [bfeaded](https://github.com/craigahobbs/unittest-parallel/commit/bfeaded) - add Python 3.14
