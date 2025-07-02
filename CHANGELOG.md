@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.4 (2025-07-02)
+
+- [023f031](https://github.com/craigahobbs/unittest-parallel/commit/023f031) - update readme
+
 ## 1.7.3 (2025-06-30)
 
 - [d4ef985](https://github.com/craigahobbs/unittest-parallel/commit/d4ef985) - update readme
