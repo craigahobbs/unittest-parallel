@@ -8,16 +8,19 @@
 unittest-parallel is a parallel unit test runner for Python with coverage support.
 
 
-## Run Unit Tests in Parallel
+## Run Tests in Parallel
 
-To run unittest-parallel, specify the directory containing your unit tests with the `-s` argument
-and your package's top-level directory using the `-t` argument:
+To run tests in parallel with unittest-parallel, specify the directory containing your unit tests
+with the `-s` argument and your package's top-level directory using the `-t` argument:
 
 ~~~
 unittest-parallel -t . -s tests
 ~~~
 
 By default, unittest-parallel runs tests using all CPU cores.
+
+
+### Test Coverage
 
 To run tests with coverage, add either the `--coverage` option (for line coverage) or the
 `--coverage-branch` for line and branch coverage.
@@ -27,7 +30,7 @@ unittest-parallel -t . -s tests --coverage-branch
 ~~~
 
 
-## Parallelism Level
+### Parallelism Level
 
 By default, unittest-parallel runs test modules in parallel (`--level=module`). Here is the list of
 all parallelism options:
@@ -43,24 +46,31 @@ all parallelism options:
 
 ## Speedup Potential
 
-unittest-parallel provides the most significant speedups when you have *slow-running* unit tests and
-many CPU cores. Slow-running tests are those that take considerably longer to run than an empty unit
-test.
+Generally speaking, unittest-parallel will run your unit tests faster by a factor of the number of
+CPU cores you have, as compared to `unittest discover`.
 
-For projects with a large number of slow-running test modules (or classes or tests),
-unittest-parallel with 2 CPU cores is roughly 2 times faster than `unittest discover`. With 4 CPU
-cores, it is 4 times faster, and so on.
+In other words, if you have 4 CPU cores, unittest-parallel will run your tests 4 times faster. If
+you have 8 CPU cores, it will run 8 times faster, and so on.
 
-If you have few slow-running test modules (or classes or tests), running with unittest-parallel may
-be slightly slower than `unittest discover`.
+Note that you may see less benefit from unittest-parallel if your average test duration is short
+compared to the underlying cost of parallelization.
 
-Theoretically, unittest-parallel with infinite CPU cores runs as long as your slowest test.
+
+### I/O-Bound Tests
+
+If your tests are I/O-bound (e.g., call web services), you may benefit from using a higher number of
+test processes (`-j`). In the following case, the I/O-bound tests run 100 times faster.
+
+~~~
+unittest-parallel -j 100 -t . -s tests
+~~~
 
 
 ### Real-World Speedups
 
-In a production application with thousands of slow-running unit tests, unittest-parallel with 4
-CPU cores was 4 times faster than `unittest discover`.
+I wrote unittest-parallel for a large production backend API application with thousands of unit
+tests. As expected, unittest-parallel ran tests 4 times faster using 4 cores, compared to `unittest
+discover`.
 
 [A user reports](https://github.com/craigahobbs/unittest-parallel/issues/24) that their tests
 ran 20 times faster on their development machine and 6 times faster on their test machine.
