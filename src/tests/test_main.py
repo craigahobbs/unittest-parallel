@@ -108,7 +108,6 @@ class ErrorTestCase(unittest.TestCase):
 
     def mock_2(self):
         self.assertIsNotNone(self)
-        # pylint: disable=broad-exception-raised
         raise Exception()
 
     def mock_3(self):
