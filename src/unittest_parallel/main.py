@@ -127,7 +127,7 @@ def main(argv=None):
         multiprocessing_context = multiprocessing.get_context(method='spawn')
         maxtasksperchild = 1 if args.disable_process_pooling else None
         with multiprocessing_context.Pool(process_count, maxtasksperchild=maxtasksperchild) as pool, \
-             multiprocessing.Manager() as manager:
+             multiprocessing_context.Manager() as manager:
             test_manager = ParallelTestManager(manager, args, temp_dir)
             results = pool.map(test_manager.run_tests, test_suites)
         stop_time = time.perf_counter()
