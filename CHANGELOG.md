@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.5 (2025-08-03)
+
+- [903874f](https://github.com/craigahobbs/unittest-parallel/commit/903874f) - Use consistent MP-context to avoid bugs and hangs
+
 ## 1.7.4 (2025-07-02)
 
 - [023f031](https://github.com/craigahobbs/unittest-parallel/commit/023f031) - update readme
