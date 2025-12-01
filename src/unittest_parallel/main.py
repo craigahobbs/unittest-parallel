@@ -25,7 +25,7 @@ def main(argv=None):
     """
 
     # Command line arguments
-    parser = argparse.ArgumentParser(prog='unittest-parallel')
+    parser = argparse.ArgumentParser(prog='unittest-parallel', color=False)
     parser.add_argument('-v', '--verbose', action='store_const', const=2, default=1,
                         help='Verbose output')
     parser.add_argument('-q', '--quiet', dest='verbose', action='store_const', const=0, default=1,
