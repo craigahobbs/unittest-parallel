@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.6 (2025-12-01)
+
+- [e65c597](https://github.com/craigahobbs/unittest-parallel/commit/e65c597) - ArgumentParser color=False
+
 ## 1.7.5 (2025-08-03)
 
 - [903874f](https://github.com/craigahobbs/unittest-parallel/commit/903874f) - Use consistent MP-context to avoid bugs and hangs
