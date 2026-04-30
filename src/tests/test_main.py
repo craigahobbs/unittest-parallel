@@ -60,6 +60,21 @@ class MockMultiprocessingManager:
     Event = MockMultiprocessingManagerEvent
 
 
+class MockThreadPoolExecutor:
+    def __init__(self, **kwargs):
+        pass
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
+
+    @staticmethod
+    def map(func, args):
+        return [func(arg) for arg in args]
+
+
 class SuccessTestCase(unittest.TestCase):
     def mock_1(self):
         self.assertIsNotNone(self)
@@ -230,6 +245,65 @@ OK
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
             main(['-v'])
+
+        self.assertEqual(stdout.getvalue(), '')
+        if sys.version_info < (3, 11): # pragma: no cover
+            self.assert_output(stderr.getvalue(), '''\
+Running 2 test suites (5 total tests) across 1 processes
+
+mock_1 (tests.test_main.SuccessTestCase) ...
+mock_1 (tests.test_main.SuccessTestCase) ... ok
+mock_2 (tests.test_main.SuccessTestCase) ...
+mock_2 (tests.test_main.SuccessTestCase) ... ok
+mock_3 (tests.test_main.SuccessTestCase) ...
+mock_3 (tests.test_main.SuccessTestCase) ... ok
+mock_1 (tests.test_main.SuccessTestCase2) ...
+mock_1 (tests.test_main.SuccessTestCase2) ... ok
+mock_1 (tests.test_main.SuccessTestCase3) ...
+mock_1 (tests.test_main.SuccessTestCase3) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in <SEC>s
+
+OK
+''')
+        else: # pragma: no cover
+            self.assert_output(stderr.getvalue(), '''\
+Running 2 test suites (5 total tests) across 1 processes
+
+mock_1 (tests.test_main.SuccessTestCase.mock_1) ...
+mock_1 (tests.test_main.SuccessTestCase.mock_1) ... ok
+mock_2 (tests.test_main.SuccessTestCase.mock_2) ...
+mock_2 (tests.test_main.SuccessTestCase.mock_2) ... ok
+mock_3 (tests.test_main.SuccessTestCase.mock_3) ...
+mock_3 (tests.test_main.SuccessTestCase.mock_3) ... ok
+mock_1 (tests.test_main.SuccessTestCase2.mock_1) ...
+mock_1 (tests.test_main.SuccessTestCase2.mock_1) ... ok
+mock_1 (tests.test_main.SuccessTestCase3.mock_1) ...
+mock_1 (tests.test_main.SuccessTestCase3.mock_1) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in <SEC>s
+
+OK
+''')
+
+    def test_success_thread(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[SuccessTestCase('mock_1'), SuccessTestCase('mock_2'), SuccessTestCase('mock_3')]),
+                unittest.TestSuite(tests=[SuccessTestCase2('mock_1')])
+            ]),
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[SuccessTestCase3('mock_1')])
+            ])
+        ])
+        with patch('multiprocessing.cpu_count', Mock(return_value=1)), \
+             patch('unittest_parallel.main.ThreadPoolExecutor', new=MockThreadPoolExecutor), \
+             patch('sys.stdout', StringIO()) as stdout, \
+             patch('sys.stderr', StringIO()) as stderr, \
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
+            main(['-v', '--thread'])
 
         self.assertEqual(stdout.getvalue(), '')
         if sys.version_info < (3, 11): # pragma: no cover
@@ -553,7 +627,7 @@ Ran 3 tests in <SEC>s
 OK
 ''')
 
-    def test_success_failfast(self):
+    def test_failfast(self):
         discover_suite = unittest.TestSuite(tests=[
             unittest.TestSuite(tests=[
                 unittest.TestSuite(tests=[FailureTestCase('mock_1'), FailureTestCase('mock_2'), FailureTestCase('mock_3')])
@@ -565,6 +639,90 @@ OK
              patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
             with self.assertRaises(SystemExit) as cm_exc:
                 main(['-v', '-f', '--level', 'test'])
+
+        self.assertEqual(cm_exc.exception.code, 1)
+        self.assertEqual(stdout.getvalue(), '')
+        if sys.version_info < (3, 11): # pragma: no cover
+            self.assert_output(stderr.getvalue(), '''\
+Running 3 test suites (3 total tests) across 3 processes
+
+mock_1 (tests.test_main.FailureTestCase) ...
+mock_1 (tests.test_main.FailureTestCase) ... ok
+mock_2 (tests.test_main.FailureTestCase) ...
+mock_2 (tests.test_main.FailureTestCase) ... FAIL
+
+======================================================================
+mock_2 (tests.test_main.FailureTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<FILE>", line <LINE>, in mock_2
+    self.fail()
+AssertionError: None
+
+----------------------------------------------------------------------
+Ran 2 tests in <SEC>s
+
+FAILED (failures=1)
+''')
+        elif sys.version_info < (3, 13): # pragma: no cover
+            self.assert_output(stderr.getvalue(), '''\
+Running 3 test suites (3 total tests) across 3 processes
+
+mock_1 (tests.test_main.FailureTestCase.mock_1) ...
+mock_1 (tests.test_main.FailureTestCase.mock_1) ... ok
+mock_2 (tests.test_main.FailureTestCase.mock_2) ...
+mock_2 (tests.test_main.FailureTestCase.mock_2) ... FAIL
+
+======================================================================
+mock_2 (tests.test_main.FailureTestCase.mock_2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<FILE>", line <LINE>, in mock_2
+    self.fail()
+AssertionError: None
+
+----------------------------------------------------------------------
+Ran 2 tests in <SEC>s
+
+FAILED (failures=1)
+''')
+        else: # pragma: no cover
+            self.assert_output(stderr.getvalue(), '''\
+Running 3 test suites (3 total tests) across 3 processes
+
+mock_1 (tests.test_main.FailureTestCase.mock_1) ...
+mock_1 (tests.test_main.FailureTestCase.mock_1) ... ok
+mock_2 (tests.test_main.FailureTestCase.mock_2) ...
+mock_2 (tests.test_main.FailureTestCase.mock_2) ... FAIL
+
+======================================================================
+mock_2 (tests.test_main.FailureTestCase.mock_2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<FILE>", line <LINE>, in mock_2
+    self.fail()
+    ~~~~~~~~~^^
+AssertionError: None
+
+----------------------------------------------------------------------
+Ran 2 tests in <SEC>s
+
+FAILED (failures=1)
+''')
+
+    def test_failfast_thread(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[FailureTestCase('mock_1'), FailureTestCase('mock_2'), FailureTestCase('mock_3')])
+            ])
+        ])
+        with patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
+             patch('unittest_parallel.main.ThreadPoolExecutor', new=MockThreadPoolExecutor), \
+             patch('sys.stdout', StringIO()) as stdout, \
+             patch('sys.stderr', StringIO()) as stderr, \
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
+            with self.assertRaises(SystemExit) as cm_exc:
+                main(['-v', '--thread', '-f', '--level', 'test'])
 
         self.assertEqual(cm_exc.exception.code, 1)
         self.assertEqual(stdout.getvalue(), '')

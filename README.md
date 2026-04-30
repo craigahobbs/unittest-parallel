@@ -44,6 +44,15 @@ all parallelism options:
   [class or module fixtures](https://docs.python.org/3/library/unittest.html#class-and-module-fixtures).
 
 
+### Free-Threaded Python
+
+By default, unittest-parallel uses a process pool to run tests in parallel. If you are using
+[free-threaded Python](https://docs.python.org/3/howto/free-threading-python.html), you can reduce
+test-running overhead by using the `--thread` argument to use a thread pool for parallelization.
+Note that if you use `unittest.mock` in your tests, `--thread` likely won't work since mocking
+modifies global state shared with all threads.
+
+
 ## Speedup Potential
 
 Generally speaking, unittest-parallel will run your unit tests faster by a factor of the number of
@@ -86,8 +95,8 @@ ran 20 times faster on their development machine and 6 times faster on their tes
 
 ~~~
 usage: unittest-parallel [-h] [-v] [-q] [-f] [-b] [-k TESTNAMEPATTERNS]
-                         [-s START] [-p PATTERN] [-t TOP] [--runner RUNNER]
-                         [--result RESULT] [-j COUNT]
+                         [-s START] [-p PATTERN] [-t TOP] [--thread]
+                         [--runner RUNNER] [--result RESULT] [-j COUNT]
                          [--level {module,class,test}]
                          [--disable-process-pooling] [--coverage]
                          [--coverage-branch] [--coverage-rcfile RCFILE]
@@ -109,6 +118,7 @@ options:
   -t, --top-level-directory TOP
                         Top level directory of project (defaults to start
                         directory)
+  --thread              Use a thread pool for parallelization
   --runner RUNNER       Custom unittest runner class <module>.<class>
   --result RESULT       Custom unittest result class <module>.<class>
 

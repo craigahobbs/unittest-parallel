@@ -6,6 +6,7 @@ unittest-parallel command-line script main module
 """
 
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 import importlib
 from io import StringIO
@@ -13,6 +14,7 @@ import multiprocessing
 import os
 import sys
 import tempfile
+import threading
 import time
 import unittest
 
@@ -45,6 +47,8 @@ def main(argv=None):
                         help="Pattern to match tests ('test*.py' default)")
     parser.add_argument('-t', '--top-level-directory', metavar='TOP',
                         help='Top level directory of project (defaults to start directory)')
+    parser.add_argument('--thread', action='store_true',
+                        help='Use a thread pool for parallelization')
     parser.add_argument('--runner', metavar='RUNNER',
                         help='Custom unittest runner class <module>.<class>')
     parser.add_argument('--result', metavar='RESULT',
@@ -127,12 +131,20 @@ def main(argv=None):
 
         # Run the tests in parallel
         start_time = time.perf_counter()
-        multiprocessing_context = multiprocessing.get_context(method='spawn')
-        maxtasksperchild = 1 if args.disable_process_pooling else None
-        with multiprocessing_context.Pool(process_count, maxtasksperchild=maxtasksperchild) as pool, \
-             multiprocessing_context.Manager() as manager:
-            test_manager = ParallelTestManager(manager, args, temp_dir)
-            results = pool.map(test_manager.run_tests, test_suites)
+        if args.thread:
+            # The coverage collector is one-per-process, so manage the coverage context here instead
+            # of within ParallelTestManager.run_tests
+            with _coverage(args, temp_dir), \
+                 ThreadPoolExecutor(max_workers=process_count) as executor:
+                test_manager = ParallelTestManager(args, temp_dir, threading.Event(), False)
+                results = list(executor.map(test_manager.run_tests, test_suites))
+        else:
+            multiprocessing_context = multiprocessing.get_context(method='spawn')
+            maxtasksperchild = 1 if args.disable_process_pooling else None
+            with multiprocessing_context.Pool(process_count, maxtasksperchild=maxtasksperchild) as pool, \
+                 multiprocessing_context.Manager() as manager:
+                test_manager = ParallelTestManager(args, temp_dir, manager.Event(), True)
+                results = pool.map(test_manager.run_tests, test_suites)
         stop_time = time.perf_counter()
         test_duration = stop_time - start_time
 
@@ -284,10 +296,11 @@ def _iter_test_cases(test_suite):
 
 class ParallelTestManager:
 
-    def __init__(self, manager, args, temp_dir):
+    def __init__(self, args, temp_dir, failfast, coverage_context):
         self.args = args
         self.temp_dir = temp_dir
-        self.failfast = manager.Event()
+        self.failfast = failfast
+        self.coverage_context = coverage_context
 
     def run_tests(self, test_suite):
         # Fail fast?
@@ -295,7 +308,7 @@ class ParallelTestManager:
             return [0, [], [], 0, 0, 0]
 
         # Run unit tests
-        with _coverage(self.args, self.temp_dir):
+        def _run_tests():
             runner_class = unittest.TextTestRunner if not self.args.runner else self.args.runner_class
             runner_stream = StringIO() if not self.args.runner and not self.args.result else None
             result_class = ParallelTextTestResult if not self.args.result else self.args.result_class
@@ -321,6 +334,13 @@ class ParallelTestManager:
                 len(result.expectedFailures),
                 len(result.unexpectedSuccesses)
             )
+
+        # Run unit tests
+        if self.coverage_context:
+            with _coverage(self.args, self.temp_dir):
+                return _run_tests()
+        else:
+            return _run_tests()
 
     @staticmethod
     def _format_error(result, error):
