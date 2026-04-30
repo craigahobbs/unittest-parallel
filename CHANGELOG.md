@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.8.0 (2026-04-30)
+
+- [1aff1d0](https://github.com/craigahobbs/unittest-parallel/commit/1aff1d0) - add --thread argument to parallelize using a thread pool
+
 ## 1.7.6 (2025-12-01)
 
 - [e65c597](https://github.com/craigahobbs/unittest-parallel/commit/e65c597) - ArgumentParser color=False
