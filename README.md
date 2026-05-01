@@ -95,10 +95,10 @@ ran 20 times faster on their development machine and 6 times faster on their tes
 
 ~~~
 usage: unittest-parallel [-h] [-v] [-q] [-f] [-b] [-k TESTNAMEPATTERNS]
-                         [-s START] [-p PATTERN] [-t TOP] [--thread]
-                         [--runner RUNNER] [--result RESULT] [-j COUNT]
+                         [-s START] [-p PATTERN] [-t TOP] [--runner RUNNER]
+                         [--result RESULT] [-j COUNT]
                          [--level {module,class,test}]
-                         [--disable-process-pooling] [--coverage]
+                         [--disable-process-pooling] [--thread] [--coverage]
                          [--coverage-branch] [--coverage-rcfile RCFILE]
                          [--coverage-include PAT] [--coverage-omit PAT]
                          [--coverage-source SRC] [--coverage-html DIR]
@@ -118,7 +118,6 @@ options:
   -t, --top-level-directory TOP
                         Top level directory of project (defaults to start
                         directory)
-  --thread              Use a thread pool for parallelization
   --runner RUNNER       Custom unittest runner class <module>.<class>
   --result RESULT       Custom unittest result class <module>.<class>
 
@@ -128,6 +127,7 @@ parallelization options:
                         Set the test parallelism level (default is 'module')
   --disable-process-pooling
                         Do not reuse processes used to run test suites
+  --thread              Use a thread pool for parallelization
 
 coverage options:
   --coverage            Run tests with coverage

@@ -8,6 +8,7 @@ unittest-parallel command-line script main module
 import argparse
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
+from functools import partial
 import importlib
 from io import StringIO
 import multiprocessing
@@ -47,8 +48,6 @@ def main(argv=None):
                         help="Pattern to match tests ('test*.py' default)")
     parser.add_argument('-t', '--top-level-directory', metavar='TOP',
                         help='Top level directory of project (defaults to start directory)')
-    parser.add_argument('--thread', action='store_true',
-                        help='Use a thread pool for parallelization')
     parser.add_argument('--runner', metavar='RUNNER',
                         help='Custom unittest runner class <module>.<class>')
     parser.add_argument('--result', metavar='RESULT',
@@ -60,6 +59,8 @@ def main(argv=None):
                                 help="Set the test parallelism level (default is 'module')")
     group_parallel.add_argument('--disable-process-pooling', action='store_true', default=False,
                                 help='Do not reuse processes used to run test suites')
+    group_parallel.add_argument('--thread', action='store_true',
+                                help='Use a thread pool for parallelization')
     group_coverage = parser.add_argument_group('coverage options')
     group_coverage.add_argument('--coverage', action='store_true',
                                 help='Run tests with coverage')
@@ -132,19 +133,18 @@ def main(argv=None):
         # Run the tests in parallel
         start_time = time.perf_counter()
         if args.thread:
-            # The coverage collector is one-per-process, so manage the coverage context here instead
-            # of within ParallelTestManager.run_tests
+            # coverage.py's collector is one-per-process - for thread, manage the coverage context here instead of within _run_tests
             with _coverage(args, temp_dir), \
                  ThreadPoolExecutor(max_workers=process_count) as executor:
-                test_manager = ParallelTestManager(args, temp_dir, threading.Event(), False)
-                results = list(executor.map(test_manager.run_tests, test_suites))
+                test_fn = partial(_run_tests, args, temp_dir, threading.Event(), False)
+                results = list(executor.map(test_fn, test_suites))
         else:
             multiprocessing_context = multiprocessing.get_context(method='spawn')
             maxtasksperchild = 1 if args.disable_process_pooling else None
             with multiprocessing_context.Pool(process_count, maxtasksperchild=maxtasksperchild) as pool, \
                  multiprocessing_context.Manager() as manager:
-                test_manager = ParallelTestManager(args, temp_dir, manager.Event(), True)
-                results = pool.map(test_manager.run_tests, test_suites)
+                test_fn = partial(_run_tests, args, temp_dir, manager.Event(), True)
+                results = pool.map(test_fn, test_suites)
         stop_time = time.perf_counter()
         test_duration = stop_time - start_time
 
@@ -294,62 +294,55 @@ def _iter_test_cases(test_suite):
             yield from _iter_test_cases(suite)
 
 
-class ParallelTestManager:
+# Process/thread function to run a test_suite
+def _run_tests(args, temp_dir, failfast, coverage_context, test_suite):
+    # Fail fast?
+    if failfast.is_set():
+        return [0, [], [], 0, 0, 0]
 
-    def __init__(self, args, temp_dir, failfast, coverage_context):
-        self.args = args
-        self.temp_dir = temp_dir
-        self.failfast = failfast
-        self.coverage_context = coverage_context
+    # Run unit tests
+    if coverage_context:
+        with _coverage(args, temp_dir):
+            return _run_tests_inner(args, failfast, test_suite)
+    else:
+        return _run_tests_inner(args, failfast, test_suite)
 
-    def run_tests(self, test_suite):
-        # Fail fast?
-        if self.failfast.is_set():
-            return [0, [], [], 0, 0, 0]
 
-        # Run unit tests
-        def _run_tests():
-            runner_class = unittest.TextTestRunner if not self.args.runner else self.args.runner_class
-            runner_stream = StringIO() if not self.args.runner and not self.args.result else None
-            result_class = ParallelTextTestResult if not self.args.result else self.args.result_class
-            runner = runner_class(
-                stream=runner_stream,
-                resultclass=result_class,
-                verbosity=self.args.verbose,
-                failfast=self.args.failfast,
-                buffer=self.args.buffer
-            )
-            result = runner.run(test_suite)
+def _run_tests_inner(args, failfast, test_suite):
+    runner_class = unittest.TextTestRunner if not args.runner else args.runner_class
+    runner_stream = StringIO() if not args.runner and not args.result else None
+    result_class = ParallelTextTestResult if not args.result else args.result_class
+    runner = runner_class(
+        stream=runner_stream,
+        resultclass=result_class,
+        verbosity=args.verbose,
+        failfast=args.failfast,
+        buffer=args.buffer
+    )
+    result = runner.run(test_suite)
 
-            # Set failfast, if necessary
-            if result.shouldStop:
-                self.failfast.set()
+    # Set failfast, if necessary
+    if result.shouldStop:
+        failfast.set()
 
-            # Return (test_count, errors, failures, skipped_count, expected_failure_count, unexpected_success_count)
-            return (
-                result.testsRun,
-                [self._format_error(result, error) for error in result.errors],
-                [self._format_error(result, failure) for failure in result.failures],
-                len(result.skipped),
-                len(result.expectedFailures),
-                len(result.unexpectedSuccesses)
-            )
+    # Return (test_count, errors, failures, skipped_count, expected_failure_count, unexpected_success_count)
+    return (
+        result.testsRun,
+        [_run_tests_error(result, error) for error in result.errors],
+        [_run_tests_error(result, failure) for failure in result.failures],
+        len(result.skipped),
+        len(result.expectedFailures),
+        len(result.unexpectedSuccesses)
+    )
 
-        # Run unit tests
-        if self.coverage_context:
-            with _coverage(self.args, self.temp_dir):
-                return _run_tests()
-        else:
-            return _run_tests()
 
-    @staticmethod
-    def _format_error(result, error):
-        return '\n'.join([
-            unittest.TextTestResult.separator1,
-            result.getDescription(error[0]),
-            unittest.TextTestResult.separator2,
-            error[1]
-        ])
+def _run_tests_error(result, error):
+    return '\n'.join([
+        unittest.TextTestResult.separator1,
+        result.getDescription(error[0]),
+        unittest.TextTestResult.separator2,
+        error[1]
+    ])
 
 
 class ParallelTextTestResult(unittest.TextTestResult):
