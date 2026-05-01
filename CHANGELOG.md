@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.8.1 (2026-05-01)
+
+- [2f01e9d](https://github.com/craigahobbs/unittest-parallel/commit/2f01e9d) - simplify test suite runner process/thread function
+
+- [114b9ab](https://github.com/craigahobbs/unittest-parallel/commit/114b9ab) - unittest-parallel 1.8
+
 ## 1.8.0 (2026-04-30)
 
 - [1aff1d0](https://github.com/craigahobbs/unittest-parallel/commit/1aff1d0) - add --thread argument to parallelize using a thread pool
