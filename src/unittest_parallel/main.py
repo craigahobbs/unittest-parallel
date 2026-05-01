@@ -136,14 +136,14 @@ def main(argv=None):
             # coverage.py's collector is one-per-process - for thread, manage the coverage context here instead of within _run_tests
             with _coverage(args, temp_dir), \
                  ThreadPoolExecutor(max_workers=process_count) as executor:
-                test_fn = partial(_run_tests, args, temp_dir, threading.Event(), False)
+                test_fn = partial(_run_tests_thread, args, threading.Event())
                 results = list(executor.map(test_fn, test_suites))
         else:
             multiprocessing_context = multiprocessing.get_context(method='spawn')
             maxtasksperchild = 1 if args.disable_process_pooling else None
             with multiprocessing_context.Pool(process_count, maxtasksperchild=maxtasksperchild) as pool, \
                  multiprocessing_context.Manager() as manager:
-                test_fn = partial(_run_tests, args, temp_dir, manager.Event(), True)
+                test_fn = partial(_run_tests_process, temp_dir, args, manager.Event())
                 results = pool.map(test_fn, test_suites)
         stop_time = time.perf_counter()
         test_duration = stop_time - start_time
@@ -294,21 +294,19 @@ def _iter_test_cases(test_suite):
             yield from _iter_test_cases(suite)
 
 
-# Process/thread function to run a test_suite
-def _run_tests(args, temp_dir, failfast, coverage_context, test_suite):
+# Process function to run a test_suite
+def _run_tests_process(temp_dir, args, failfast, test_suite):
+    with _coverage(args, temp_dir):
+        return _run_tests_thread(args, failfast, test_suite)
+
+
+# Thread function to run a test_suite
+def _run_tests_thread(args, failfast, test_suite):
     # Fail fast?
     if failfast.is_set():
         return [0, [], [], 0, 0, 0]
 
     # Run unit tests
-    if coverage_context:
-        with _coverage(args, temp_dir):
-            return _run_tests_inner(args, failfast, test_suite)
-    else:
-        return _run_tests_inner(args, failfast, test_suite)
-
-
-def _run_tests_inner(args, failfast, test_suite):
     runner_class = unittest.TextTestRunner if not args.runner else args.runner_class
     runner_stream = StringIO() if not args.runner and not args.result else None
     result_class = ParallelTextTestResult if not args.result else args.result_class
