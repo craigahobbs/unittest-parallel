@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.8.2 (2026-05-01)
+
+- [a169410](https://github.com/craigahobbs/unittest-parallel/commit/a169410) - further simplify test suite runner process and thread functions
+
 ## 1.8.1 (2026-05-01)
 
 - [2f01e9d](https://github.com/craigahobbs/unittest-parallel/commit/2f01e9d) - simplify test suite runner process/thread function
