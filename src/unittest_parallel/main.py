@@ -133,7 +133,7 @@ def main(argv=None):
         # Run the tests in parallel
         start_time = time.perf_counter()
         if args.thread:
-            # coverage.py's collector is one-per-process - for thread, manage the coverage context here instead of within _run_tests
+            # coverage.py's collector is one-per-process, so manage the coverage context here for thread
             with _coverage(args, temp_dir), \
                  ThreadPoolExecutor(max_workers=process_count) as executor:
                 test_fn = partial(_run_tests_thread, args, threading.Event())
