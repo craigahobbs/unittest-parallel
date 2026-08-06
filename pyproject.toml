@@ -1,2 +1,42 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "unittest-parallel"
+version = "1.8.2"
+description = "Parallel unit test runner with coverage support"
+readme = "README.md"
+license = "MIT"
+keywords = ["test", "unittest", "coverage", "parallel"]
+authors = [
+    {name = "Craig A. Hobbs", email = "craigahobbs@gmail.com"}
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Software Development :: Testing :: Unit",
+    "Topic :: Utilities"
+]
+dependencies = [
+    "coverage >= 5.1"
+]
+
+[project.urls]
+Homepage = "https://github.com/craigahobbs/unittest-parallel"
+
+[project.scripts]
+unittest-parallel = "unittest_parallel.main:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["unittest_parallel"]
