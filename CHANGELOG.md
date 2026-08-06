@@ -1,6 +1,12 @@
 # Changelog
 
+## 1.8.3 (2026-08-06)
+
+- [5807dfd](https://github.com/craigahobbs/unittest-parallel/commit/5807dfd) - migrate package metadata from setup.cfg to pyproject.toml
+
 ## 1.8.2 (2026-05-01)
+
+- [7d7e27e](https://github.com/craigahobbs/unittest-parallel/commit/7d7e27e) - improve comment
 
 - [a169410](https://github.com/craigahobbs/unittest-parallel/commit/a169410) - further simplify test suite runner process and thread functions
 
