@@ -50,7 +50,7 @@ By default, unittest-parallel uses a process pool to run tests in parallel. If y
 [free-threaded Python](https://docs.python.org/3/howto/free-threading-python.html), you can reduce
 test-running overhead by using the `--thread` argument to use a thread pool for parallelization.
 Note that if you use `unittest.mock` in your tests, `--thread` likely won't work since mocking
-modifies global state shared with all threads.
+modifies global state shared with all threads. `-b` / `--buffer` is ignored with `--thread`.
 
 
 ## Speedup Potential

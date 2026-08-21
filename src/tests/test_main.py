@@ -315,6 +315,43 @@ Ran 5 tests in <SEC>s
 OK
 ''')
 
+    def test_success_thread_buffer(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[
+                    SuccessWithOutputTestCase('mock_1'),
+                    SuccessWithOutputTestCase('mock_2'),
+                    SuccessWithOutputTestCase('mock_3')
+                ])
+            ])
+        ])
+        with patch('unittest_parallel.main.ThreadPoolExecutor', new=MockThreadPoolExecutor), \
+             patch('sys.stdout', StringIO()) as stdout, \
+             patch('sys.stderr', StringIO()) as stderr, \
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
+            main(['-v', '--thread', '-b'])
+
+        self.assertEqual(stdout.getvalue(), '''\
+Hello stdout!
+''')
+        self.assert_output(stderr.getvalue(), '''\
+warning: --buffer is ignored with --thread (unittest buffering is process-global)
+Running 1 test suites (3 total tests) across 1 processes
+
+mock_1 (tests.test_main.SuccessWithOutputTestCase.mock_1) ...
+mock_1 (tests.test_main.SuccessWithOutputTestCase.mock_1) ... ok
+mock_2 (tests.test_main.SuccessWithOutputTestCase.mock_2) ...
+mock_2 (tests.test_main.SuccessWithOutputTestCase.mock_2) ... ok
+mock_3 (tests.test_main.SuccessWithOutputTestCase.mock_3) ...
+Hello stderr!
+mock_3 (tests.test_main.SuccessWithOutputTestCase.mock_3) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in <SEC>s
+
+OK
+''')
+
     def test_success_max_suites(self):
         discover_suite = unittest.TestSuite(tests=[
             unittest.TestSuite(tests=[

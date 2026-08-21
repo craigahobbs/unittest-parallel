@@ -39,7 +39,7 @@ def main(argv=None):
     parser.add_argument('-f', '--failfast', action='store_true', default=False,
                         help='Stop on first fail or error')
     parser.add_argument('-b', '--buffer', action='store_true', default=False,
-                        help='Buffer stdout and stderr during tests')
+                        help='Buffer stdout and stderr during tests (ignored with --thread)')
     parser.add_argument('-k', dest='testNamePatterns', action='append', type=_convert_select_pattern,
                         help='Only run tests which match the given substring')
     parser.add_argument('-s', '--start-directory', metavar='START', default='.',
@@ -83,6 +83,9 @@ def main(argv=None):
     args = parser.parse_args(args=argv)
     if args.coverage_branch:
         args.coverage = True
+    if args.thread and args.buffer:
+        print('warning: --buffer is ignored with --thread (unittest buffering is process-global)', file=sys.stderr)
+        args.buffer = False
 
     # Determine the number of test processes
     process_count = max(0, args.jobs)
