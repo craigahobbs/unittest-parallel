@@ -307,21 +307,21 @@ def _iter_test_cases(test_suite):
 
 
 # Process function to run a test_suite
-def _run_tests_process(temp_dir, args, failfast, test_suite):
+def _run_tests_process(temp_dir, args, failfast_event, test_suite):
     with _coverage(args, temp_dir):
-        return _run_tests_thread(args, failfast, test_suite)
+        return _run_tests_thread(args, failfast_event, test_suite)
 
 
 # Thread function to run a test_suite
-def _run_tests_thread(args, failfast, test_suite):
+def _run_tests_thread(args, failfast_event, test_suite):
     # Fail fast?
-    if failfast.is_set():
+    if failfast_event.is_set():
         return [0, [], [], 0, 0, []]
 
     # Run unit tests
     runner_class = unittest.TextTestRunner if not args.runner else args.runner_class
     runner_stream = StringIO() if not args.runner and not args.result else None
-    result_class = ParallelTextTestResult if not args.result else args.result_class
+    result_class = args.result_class if args.result else partial(ParallelTextTestResult, failfast_event=failfast_event)
     runner = runner_class(
         stream=runner_stream,
         resultclass=result_class,
@@ -333,7 +333,7 @@ def _run_tests_thread(args, failfast, test_suite):
 
     # Set failfast, if necessary
     if result.shouldStop:
-        failfast.set()
+        failfast_event.set()
 
     # Return (test_count, errors, failures, skipped_count, expected_failure_count, unexpected_successes)
     return (
@@ -357,15 +357,23 @@ def _run_tests_error(result, error):
 
 class ParallelTextTestResult(unittest.TextTestResult):
 
-    def __init__(self, stream, descriptions, verbosity):
+    def __init__(self, stream, descriptions, verbosity, failfast_event=None):
         stream = type(stream)(sys.stderr)
         super().__init__(stream, descriptions, verbosity)
+        self._failfast_event = failfast_event
 
     def startTest(self, test):
+        if self._failfast_event is not None and self._failfast_event.is_set():
+            self.stop()
         if self.showAll:
             self.stream.writeln(f'{self.getDescription(test)} ...')
             self.stream.flush()
         super(unittest.TextTestResult, self).startTest(test)
+
+    def stopTest(self, test):
+        super().stopTest(test)
+        if self._failfast_event is not None and self._failfast_event.is_set():
+            self.stop()
 
     def _add_helper(self, test, dots_message, show_all_message):
         if self.showAll:

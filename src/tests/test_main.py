@@ -4,11 +4,12 @@
 from io import StringIO
 import re
 import sys
+import threading
 import unittest
 from unittest.mock import ANY, Mock, call, patch
 
 import unittest_parallel.__main__
-from unittest_parallel.main import main
+from unittest_parallel.main import ParallelTextTestResult, main
 
 
 class MockMultiprocessingPool:
@@ -678,6 +679,43 @@ Ran 2 tests in <SEC>s
 
 FAILED (failures=1)
 ''')
+
+    def _parallel_result(self, failfast_event=None):
+        stream = unittest.TextTestRunner(verbosity=0).stream
+        return ParallelTextTestResult(stream, True, 0, failfast_event=failfast_event)
+
+    def test_failfast_event_none(self):
+        with patch('sys.stderr', StringIO()):
+            result = self._parallel_result()
+            test = SuccessTestCase('mock_1')
+            result.startTest(test)
+            result.addSuccess(test)
+            result.stopTest(test)
+        self.assertFalse(result.shouldStop)
+
+    def test_failfast_event_stops_at_start_test(self):
+        event = threading.Event()
+        event.set()
+        with patch('sys.stderr', StringIO()):
+            result = self._parallel_result(event)
+            result.startTest(SuccessTestCase('mock_1'))
+        self.assertTrue(result.shouldStop)
+
+    def test_failfast_event_stops_after_current_test(self):
+        event = threading.Event()
+        with patch('sys.stderr', StringIO()):
+            result = self._parallel_result(event)
+            test = SuccessTestCase('mock_1')
+            result.startTest(test)
+            result.addSuccess(test)
+            result.stopTest(test)
+            self.assertFalse(result.shouldStop)
+            event.set()
+            test2 = SuccessTestCase('mock_2')
+            result.startTest(test2)
+            result.addSuccess(test2)
+            result.stopTest(test2)
+        self.assertTrue(result.shouldStop)
 
     def test_success_buffer(self):
         discover_suite = unittest.TestSuite(tests=[
