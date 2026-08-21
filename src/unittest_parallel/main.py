@@ -54,7 +54,7 @@ def main(argv=None):
                         help='Custom unittest result class <module>.<class>')
     group_parallel = parser.add_argument_group('parallelization options')
     group_parallel.add_argument('-j', '--jobs', metavar='COUNT', type=int, default=0,
-                                help='The number of test processes (default is 0, all cores)')
+                                help='The number of test workers (default is 0, all cores)')
     group_parallel.add_argument('--level', choices=['module', 'class', 'test'], default='module',
                                 help="Set the test parallelism level (default is 'module')")
     group_parallel.add_argument('--disable-process-pooling', action='store_true', default=False,
@@ -125,9 +125,9 @@ def main(argv=None):
         # Don't use more processes than test suites
         process_count = max(1, min(len(test_suites), process_count))
 
-        # Report test suites and processes
+        # Report test suites and workers
         print(
-            f'Running {len(test_suites)} test suites ({discover_suite.countTestCases()} total tests) across {process_count} processes',
+            f'Running {len(test_suites)} test suites ({discover_suite.countTestCases()} total tests) across {process_count} workers',
             file=sys.stderr
         )
         if args.verbose > 1:

@@ -68,7 +68,7 @@ compared to the underlying cost of parallelization.
 ### I/O-Bound Tests
 
 If your tests are I/O-bound (e.g., call web services), you may benefit from using a higher number of
-test processes (`-j`). In the following case, the I/O-bound tests run 100 times faster.
+test workers (`-j`). In the following case, the I/O-bound tests run 100 times faster.
 
 ~~~
 unittest-parallel -j 100 -t . -s tests
@@ -122,7 +122,7 @@ options:
   --result RESULT       Custom unittest result class <module>.<class>
 
 parallelization options:
-  -j, --jobs COUNT      The number of test processes (default is 0, all cores)
+  -j, --jobs COUNT      The number of test workers (default is 0, all cores)
   --level {module,class,test}
                         Set the test parallelism level (default is 'module')
   --disable-process-pooling
