@@ -1077,13 +1077,106 @@ FAILED (failures=1)
             ])
         ])
         with patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
-             patch('sys.stdout', StringIO()), \
-             patch('sys.stderr', StringIO()), \
+             patch('sys.stdout', StringIO()) as stdout, \
+             patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
             with self.assertRaises(SystemExit) as cm_exc:
-                main(['-q'])
+                main(['-v', '-j', '2'])
 
         self.assertEqual(cm_exc.exception.code, 2)
+        self.assertEqual(stdout.getvalue(), '')
+        if sys.version_info < (3, 11): # pragma: no cover
+            self.assert_output(stderr.getvalue(), '''\
+Running 2 test suites (2 total tests) across 2 processes
+
+mock_2 (tests.test_main.FailureTestCase) ...
+mock_2 (tests.test_main.FailureTestCase) ... FAIL
+mock_2 (tests.test_main.FailureTestCase) ...
+mock_2 (tests.test_main.FailureTestCase) ... FAIL
+
+======================================================================
+mock_2 (tests.test_main.FailureTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<FILE>", line <LINE>, in mock_2
+    self.fail()
+AssertionError: None
+
+======================================================================
+mock_2 (tests.test_main.FailureTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<FILE>", line <LINE>, in mock_2
+    self.fail()
+AssertionError: None
+
+----------------------------------------------------------------------
+Ran 2 tests in <SEC>s
+
+FAILED (failures=2)
+''')
+        elif sys.version_info < (3, 13): # pragma: no cover
+            self.assert_output(stderr.getvalue(), '''\
+Running 2 test suites (2 total tests) across 2 processes
+
+mock_2 (tests.test_main.FailureTestCase.mock_2) ...
+mock_2 (tests.test_main.FailureTestCase.mock_2) ... FAIL
+mock_2 (tests.test_main.FailureTestCase.mock_2) ...
+mock_2 (tests.test_main.FailureTestCase.mock_2) ... FAIL
+
+======================================================================
+mock_2 (tests.test_main.FailureTestCase.mock_2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<FILE>", line <LINE>, in mock_2
+    self.fail()
+AssertionError: None
+
+======================================================================
+mock_2 (tests.test_main.FailureTestCase.mock_2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<FILE>", line <LINE>, in mock_2
+    self.fail()
+AssertionError: None
+
+----------------------------------------------------------------------
+Ran 2 tests in <SEC>s
+
+FAILED (failures=2)
+''')
+        else: # pragma: no cover
+            self.assert_output(stderr.getvalue(), '''\
+Running 2 test suites (2 total tests) across 2 processes
+
+mock_2 (tests.test_main.FailureTestCase.mock_2) ...
+mock_2 (tests.test_main.FailureTestCase.mock_2) ... FAIL
+mock_2 (tests.test_main.FailureTestCase.mock_2) ...
+mock_2 (tests.test_main.FailureTestCase.mock_2) ... FAIL
+
+======================================================================
+mock_2 (tests.test_main.FailureTestCase.mock_2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<FILE>", line <LINE>, in mock_2
+    self.fail()
+    ~~~~~~~~~^^
+AssertionError: None
+
+======================================================================
+mock_2 (tests.test_main.FailureTestCase.mock_2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<FILE>", line <LINE>, in mock_2
+    self.fail()
+    ~~~~~~~~~^^
+AssertionError: None
+
+----------------------------------------------------------------------
+Ran 2 tests in <SEC>s
+
+FAILED (failures=2)
+''')
 
     def test_error(self):
         discover_suite = unittest.TestSuite(tests=[
@@ -1674,6 +1767,212 @@ Ran 3 tests in <SEC>s
 OK
 
 Total coverage is 99.00%
+''')
+
+    def test_coverage_on_failure(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[FailureTestCase('mock_2')])
+            ])
+        ])
+        with patch('coverage.Coverage') as coverage_mock, \
+             patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
+             patch('sys.stdout', StringIO()) as stdout, \
+             patch('sys.stderr', StringIO()) as stderr, \
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
+            coverage_instance = coverage_mock.return_value
+            coverage_instance.report.return_value = 100.
+            with self.assertRaises(SystemExit) as cm_exc:
+                main(['-v', '--coverage', '--coverage-html', 'html_dir', '--coverage-xml', 'cov.xml'])
+
+        self.assertEqual(cm_exc.exception.code, 1)
+        self.assertListEqual(
+            coverage_mock.mock_calls,
+            [
+                call(branch=False, data_file=ANY, include=None, omit=[ANY], source=None),
+                call().start(),
+                call().stop(),
+                call().save(),
+                call(branch=False, data_file=ANY, include=None, omit=[ANY], source=None),
+                call().start(),
+                call().stop(),
+                call().save(),
+                call(),
+                call().combine(data_paths=[ANY, ANY]),
+                call().report(ignore_errors=True, file=ANY),
+                call().html_report(directory='html_dir', ignore_errors=True),
+                call().xml_report(ignore_errors=True, outfile='cov.xml')
+            ]
+        )
+        self.assertEqual(stdout.getvalue(), '')
+        if sys.version_info < (3, 11): # pragma: no cover
+            self.assert_output(stderr.getvalue(), '''\
+Running 1 test suites (1 total tests) across 1 processes
+
+mock_2 (tests.test_main.FailureTestCase) ...
+mock_2 (tests.test_main.FailureTestCase) ... FAIL
+
+======================================================================
+mock_2 (tests.test_main.FailureTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<FILE>", line <LINE>, in mock_2
+    self.fail()
+AssertionError: None
+
+----------------------------------------------------------------------
+Ran 1 test in <SEC>s
+
+FAILED (failures=1)
+
+Total coverage is 100.00%
+''')
+        elif sys.version_info < (3, 13): # pragma: no cover
+            self.assert_output(stderr.getvalue(), '''\
+Running 1 test suites (1 total tests) across 1 processes
+
+mock_2 (tests.test_main.FailureTestCase.mock_2) ...
+mock_2 (tests.test_main.FailureTestCase.mock_2) ... FAIL
+
+======================================================================
+mock_2 (tests.test_main.FailureTestCase.mock_2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<FILE>", line <LINE>, in mock_2
+    self.fail()
+AssertionError: None
+
+----------------------------------------------------------------------
+Ran 1 test in <SEC>s
+
+FAILED (failures=1)
+
+Total coverage is 100.00%
+''')
+        else: # pragma: no cover
+            self.assert_output(stderr.getvalue(), '''\
+Running 1 test suites (1 total tests) across 1 processes
+
+mock_2 (tests.test_main.FailureTestCase.mock_2) ...
+mock_2 (tests.test_main.FailureTestCase.mock_2) ... FAIL
+
+======================================================================
+mock_2 (tests.test_main.FailureTestCase.mock_2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<FILE>", line <LINE>, in mock_2
+    self.fail()
+    ~~~~~~~~~^^
+AssertionError: None
+
+----------------------------------------------------------------------
+Ran 1 test in <SEC>s
+
+FAILED (failures=1)
+
+Total coverage is 100.00%
+''')
+
+    def test_coverage_fail_under_on_failure(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[FailureTestCase('mock_2')])
+            ])
+        ])
+        with patch('coverage.Coverage') as coverage_mock, \
+             patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
+             patch('sys.stdout', StringIO()) as stdout, \
+             patch('sys.stderr', StringIO()) as stderr, \
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
+            coverage_instance = coverage_mock.return_value
+            coverage_instance.report.return_value = 50.
+            with self.assertRaises(SystemExit) as cm_exc:
+                main(['-v', '--coverage', '--coverage-fail-under', '80'])
+
+        self.assertEqual(cm_exc.exception.code, 2)
+        self.assertListEqual(
+            coverage_mock.mock_calls,
+            [
+                call(branch=False, data_file=ANY, include=None, omit=[ANY], source=None),
+                call().start(),
+                call().stop(),
+                call().save(),
+                call(branch=False, data_file=ANY, include=None, omit=[ANY], source=None),
+                call().start(),
+                call().stop(),
+                call().save(),
+                call(),
+                call().combine(data_paths=[ANY, ANY]),
+                call().report(ignore_errors=True, file=ANY)
+            ]
+        )
+        self.assertEqual(stdout.getvalue(), '')
+        if sys.version_info < (3, 11): # pragma: no cover
+            self.assert_output(stderr.getvalue(), '''\
+Running 1 test suites (1 total tests) across 1 processes
+
+mock_2 (tests.test_main.FailureTestCase) ...
+mock_2 (tests.test_main.FailureTestCase) ... FAIL
+
+======================================================================
+mock_2 (tests.test_main.FailureTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<FILE>", line <LINE>, in mock_2
+    self.fail()
+AssertionError: None
+
+----------------------------------------------------------------------
+Ran 1 test in <SEC>s
+
+FAILED (failures=1)
+
+Total coverage is 50.00%
+''')
+        elif sys.version_info < (3, 13): # pragma: no cover
+            self.assert_output(stderr.getvalue(), '''\
+Running 1 test suites (1 total tests) across 1 processes
+
+mock_2 (tests.test_main.FailureTestCase.mock_2) ...
+mock_2 (tests.test_main.FailureTestCase.mock_2) ... FAIL
+
+======================================================================
+mock_2 (tests.test_main.FailureTestCase.mock_2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<FILE>", line <LINE>, in mock_2
+    self.fail()
+AssertionError: None
+
+----------------------------------------------------------------------
+Ran 1 test in <SEC>s
+
+FAILED (failures=1)
+
+Total coverage is 50.00%
+''')
+        else: # pragma: no cover
+            self.assert_output(stderr.getvalue(), '''\
+Running 1 test suites (1 total tests) across 1 processes
+
+mock_2 (tests.test_main.FailureTestCase.mock_2) ...
+mock_2 (tests.test_main.FailureTestCase.mock_2) ... FAIL
+
+======================================================================
+mock_2 (tests.test_main.FailureTestCase.mock_2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<FILE>", line <LINE>, in mock_2
+    self.fail()
+    ~~~~~~~~~^^
+AssertionError: None
+
+----------------------------------------------------------------------
+Ran 1 test in <SEC>s
+
+FAILED (failures=1)
+
+Total coverage is 50.00%
 ''')
 
     def test_coverage_other(self):

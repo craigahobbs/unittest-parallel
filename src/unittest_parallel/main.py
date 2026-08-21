@@ -194,11 +194,7 @@ def main(argv=None):
             print(file=sys.stderr)
             print(f'{"OK" if is_success else "FAILED"}{" (" + ", ".join(infos) + ")" if infos else ""}', file=sys.stderr)
 
-        # Unix process status is 8-bit; cap so 256+ failures don't wrap to 0
-        if not is_success:
-            parser.exit(status=min(255, len(errors) + len(failures) + unexpected_successes))
-
-        # Coverage?
+        # Coverage (always combine/report, even when tests failed)
         if args.coverage:
 
             # Combine the coverage files
@@ -224,6 +220,10 @@ def main(argv=None):
             # Fail under
             if args.coverage_fail_under and percent_covered < args.coverage_fail_under:
                 parser.exit(status=2)
+
+        # Unix process status is 8-bit; cap so 256+ failures don't wrap to 0
+        if not is_success:
+            parser.exit(status=min(255, len(errors) + len(failures) + unexpected_successes))
 
 
 def _convert_select_pattern(pattern):
