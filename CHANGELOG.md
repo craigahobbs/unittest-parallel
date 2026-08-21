@@ -1,5 +1,27 @@
 # Changelog
 
+## 1.8.4 (2026-08-21)
+
+- [2a37386](https://github.com/craigahobbs/unittest-parallel/commit/2a37386) - pass failfast Event to workers via Pool initializer
+
+- [1f2fd48](https://github.com/craigahobbs/unittest-parallel/commit/1f2fd48) - stop in-flight failfast suites after the current test
+
+- [ab0ae5b](https://github.com/craigahobbs/unittest-parallel/commit/ab0ae5b) - error on --runner/--result without a module
+
+- [beff570](https://github.com/craigahobbs/unittest-parallel/commit/beff570) - say workers in the run banner and -j help
+
+- [950520d](https://github.com/craigahobbs/unittest-parallel/commit/950520d) - do not reprint errors when --result is set
+
+- [5bf305d](https://github.com/craigahobbs/unittest-parallel/commit/5bf305d) - print unexpected success test names
+
+- [80b0373](https://github.com/craigahobbs/unittest-parallel/commit/80b0373) - ignore --buffer with --thread
+
+- [6838f5e](https://github.com/craigahobbs/unittest-parallel/commit/6838f5e) - use map chunksize 1 so suites are not batched
+
+- [067356e](https://github.com/craigahobbs/unittest-parallel/commit/067356e) - report coverage even when tests fail
+
+- [169ff69](https://github.com/craigahobbs/unittest-parallel/commit/169ff69) - cap failure exit status at 255
+
 ## 1.8.3 (2026-08-06)
 
 - [5807dfd](https://github.com/craigahobbs/unittest-parallel/commit/5807dfd) - migrate package metadata from setup.cfg to pyproject.toml
