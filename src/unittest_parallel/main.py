@@ -150,9 +150,14 @@ def main(argv=None):
         else:
             multiprocessing_context = multiprocessing.get_context(method='spawn')
             maxtasksperchild = 1 if args.disable_process_pooling else None
-            with multiprocessing_context.Pool(process_count, maxtasksperchild=maxtasksperchild) as pool, \
-                 multiprocessing_context.Manager() as manager:
-                test_fn = partial(_run_tests_process, temp_dir, args, manager.Event())
+            failfast_event = multiprocessing_context.Event()
+            with multiprocessing_context.Pool(
+                    process_count,
+                    initializer=_init_worker,
+                    initargs=(failfast_event,),
+                    maxtasksperchild=maxtasksperchild
+            ) as pool:
+                test_fn = partial(_run_tests_process, temp_dir, args)
                 results = pool.map(test_fn, test_suites, chunksize=1)
         stop_time = time.perf_counter()
         test_duration = stop_time - start_time
@@ -306,10 +311,18 @@ def _iter_test_cases(test_suite):
             yield from _iter_test_cases(suite)
 
 
+_WORKER_FAILFAST_EVENT = []
+
+
+def _init_worker(failfast_event):
+    _WORKER_FAILFAST_EVENT.clear()
+    _WORKER_FAILFAST_EVENT.append(failfast_event)
+
+
 # Process function to run a test_suite
-def _run_tests_process(temp_dir, args, failfast_event, test_suite):
+def _run_tests_process(temp_dir, args, test_suite):
     with _coverage(args, temp_dir):
-        return _run_tests_thread(args, failfast_event, test_suite)
+        return _run_tests_thread(args, _WORKER_FAILFAST_EVENT[0], test_suite)
 
 
 # Thread function to run a test_suite

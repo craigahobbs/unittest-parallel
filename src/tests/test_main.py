@@ -9,14 +9,17 @@ import unittest
 from unittest.mock import ANY, Mock, call, patch
 
 import unittest_parallel.__main__
-from unittest_parallel.main import ParallelTextTestResult, main
+from unittest_parallel.main import ParallelTextTestResult, _init_worker, main
 
 
 class MockMultiprocessingPool:
-    def __init__(self, count, **kwargs):
+    def __init__(self, count, initializer=None, initargs=(), **kwargs):
         self.count = count
+        self.initializer = initializer
+        self.initargs = initargs
         self.init_kwargs = kwargs
         self.map_kwargs = None
+        initializer(*initargs)
 
     def __enter__(self):
         return self
@@ -35,13 +38,13 @@ class MockMultiprocessingContext:
         self.pool = None
 
     # pylint: disable-next=invalid-name
+    def Event(self):
+        return MockMultiprocessingManagerEvent()
+
+    # pylint: disable-next=invalid-name
     def Pool(self, count, **kwargs):
         self.pool = MockMultiprocessingPool(count, **kwargs)
         return self.pool
-
-    # pylint: disable-next=invalid-name
-    def Manager(self):
-        return MockMultiprocessingManager()
 
 
 class MockMultiprocessingManagerEvent:
@@ -53,16 +56,6 @@ class MockMultiprocessingManagerEvent:
 
     def is_set(self):
         return self._value
-
-
-class MockMultiprocessingManager:
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        pass
-
-    Event = MockMultiprocessingManagerEvent
 
 
 class MockThreadPoolExecutor:
@@ -189,6 +182,8 @@ class TestMain(unittest.TestCase):
             main(['-j', '1'])
 
         cpu_count_mock.assert_not_called()
+        self.assertEqual(context.pool.initializer, _init_worker)
+        self.assertEqual(len(context.pool.initargs), 1)
         self.assertEqual(context.pool.init_kwargs, {'maxtasksperchild': None})
         self.assertEqual(context.pool.map_kwargs, {'chunksize': 1})
         self.assertEqual(stdout.getvalue(), '')
@@ -210,6 +205,7 @@ OK
              patch('unittest.TestLoader.discover', Mock(return_value=unittest.TestSuite())):
             main(['--disable-process-pooling'])
 
+        self.assertEqual(context.pool.initializer, _init_worker)
         self.assertEqual(context.pool.init_kwargs, {'maxtasksperchild': 1})
         self.assertEqual(context.pool.map_kwargs, {'chunksize': 1})
         self.assertEqual(stdout.getvalue(), '')
@@ -1675,7 +1671,9 @@ OK
 
         self.assertEqual(cm_exc.exception.code, 2)
         self.assertEqual(stdout.getvalue(), '')
-        self.assert_output(stderr.getvalue(), '''\
+        self.assert_output(
+            re.sub(r'\n +', ' ', stderr.getvalue()),
+            re.sub(r'\n +', ' ', '''\
 usage: unittest-parallel [-h] [-v] [-q] [-f] [-b] [-k TESTNAMEPATTERNS]
                          [-s START] [-p PATTERN] [-t TOP] [--runner RUNNER]
                          [--result RESULT] [-j COUNT]
@@ -1687,6 +1685,7 @@ usage: unittest-parallel [-h] [-v] [-q] [-f] [-b] [-k TESTNAMEPATTERNS]
                          [--coverage-xml FILE] [--coverage-fail-under MIN]
 unittest-parallel: error: argument --runner: expected <module>.<class>
 ''')
+        )
 
     def test_result(self):
         discover_suite = unittest.TestSuite(tests=[
@@ -1786,7 +1785,9 @@ FAILED (failures=1)
 
         self.assertEqual(cm_exc.exception.code, 2)
         self.assertEqual(stdout.getvalue(), '')
-        self.assert_output(stderr.getvalue(), '''\
+        self.assert_output(
+            re.sub(r'\n +', ' ', stderr.getvalue()),
+            re.sub(r'\n +', ' ', '''\
 usage: unittest-parallel [-h] [-v] [-q] [-f] [-b] [-k TESTNAMEPATTERNS]
                          [-s START] [-p PATTERN] [-t TOP] [--runner RUNNER]
                          [--result RESULT] [-j COUNT]
@@ -1797,4 +1798,54 @@ usage: unittest-parallel [-h] [-v] [-q] [-f] [-b] [-k TESTNAMEPATTERNS]
                          [--coverage-source SRC] [--coverage-html DIR]
                          [--coverage-xml FILE] [--coverage-fail-under MIN]
 unittest-parallel: error: argument --result: expected <module>.<class>
+''')
+        )
+
+    def test_thread_coverage(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[SuccessTestCase('mock_1')])
+            ]),
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[SuccessTestCase2('mock_1')])
+            ])
+        ])
+        with patch('coverage.Coverage') as coverage_mock, \
+             patch('sys.stdout', StringIO()) as stdout, \
+             patch('sys.stderr', StringIO()) as stderr, \
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
+            coverage_mock.return_value.report.return_value = 100.
+            main(['-v', '-j', '1', '--thread', '--coverage'])
+
+        self.assertListEqual(
+            coverage_mock.mock_calls,
+            [
+                call(branch=False, data_file=ANY, include=None, omit=[ANY], source=None),
+                call().start(),
+                call().stop(),
+                call().save(),
+                call(branch=False, data_file=ANY, include=None, omit=[ANY], source=None),
+                call().start(),
+                call().stop(),
+                call().save(),
+                call(),
+                call().combine(data_paths=[ANY, ANY]),
+                call().report(ignore_errors=True, file=ANY)
+            ]
+        )
+        self.assertEqual(stdout.getvalue(), '')
+        self.assert_output(stderr.getvalue(), '''\
+Running 2 test suites (2 total tests) across 1 workers
+
+mock_1 (tests.test_main.SuccessTestCase.mock_1) ...
+mock_1 (tests.test_main.SuccessTestCase.mock_1) ... ok
+mock_1 (tests.test_main.SuccessTestCase2.mock_1) ...
+mock_1 (tests.test_main.SuccessTestCase2.mock_1) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in <SEC>s
+
+OK
+
+Total coverage is 100.00%
 ''')
