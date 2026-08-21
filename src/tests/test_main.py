@@ -1652,7 +1652,61 @@ mock_1 (tests.test_main.SuccessTestCase.mock_1) ... ok
 Ran 1 test in <SEC>s
 
 OK
+''')
 
+    def test_result_failure(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[FailureTestCase('mock_2')])
+            ])
+        ])
+        with patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
+             patch('sys.stdout', StringIO()) as stdout, \
+             patch('sys.stderr', StringIO()) as stderr, \
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
+            with self.assertRaises(SystemExit) as cm_exc:
+                main(['-v', '--result', 'unittest.TextTestResult'])
+
+        self.assertEqual(cm_exc.exception.code, 1)
+        self.assertEqual(stdout.getvalue(), '')
+        if sys.version_info < (3, 13): # pragma: no cover
+            self.assert_output(stderr.getvalue(), '''\
+Running 1 test suites (1 total tests) across 1 processes
+
+mock_2 (tests.test_main.FailureTestCase.mock_2) ... FAIL
+
+======================================================================
+FAIL: mock_2 (tests.test_main.FailureTestCase.mock_2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<FILE>", line <LINE>, in mock_2
+    self.fail()
+AssertionError: None
+
+----------------------------------------------------------------------
+Ran 1 test in <SEC>s
+
+FAILED (failures=1)
+''')
+        else: # pragma: no cover
+            self.assert_output(stderr.getvalue(), '''\
+Running 1 test suites (1 total tests) across 1 processes
+
+mock_2 (tests.test_main.FailureTestCase.mock_2) ... FAIL
+
+======================================================================
+FAIL: mock_2 (tests.test_main.FailureTestCase.mock_2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<FILE>", line <LINE>, in mock_2
+    self.fail()
+    ~~~~~~~~~^^
+AssertionError: None
+
+----------------------------------------------------------------------
+Ran 1 test in <SEC>s
+
+FAILED (failures=1)
 ''')
 
     def test_result_unknown(self):

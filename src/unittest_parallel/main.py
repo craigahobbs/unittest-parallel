@@ -180,17 +180,18 @@ def main(argv=None):
         if unexpected_successes:
             infos.append(f'unexpected successes={len(unexpected_successes)}')
 
-        # Report test errors
-        if errors or failures or unexpected_successes:
-            print(file=sys.stderr)
-            for error in errors:
-                print(error, file=sys.stderr)
-            for failure in failures:
-                print(failure, file=sys.stderr)
-            for unexpected_success in unexpected_successes:
-                print(unexpected_success, file=sys.stderr)
-        elif args.verbose > 0:
-            print(file=sys.stderr)
+        # Report test errors (ParallelTextTestResult.printErrors is a no-op; a custom --result prints its own)
+        if not args.result:
+            if errors or failures or unexpected_successes:
+                print(file=sys.stderr)
+                for error in errors:
+                    print(error, file=sys.stderr)
+                for failure in failures:
+                    print(failure, file=sys.stderr)
+                for unexpected_success in unexpected_successes:
+                    print(unexpected_success, file=sys.stderr)
+            elif args.verbose > 0:
+                print(file=sys.stderr)
 
         # Test report
         if not args.runner and not args.result:
