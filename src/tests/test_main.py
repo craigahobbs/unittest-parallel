@@ -13,7 +13,9 @@ from unittest_parallel.main import main
 
 class MockMultiprocessingPool:
     def __init__(self, count, **kwargs):
-        pass
+        self.count = count
+        self.init_kwargs = kwargs
+        self.map_kwargs = None
 
     def __enter__(self):
         return self
@@ -21,18 +23,20 @@ class MockMultiprocessingPool:
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
 
-    @staticmethod
-    def map(func, args):
-        return [func(arg) for arg in args]
+    def map(self, func, iterable, **kwargs):
+        self.map_kwargs = kwargs
+        return [func(arg) for arg in iterable]
 
 
 class MockMultiprocessingContext:
     def __init__(self, method=None):
-        pass
+        self.method = method
+        self.pool = None
 
     # pylint: disable-next=invalid-name
     def Pool(self, count, **kwargs):
-        return MockMultiprocessingPool(count, **kwargs)
+        self.pool = MockMultiprocessingPool(count, **kwargs)
+        return self.pool
 
     # pylint: disable-next=invalid-name
     def Manager(self):
@@ -175,14 +179,17 @@ class TestMain(unittest.TestCase):
         self.assertTrue(unittest_parallel.__main__)
 
     def test_jobs(self):
+        context = MockMultiprocessingContext()
         with patch('multiprocessing.cpu_count', Mock(return_value=1)) as cpu_count_mock, \
-             patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
+             patch('multiprocessing.get_context', Mock(return_value=context)), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=unittest.TestSuite())):
             main(['-j', '1'])
 
         cpu_count_mock.assert_not_called()
+        self.assertEqual(context.pool.init_kwargs, {'maxtasksperchild': None})
+        self.assertEqual(context.pool.map_kwargs, {'chunksize': 1})
         self.assertEqual(stdout.getvalue(), '')
         self.assert_output(stderr.getvalue(), '''\
 Running 0 test suites (0 total tests) across 1 processes
@@ -194,13 +201,16 @@ OK
 ''')
 
     def test_disable_process_pooling(self):
+        context = MockMultiprocessingContext()
         with patch('multiprocessing.cpu_count', Mock(return_value=1)), \
-             patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
+             patch('multiprocessing.get_context', Mock(return_value=context)), \
              patch('sys.stdout', StringIO()) as stdout, \
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=unittest.TestSuite())):
             main(['--disable-process-pooling'])
 
+        self.assertEqual(context.pool.init_kwargs, {'maxtasksperchild': 1})
+        self.assertEqual(context.pool.map_kwargs, {'chunksize': 1})
         self.assertEqual(stdout.getvalue(), '')
         self.assert_output(stderr.getvalue(), '''\
 Running 0 test suites (0 total tests) across 1 processes

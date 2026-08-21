@@ -59,7 +59,7 @@ Flow in `main()`:
 3. Flatten the discovered suite into parallelizable sub-suites by `--level`: `_iter_module_suites` (default), `_iter_class_suites`, or `_iter_test_cases`.
 4. Cap worker count at the number of sub-suites (and at least 1).
 5. Run sub-suites:
-   - Default: `multiprocessing.get_context(method='spawn').Pool` + `Manager().Event()` for failfast. `--disable-process-pooling` sets `maxtasksperchild=1`.
+   - Default: `multiprocessing.get_context(method='spawn').Pool` + `Manager().Event()` for failfast. `pool.map` always uses `chunksize=1`. `--disable-process-pooling` sets `maxtasksperchild=1`.
    - `--thread`: `ThreadPoolExecutor` + `threading.Event()`. Coverage is managed once in the parent (`coverage.py`'s collector is one-per-process).
 6. Aggregate result tuples, print errors/failures from the parent, report, combine coverage files, optional HTML/XML/`--coverage-fail-under`.
 

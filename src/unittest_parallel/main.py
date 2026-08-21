@@ -144,7 +144,7 @@ def main(argv=None):
             with multiprocessing_context.Pool(process_count, maxtasksperchild=maxtasksperchild) as pool, \
                  multiprocessing_context.Manager() as manager:
                 test_fn = partial(_run_tests_process, temp_dir, args, manager.Event())
-                results = pool.map(test_fn, test_suites)
+                results = pool.map(test_fn, test_suites, chunksize=1)
         stop_time = time.perf_counter()
         test_duration = stop_time - start_time
 
