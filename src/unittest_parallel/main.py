@@ -157,14 +157,14 @@ def main(argv=None):
         failures = []
         skipped = 0
         expected_failures = 0
-        unexpected_successes = 0
+        unexpected_successes = []
         for result in results:
             tests_run += result[0]
             errors.extend(result[1])
             failures.extend(result[2])
             skipped += result[3]
             expected_failures += result[4]
-            unexpected_successes += result[5]
+            unexpected_successes.extend(result[5])
         is_success = not(errors or failures or unexpected_successes)
 
         # Compute test info
@@ -178,15 +178,17 @@ def main(argv=None):
         if expected_failures:
             infos.append(f'expected failures={expected_failures}')
         if unexpected_successes:
-            infos.append(f'unexpected successes={unexpected_successes}')
+            infos.append(f'unexpected successes={len(unexpected_successes)}')
 
         # Report test errors
-        if errors or failures:
+        if errors or failures or unexpected_successes:
             print(file=sys.stderr)
             for error in errors:
                 print(error, file=sys.stderr)
             for failure in failures:
                 print(failure, file=sys.stderr)
+            for unexpected_success in unexpected_successes:
+                print(unexpected_success, file=sys.stderr)
         elif args.verbose > 0:
             print(file=sys.stderr)
 
@@ -226,7 +228,7 @@ def main(argv=None):
 
         # Unix process status is 8-bit; cap so 256+ failures don't wrap to 0
         if not is_success:
-            parser.exit(status=min(255, len(errors) + len(failures) + unexpected_successes))
+            parser.exit(status=min(255, len(errors) + len(failures) + len(unexpected_successes)))
 
 
 def _convert_select_pattern(pattern):
@@ -307,7 +309,7 @@ def _run_tests_process(temp_dir, args, failfast, test_suite):
 def _run_tests_thread(args, failfast, test_suite):
     # Fail fast?
     if failfast.is_set():
-        return [0, [], [], 0, 0, 0]
+        return [0, [], [], 0, 0, []]
 
     # Run unit tests
     runner_class = unittest.TextTestRunner if not args.runner else args.runner_class
@@ -326,14 +328,14 @@ def _run_tests_thread(args, failfast, test_suite):
     if result.shouldStop:
         failfast.set()
 
-    # Return (test_count, errors, failures, skipped_count, expected_failure_count, unexpected_success_count)
+    # Return (test_count, errors, failures, skipped_count, expected_failure_count, unexpected_successes)
     return (
         result.testsRun,
         [_run_tests_error(result, error) for error in result.errors],
         [_run_tests_error(result, failure) for failure in result.failures],
         len(result.skipped),
         len(result.expectedFailures),
-        len(result.unexpectedSuccesses)
+        [_run_tests_error(result, (test, 'UNEXPECTED SUCCESS')) for test in result.unexpectedSuccesses]
     )
 
 

@@ -1045,6 +1045,10 @@ mock_2 (tests.test_main.ExpectedFailureTestCase.mock_2) ... expected failure
 mock_3 (tests.test_main.ExpectedFailureTestCase.mock_3) ...
 mock_3 (tests.test_main.ExpectedFailureTestCase.mock_3) ... unexpected success
 
+======================================================================
+mock_3 (tests.test_main.ExpectedFailureTestCase.mock_3)
+----------------------------------------------------------------------
+UNEXPECTED SUCCESS
 ----------------------------------------------------------------------
 Ran 3 tests in <SEC>s
 
