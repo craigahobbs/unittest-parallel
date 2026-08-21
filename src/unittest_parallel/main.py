@@ -194,9 +194,9 @@ def main(argv=None):
             print(file=sys.stderr)
             print(f'{"OK" if is_success else "FAILED"}{" (" + ", ".join(infos) + ")" if infos else ""}', file=sys.stderr)
 
-        # Return an error status on failure
+        # Unix process status is 8-bit; cap so 256+ failures don't wrap to 0
         if not is_success:
-            parser.exit(status=len(errors) + len(failures) + unexpected_successes)
+            parser.exit(status=min(255, len(errors) + len(failures) + unexpected_successes))
 
         # Coverage?
         if args.coverage:

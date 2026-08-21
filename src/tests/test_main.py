@@ -1067,6 +1067,24 @@ Ran 3 tests in <SEC>s
 FAILED (failures=1)
 ''')
 
+    def test_multiple_failures_exit_status(self):
+        discover_suite = unittest.TestSuite(tests=[
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[FailureTestCase('mock_2')])
+            ]),
+            unittest.TestSuite(tests=[
+                unittest.TestSuite(tests=[FailureTestCase('mock_2')])
+            ])
+        ])
+        with patch('multiprocessing.get_context', new=MockMultiprocessingContext), \
+             patch('sys.stdout', StringIO()), \
+             patch('sys.stderr', StringIO()), \
+             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
+            with self.assertRaises(SystemExit) as cm_exc:
+                main(['-q'])
+
+        self.assertEqual(cm_exc.exception.code, 2)
+
     def test_error(self):
         discover_suite = unittest.TestSuite(tests=[
             unittest.TestSuite(tests=[
