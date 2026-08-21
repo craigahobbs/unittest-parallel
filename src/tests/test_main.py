@@ -1629,6 +1629,27 @@ OK
         self.assert_output(stderr.getvalue(), '')
         self.assert_output(stdout.getvalue(), '')
 
+    def test_runner_invalid(self):
+        with patch('sys.stdout', StringIO()) as stdout, \
+             patch('sys.stderr', StringIO()) as stderr:
+            with self.assertRaises(SystemExit) as cm_exc:
+                main(['--runner', 'TextTestRunner'])
+
+        self.assertEqual(cm_exc.exception.code, 2)
+        self.assertEqual(stdout.getvalue(), '')
+        self.assert_output(stderr.getvalue(), '''\
+usage: unittest-parallel [-h] [-v] [-q] [-f] [-b] [-k TESTNAMEPATTERNS]
+                         [-s START] [-p PATTERN] [-t TOP] [--runner RUNNER]
+                         [--result RESULT] [-j COUNT]
+                         [--level {module,class,test}]
+                         [--disable-process-pooling] [--thread] [--coverage]
+                         [--coverage-branch] [--coverage-rcfile RCFILE]
+                         [--coverage-include PAT] [--coverage-omit PAT]
+                         [--coverage-source SRC] [--coverage-html DIR]
+                         [--coverage-xml FILE] [--coverage-fail-under MIN]
+unittest-parallel: error: argument --runner: expected <module>.<class>
+''')
+
     def test_result(self):
         discover_suite = unittest.TestSuite(tests=[
             unittest.TestSuite(tests=[
@@ -1718,3 +1739,24 @@ FAILED (failures=1)
             self.assertEqual(str(cm_exc.exception), "module 'unittest' has no attribute 'UnknownTestResult'")
         self.assert_output(stderr.getvalue(), '')
         self.assert_output(stdout.getvalue(), '')
+
+    def test_result_invalid(self):
+        with patch('sys.stdout', StringIO()) as stdout, \
+             patch('sys.stderr', StringIO()) as stderr:
+            with self.assertRaises(SystemExit) as cm_exc:
+                main(['--result', 'TextTestResult'])
+
+        self.assertEqual(cm_exc.exception.code, 2)
+        self.assertEqual(stdout.getvalue(), '')
+        self.assert_output(stderr.getvalue(), '''\
+usage: unittest-parallel [-h] [-v] [-q] [-f] [-b] [-k TESTNAMEPATTERNS]
+                         [-s START] [-p PATTERN] [-t TOP] [--runner RUNNER]
+                         [--result RESULT] [-j COUNT]
+                         [--level {module,class,test}]
+                         [--disable-process-pooling] [--thread] [--coverage]
+                         [--coverage-branch] [--coverage-rcfile RCFILE]
+                         [--coverage-include PAT] [--coverage-omit PAT]
+                         [--coverage-source SRC] [--coverage-html DIR]
+                         [--coverage-xml FILE] [--coverage-fail-under MIN]
+unittest-parallel: error: argument --result: expected <module>.<class>
+''')

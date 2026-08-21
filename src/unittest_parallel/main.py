@@ -94,13 +94,19 @@ def main(argv=None):
 
     # Load the custom runner class (if provided)
     if args.runner is not None:
-        runner_module_name, runner_class_name = args.runner.rsplit('.', 1)
+        try:
+            runner_module_name, runner_class_name = args.runner.rsplit('.', 1)
+        except ValueError:
+            parser.error('argument --runner: expected <module>.<class>')
         runner_module = importlib.import_module(runner_module_name)
         args.runner_class = getattr(runner_module, runner_class_name)
 
     # Load the custom result class (if provided)
     if args.result is not None:
-        result_module_name, result_class_name = args.result.rsplit('.', 1)
+        try:
+            result_module_name, result_class_name = args.result.rsplit('.', 1)
+        except ValueError:
+            parser.error('argument --result: expected <module>.<class>')
         result_module = importlib.import_module(result_module_name)
         args.result_class = getattr(result_module, result_class_name)
 
