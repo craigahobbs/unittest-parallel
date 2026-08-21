@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.8.5 (2026-08-21)
+
+- [828aef6](https://github.com/craigahobbs/unittest-parallel/commit/828aef6) - update readme
+
 ## 1.8.4 (2026-08-21)
 
 - [2a37386](https://github.com/craigahobbs/unittest-parallel/commit/2a37386) - pass failfast Event to workers via Pool initializer
