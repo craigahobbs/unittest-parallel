@@ -567,7 +567,7 @@ OK
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
             with self.assertRaises(SystemExit) as cm_exc:
-                main(['-v', '-f', '--level', 'test'])
+                main(['-v', '-f', '-j', '3', '--level', 'test'])
 
         self.assertEqual(cm_exc.exception.code, 1)
         self.assertEqual(stdout.getvalue(), '')
@@ -629,7 +629,7 @@ FAILED (failures=1)
              patch('sys.stderr', StringIO()) as stderr, \
              patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
             with self.assertRaises(SystemExit) as cm_exc:
-                main(['-v', '--thread', '-f', '--level', 'test'])
+                main(['-v', '--thread', '-f', '-j', '3', '--level', 'test'])
 
         self.assertEqual(cm_exc.exception.code, 1)
         self.assertEqual(stdout.getvalue(), '')
