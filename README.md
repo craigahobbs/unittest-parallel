@@ -1,4 +1,4 @@
- # unittest-parallel
+# unittest-parallel
 
 [![PyPI - Status](https://img.shields.io/pypi/status/unittest-parallel)](https://pypi.org/project/unittest-parallel/)
 [![PyPI](https://img.shields.io/pypi/v/unittest-parallel)](https://pypi.org/project/unittest-parallel/)
@@ -10,8 +10,14 @@ unittest-parallel is a parallel unit test runner for Python with coverage suppor
 
 ## Run Tests in Parallel
 
-To run tests in parallel with unittest-parallel, specify the directory containing your unit tests
-with the `-s` argument and your package's top-level directory using the `-t` argument:
+Install unittest-parallel from PyPI:
+
+~~~
+pip install unittest-parallel
+~~~
+
+unittest-parallel discovers tests like `python -m unittest discover`. Specify the directory
+containing your tests with `-s` and the project's top-level directory with `-t`:
 
 ~~~
 unittest-parallel -t . -s tests
@@ -22,53 +28,72 @@ By default, unittest-parallel runs tests using all CPU cores.
 
 ### Test Coverage
 
-To run tests with coverage, add either the `--coverage` option (for line coverage) or the
-`--coverage-branch` for line and branch coverage.
+To run tests with coverage, add `--coverage` (line coverage) or `--coverage-branch` (line and
+branch coverage):
 
 ~~~
 unittest-parallel -t . -s tests --coverage-branch
 ~~~
 
+Add `--coverage-html DIR` or `--coverage-xml FILE` to write a report, and
+`--coverage-fail-under MIN` to fail the run if coverage is below `MIN`. Coverage from all
+workers is combined, including import-time code executed during discovery.
+
 
 ### Parallelism Level
 
-By default, unittest-parallel runs test modules in parallel (`--level=module`). Here is the list of
-all parallelism options:
+By default, unittest-parallel runs test modules in parallel (`--level=module`), which works with
+[class and module fixtures](https://docs.python.org/3/library/unittest.html#class-and-module-fixtures).
+The parallelism options are:
 
-- `--level=module` - Run test modules in parallel (default)
+- `--level=module` - Run test modules in parallel (default). Module fixtures run once per module.
 
-- `--level=class` - Run test classes in parallel. Use this option if you have
-  [class fixtures](https://docs.python.org/3/library/unittest.html#class-and-module-fixtures).
+- `--level=class` - Run test classes in parallel. Class fixtures run once per class. Module
+  fixtures (`setUpModule`) run once per class and may run concurrently, so use `--level=module`
+  if you have module fixtures.
 
-- `--level=test` - Run individual tests in parallel. Using this option will likely fail if you have any
+- `--level=test` - Run individual tests in parallel. This will likely fail if you have any
   [class or module fixtures](https://docs.python.org/3/library/unittest.html#class-and-module-fixtures).
 
 
-### Free-Threaded Python
+### Process and Thread Pools
 
-By default, unittest-parallel uses a process pool to run tests in parallel. If you are using
-[free-threaded Python](https://docs.python.org/3/howto/free-threading-python.html), you can reduce
-test-running overhead by using the `--thread` argument to use a thread pool for parallelization.
-Note that if you use `unittest.mock` in your tests, `--thread` likely won't work since mocking
-modifies global state shared with all threads. `-b` / `--buffer` is ignored with `--thread`.
+By default, unittest-parallel uses a process pool. Worker processes are reused across test suites.
+Use `--disable-process-pooling` to run each suite in a fresh process if suites leak process-global
+state.
+
+`--thread` uses a thread pool instead of a process pool. It works on CPython with the GIL and on
+[free-threaded Python](https://docs.python.org/3/howto/free-threading-python.html), but it only
+improves performance on free-threaded Python, where threads can run CPU-bound tests on multiple
+cores without process-startup overhead.
+
+Do not use `--thread` with `unittest.mock`, since mocks patch global state shared by all threads.
+`-b` / `--buffer` is ignored with `--thread`.
+
+
+### Custom Runner and Result
+
+`--runner` and `--result` take a class as `<module>.<class>`.
+
+When `--result` is set, the result class reports errors itself; unittest-parallel does not reprint
+them. When `--runner` or `--result` is set, the combined `Ran N tests` summary is omitted (workers
+may still print their own).
 
 
 ## Speedup Potential
 
-Generally speaking, unittest-parallel will run your unit tests faster by a factor of the number of
-CPU cores you have, as compared to `unittest discover`.
+When you have many independent test modules that take longer to run than the cost of
+parallelization, unittest-parallel typically speeds up `unittest discover` by about the number of
+CPU cores. With 4 cores that is about 4 times faster; with 8 cores, about 8 times faster.
 
-In other words, if you have 4 CPU cores, unittest-parallel will run your tests 4 times faster. If
-you have 8 CPU cores, it will run 8 times faster, and so on.
-
-Note that you may see less benefit from unittest-parallel if your average test duration is short
-compared to the underlying cost of parallelization.
+If most tests are very short, you may see little speedup, or a slowdown, compared to
+`unittest discover`.
 
 
 ### I/O-Bound Tests
 
-If your tests are I/O-bound (e.g., call web services), you may benefit from using a higher number of
-test workers (`-j`). In the following case, the I/O-bound tests run 100 times faster.
+If your tests are I/O-bound (for example, they call web services), you may benefit from using more
+workers than CPU cores (`-j`):
 
 ~~~
 unittest-parallel -j 100 -t . -s tests

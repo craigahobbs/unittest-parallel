@@ -39,7 +39,7 @@ def main(argv=None):
     parser.add_argument('-f', '--failfast', action='store_true', default=False,
                         help='Stop on first fail or error')
     parser.add_argument('-b', '--buffer', action='store_true', default=False,
-                        help='Buffer stdout and stderr during tests (ignored with --thread)')
+                        help='Buffer stdout and stderr during tests')
     parser.add_argument('-k', dest='testNamePatterns', action='append', type=_convert_select_pattern,
                         help='Only run tests which match the given substring')
     parser.add_argument('-s', '--start-directory', metavar='START', default='.',
