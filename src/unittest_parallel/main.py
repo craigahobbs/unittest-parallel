@@ -84,8 +84,7 @@ def main(argv=None):
     if args.coverage_branch:
         args.coverage = True
     if args.thread and args.buffer:
-        print('warning: --buffer is ignored with --thread (unittest buffering is process-global)', file=sys.stderr)
-        args.buffer = False
+        parser.error('--buffer cannot be used with --thread (unittest buffering is process-global)')
 
     # Determine the number of test processes
     process_count = max(0, args.jobs)

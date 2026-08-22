@@ -68,7 +68,7 @@ improves performance on free-threaded Python, where threads can run CPU-bound te
 cores without process-startup overhead.
 
 Do not use `--thread` with `unittest.mock`, since mocks patch global state shared by all threads.
-`-b` / `--buffer` is ignored with `--thread`.
+`-b` / `--buffer` cannot be used with `--thread`.
 
 
 ### Custom Runner and Result

@@ -60,7 +60,7 @@ Flow in `main()`:
 4. Cap worker count at the number of sub-suites (and at least 1).
 5. Run sub-suites:
    - Default: `multiprocessing.get_context(method='spawn').Pool`. Failfast is a spawn `Event()` installed in each worker by `Pool(initializer=_init_worker, initargs=(event,))` (not a `Manager`, and not pickled on every `map` task). `pool.map` always uses `chunksize=1`. `--disable-process-pooling` sets `maxtasksperchild=1`.
-   - `--thread`: `ThreadPoolExecutor` + `threading.Event()`. Coverage is managed once in the parent (`coverage.py`'s collector is one-per-process). `-b` is ignored (unittest buffering is process-global).
+   - `--thread`: `ThreadPoolExecutor` + `threading.Event()`. Coverage is managed once in the parent (`coverage.py`'s collector is one-per-process). `-b` / `--buffer` with `--thread` is a `parser.error` (exit 2); unittest buffering is process-global.
 6. Aggregate result tuples, print errors/failures from the parent, report, combine coverage files, optional HTML/XML/`--coverage-fail-under`.
 
 Worker entry points: `_run_tests_process` (process pool; wraps `_coverage` then `_run_tests_thread`) and `_run_tests_thread` (actual `unittest` run).

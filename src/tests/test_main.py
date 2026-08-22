@@ -312,42 +312,29 @@ Ran 5 tests in <SEC>s
 OK
 ''')
 
-    def test_success_thread_buffer(self):
-        discover_suite = unittest.TestSuite(tests=[
-            unittest.TestSuite(tests=[
-                unittest.TestSuite(tests=[
-                    SuccessWithOutputTestCase('mock_1'),
-                    SuccessWithOutputTestCase('mock_2'),
-                    SuccessWithOutputTestCase('mock_3')
-                ])
-            ])
-        ])
-        with patch('unittest_parallel.main.ThreadPoolExecutor', new=MockThreadPoolExecutor), \
-             patch('sys.stdout', StringIO()) as stdout, \
-             patch('sys.stderr', StringIO()) as stderr, \
-             patch('unittest.TestLoader.discover', Mock(return_value=discover_suite)):
-            main(['-v', '--thread', '-b'])
+    def test_thread_buffer_error(self):
+        with patch('sys.stdout', StringIO()) as stdout, \
+             patch('sys.stderr', StringIO()) as stderr:
+            with self.assertRaises(SystemExit) as cm_exc:
+                main(['--thread', '-b'])
 
-        self.assertEqual(stdout.getvalue(), '''\
-Hello stdout!
+        self.assertEqual(cm_exc.exception.code, 2)
+        self.assertEqual(stdout.getvalue(), '')
+        self.assert_output(
+            re.sub(r'\n +', ' ', stderr.getvalue()),
+            re.sub(r'\n +', ' ', '''\
+usage: unittest-parallel [-h] [-v] [-q] [-f] [-b] [-k TESTNAMEPATTERNS]
+                         [-s START] [-p PATTERN] [-t TOP] [--runner RUNNER]
+                         [--result RESULT] [-j COUNT]
+                         [--level {module,class,test}]
+                         [--disable-process-pooling] [--thread] [--coverage]
+                         [--coverage-branch] [--coverage-rcfile RCFILE]
+                         [--coverage-include PAT] [--coverage-omit PAT]
+                         [--coverage-source SRC] [--coverage-html DIR]
+                         [--coverage-xml FILE] [--coverage-fail-under MIN]
+unittest-parallel: error: --buffer cannot be used with --thread (unittest buffering is process-global)
 ''')
-        self.assert_output(stderr.getvalue(), '''\
-warning: --buffer is ignored with --thread (unittest buffering is process-global)
-Running 1 test suites (3 total tests) across 1 workers
-
-mock_1 (tests.test_main.SuccessWithOutputTestCase.mock_1) ...
-mock_1 (tests.test_main.SuccessWithOutputTestCase.mock_1) ... ok
-mock_2 (tests.test_main.SuccessWithOutputTestCase.mock_2) ...
-mock_2 (tests.test_main.SuccessWithOutputTestCase.mock_2) ... ok
-mock_3 (tests.test_main.SuccessWithOutputTestCase.mock_3) ...
-Hello stderr!
-mock_3 (tests.test_main.SuccessWithOutputTestCase.mock_3) ... ok
-
-----------------------------------------------------------------------
-Ran 3 tests in <SEC>s
-
-OK
-''')
+        )
 
     def test_success_max_suites(self):
         discover_suite = unittest.TestSuite(tests=[
