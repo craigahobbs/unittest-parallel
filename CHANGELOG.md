@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.8.6 (2026-08-22)
+
+- [3d15e02](https://github.com/craigahobbs/unittest-parallel/commit/3d15e02) - error on --buffer with --thread
+
 ## 1.8.5 (2026-08-21)
 
 - [828aef6](https://github.com/craigahobbs/unittest-parallel/commit/828aef6) - update readme
