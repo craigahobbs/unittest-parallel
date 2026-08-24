@@ -8,47 +8,16 @@ unittest-parallel is a parallel unit test runner for Python with coverage suppor
 
 The implementation is one module: `src/unittest_parallel/main.py`. Tests are `src/tests/test_main.py`. Runtime dependency: `coverage >= 5.1`. Supported Python: 3.11–3.15.
 
-## Build system
+## python-build
 
-Development uses [python-build](https://github.com/craigahobbs/python-build#readme). Drive all normal work through `make` — do not invent ad-hoc venv or tool invocations.
+This is a [python-build](https://github.com/craigahobbs/python-build#readme) package. Read the python-build skill before running tests, lint, coverage, or changing the Makefile: [`../python-build/SKILL.md`](../python-build/SKILL.md) if that file exists, otherwise [https://raw.githubusercontent.com/craigahobbs/python-build/main/SKILL.md](https://raw.githubusercontent.com/craigahobbs/python-build/main/SKILL.md).
 
-The thin `Makefile` downloads (or copies from `../python-build` via `PYTHON_BUILD_DIR`) `Makefile.base` and `pylintrc` on first run. Those files are gitignored; `make clean` deletes them. Do not commit or hand-edit them. Virtualenvs live under `build/venv/`. Cold `make` is by design (network on first run unless the sibling python-build tree is present).
+Local Makefile overrides:
 
-This repo has no Sphinx docs (`SPHINX_DOC` is unset), so `make doc` is a no-op. `make commit` still depends on it.
+- `PYLINT_ARGS` — missing docstring checks disabled
+- no `SPHINX_DOC` — `make doc` is a no-op
 
-### Day-to-day targets
-
-| Target | When to use |
-|--------|-------------|
-| `make test` | After code/test changes |
-| `make lint` | pylint on `src/` (docstring warnings disabled in this Makefile) |
-| `make cover` | Before finishing; **100% branch coverage, fail-under 100** |
-| **`make commit`** | **Before every commit** (`test` + `lint` + `doc` + `cover`) |
-| `make clean` | Drop `build/`, downloaded `Makefile.base`/`pylintrc` |
-| `make superclean` | `clean` plus container images (when using Docker/Podman) |
-
-Never lower the coverage gate, skip `cover`, or leave untested branches. If coverage fails, add tests or remove dead code. `# pragma: no cover` is only for version/platform-dependent branches (argparse `color` on 3.14+, skipped-test bodies, and the `sys.version_info` golden-output arms — see Conventions).
-
-Run a subset (also works with `make cover`):
-
-```sh
-make test TEST=tests.test_main.TestMain.test_success
-make test TEST=tests.test_main
-```
-
-`TEST=` is a `unittest` module/class/method id passed to `python -m unittest` (the editable install puts `src/` on `sys.path`). Default `make test` / `make cover` (no `TEST`) uses `unittest discover -t src/ -s src/tests/`. Do not use discover-relative ids such as `test_main.TestMain.test_success`.
-
-Default `make` uses the system Python. Multi-version:
-
-```sh
-make commit USE_DOCKER=1    # or USE_PODMAN=1
-```
-
-### Explicit user request only
-
-Do **not** run these unless the user asks: `make changelog` (rewrites `CHANGELOG.md`), `make publish` (PyPI; runs `commit` first), `make gh-pages`. Confirm before publish.
-
-Version lives in `pyproject.toml`. Changelog is generated from git history via `simple-git-changelog`.
+`# pragma: no cover` is only for version/platform-dependent branches (argparse `color` on 3.14+, skipped-test bodies, and the `sys.version_info` golden-output arms — see Conventions).
 
 ## Architecture
 
@@ -81,5 +50,5 @@ CLI flags and user-facing behavior are documented in `README.md`; keep that usag
 - 4-space indent, max line length **140**, single quotes.
 - MIT license header plus GitHub license URL at the top of every source file (`src/unittest_parallel/__main__.py` has a module docstring; this Makefile disables pylint missing-docstring checks).
 - `unittest` tests. Golden stderr is compared via `TestMain.assert_output`, which normalizes timing (`<SEC>s`) and `File "...", line N`. It only strips pure-caret lines (`^`); it does **not** strip 3.13+ traceback emphasis (`~~~~~~~~~^^`). Description strings use the 3.11+ form (`FailureTestCase.mock_2`). When a golden includes an assertion traceback, split on `sys.version_info < (3, 13)` (`# pragma: no cover` on each arm) for the caret line. Do not add `< (3, 11)` arms.
-- No new runtime dependencies without a strong reason. Do not add a Sphinx doc tree unless asked.
+- No new runtime dependencies without a strong reason.
 - Prefer small, local edits in `main.py`. Do not reintroduce `ProcessPoolExecutor`. Failfast uses `Pool(initializer=_init_worker)` because a raw spawn `Event` cannot be a `map` argument.
