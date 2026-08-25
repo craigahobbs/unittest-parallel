@@ -6,7 +6,7 @@ Guidance for AI assistants working in this repository.
 
 unittest-parallel is a parallel unit test runner for Python with coverage support, published to PyPI as `unittest-parallel`. Console entry point: `unittest_parallel.main:main`.
 
-The implementation is one module: `src/unittest_parallel/main.py`. Tests are `src/tests/test_main.py`. Runtime dependency: `coverage >= 5.1`. Supported Python: 3.11–3.15.
+The implementation is one module: `src/unittest_parallel/main.py`. Tests are `src/tests/test_main.py`.
 
 ## python-build
 
